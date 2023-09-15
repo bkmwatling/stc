@@ -1,12 +1,11 @@
 ##
-# Vector library
+# Data structures and algorithms in C
 #
 # @author Brendan Watling
-# @file main.c
 # @version 0.1
 
 # compiler flags
-DEBUG    := -ggdb
+DEBUG    := -ggdb -gdwarf-4
 OPTIMISE := -O2
 WARNINGS := -Wall -Wextra -Wno-variadic-macros -Wno-overlength-strings -pedantic
 CFLAGS   := $(DEBUG) $(OPTIMISE) $(WARNINGS)

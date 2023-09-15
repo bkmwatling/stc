@@ -3,53 +3,69 @@
 
 #include "vec.h"
 
-Vec vec_new(size_t size, size_t cap)
+#define max(a, b) ((a) < (b) ? (b) : (a))
+
+void *_vec_resize(void *vec, size_t size, size_t cap)
 {
-    return (Vec){ malloc(cap * size * sizeof(char)), size, 0, cap };
+    void *w;
+
+    w = realloc((vec) ? vec_header(vec) : NULL, size * cap + sizeof(VecHeader));
+    w = (char *) w + sizeof(VecHeader);
+    if (vec == NULL) { vec_header(w)->len = 0; }
+    vec_header(w)->cap = cap;
+
+    return w;
 }
 
-Vec vec_default(size_t size) { return vec_new(size, VEC_DEFAULT_CAP); }
-
-Vec vec_clone(Vec vec)
+void *_vec_clone(const void *vec, size_t size)
 {
-    Vec clone = vec_new(vec.size, vec.len);
-    _vec_extend(&clone, vec.data, vec.len);
+    VecHeader *v;
+    void      *clone;
+
+    if (vec == NULL) { return NULL; }
+
+    v     = vec_header(vec);
+    clone = vec_new(size, v->len);
+    memcpy(clone, vec, size * v->len);
+    vec_header(clone)->len = v->len;
+
     return clone;
 }
 
-int _vec_append(Vec *vec, const void *item)
+void *_vec_extend(void *vec, const void *slice, size_t size, size_t len)
 {
-    return _vec_extend(vec, item, 1);
+    if (len == 0) { return vec; }
+    vec = _vec_reserve(vec, size, len);
+
+    if (vec == NULL) { return NULL; }
+
+    memcpy((char *) vec + size * vec_len(vec), slice, size * len);
+    vec_header(vec)->len += len;
+
+    return vec;
 }
 
-int _vec_extend(Vec *vec, const void *slice, size_t len)
+void *_vec_reserve_exact(void *vec, size_t size, size_t n)
 {
-    if (len == 0) { return 1; }
-    vec_reserve(vec, len);
-    memcpy((char *) vec->data + vec->len * vec->size, slice, len * vec->size);
-    vec->len += len;
-    return 1;
+    size_t len = vec_len(vec) + n, cap = vec_cap(vec);
+
+    return len > cap ? _vec_resize(vec, size, len) : vec;
 }
 
-void vec_reserve_exact(Vec *vec, size_t n)
+void *_vec_reserve(void *vec, size_t size, size_t n)
 {
-    if (vec->len + n > vec->cap) {
-        vec->cap  = vec->len + n;
-        vec->data = realloc(vec->data, vec->cap * vec->size);
-    }
+    size_t len = vec_len(vec) + n, cap = vec ? vec_cap(vec) : 1;
+
+    /* determine new cap by doubling it until enough space is reserved */
+    while (len > cap) { cap <<= 1; }
+
+    /* reserve exact amount of space such that vec->cap becomes cap */
+    return _vec_reserve_exact(vec, size, cap - vec_len(vec));
 }
 
-void vec_reserve(Vec *vec, size_t n)
+void *_vec_shrink(void *vec, size_t size, size_t cap)
 {
-    size_t len = vec->len + n, cap = vec->cap;
-
-    if (len > cap) {
-        /* determine new cap by doubling it until enough space is reserved */
-        do {
-            cap <<= 1;
-        } while (len > cap);
-
-        /* reserve exact amount of space such that vec->cap becomes cap */
-        vec_reserve_exact(vec, cap - vec->len);
-    }
+    return vec == NULL || cap < vec_cap(vec) && vec_len(vec) < vec_cap(vec)
+               ? _vec_resize(vec, size, max(cap, vec_len(vec)))
+               : vec;
 }

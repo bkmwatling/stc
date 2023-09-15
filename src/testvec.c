@@ -7,28 +7,28 @@ int main(int argc, char *argv[])
 {
     int    i;
     size_t j;
-    Vec    v     = vec_default(sizeof(char *)), w;
+    char **v     = vec_default(sizeof(char *)), **w;
     char   vsa[] = "hellov", wsa[] = "whello";
     char  *vs = vsa, *ws = wsa;
 
-    for (i = 1; i < argc; i++) { vec_append(&v, argv[i]); }
+    for (i = 1; i < argc; i++) { vec_push(v, argv[i]); }
     w = vec_clone(v);
 
     printf("v:");
-    for (j = 0; j < v.len; j++) { printf(" %s", VEC_AT(v, j, char *)); }
+    for (j = 0; j < vec_len(v); j++) { printf(" %s", v[j]); }
 
     printf("\nw:");
-    for (j = 0; j < w.len; j++) { printf(" %s", VEC_AT(w, j, char *)); }
+    for (j = 0; j < vec_len(w); j++) { printf(" %s", w[j]); }
     printf("\nstuff\n");
 
-    vec_append_literal(&v, vsa, char *);
-    vec_append_literal(&w, wsa, char *);
+    vec_push(v, vsa);
+    vec_push(w, wsa);
 
     printf("v:");
-    for (j = 0; j < v.len; j++) { printf(" %s", VEC_AT(v, j, char *)); }
+    for (j = 0; j < vec_len(v); j++) { printf(" %s", v[j]); }
 
     printf("\nw:");
-    for (j = 0; j < w.len; j++) { printf(" %s", VEC_AT(w, j, char *)); }
+    for (j = 0; j < vec_len(w); j++) { printf(" %s", w[j]); }
     printf("\n");
 
     vec_free(v);

@@ -2,90 +2,90 @@
 #define VEC_H
 
 #include <stddef.h>
+#include <string.h>
+
+typedef struct {
+    size_t len;
+    size_t cap;
+} VecHeader;
 
 #define VEC_DEFAULT_CAP 4
 
-#define VEC_AT_PTR(vec, idx, type) (((type *) (vec).data) + (idx))
-#define VEC_AT(vec, idx, type)     (*VEC_AT_PTR(vec, idx, type))
+#define vec_header(v) ((VecHeader *) (v) -1)
 
-#define vec_free(vec)         free((vec).data)
-#define vec_append(vec, item) _vec_append((vec), (const void *) &(item))
-#define vec_append_literal(vec, item, type) \
-    vec_reserve((vec), 1);                  \
-    VEC_AT(*(vec), (vec)->len++, type) = (item)
-#define vec_extend(vec, slice, len) \
-    _vec_extend((vec), (const void *) (slice), (len))
+#define vec_new(size, cap)  _vec_reserve_exact(NULL, (size), (cap))
+#define vec_init(v, cap)    vec_reserve_exact(v, cap)
+#define vec_default(size)   vec_new(size, VEC_DEFAULT_CAP)
+#define vec_default_init(v) vec_init(v, VEC_DEFAULT_CAP)
+#define vec_clone(v)        _vec_clone((v), sizeof(*(v)))
+#define vec_free(v)         ((v) ? free(vec_header(v)) : (void) 0)
 
-typedef struct vec {
-    void  *data; /* underlying data memory */
-    size_t size; /* size of each element */
-    size_t len;  /* number of elements (length) allocated */
-    size_t cap;  /* total capacity of underlying memory */
-} Vec;
-
-/**
- * Creates a new Vec with elements size of size and capacity of cap.
- *
- * @param[in] size the size of each element in the Vec
- * @param[in] cap the initial capacity of the Vec
- *
- * @return a Vec with element size of size and capacity of cap
- */
-Vec vec_new(size_t size, size_t cap);
-
-/**
- * Creates a new Vec with elements size of size and default capacity.
- *
- * @param[in] size the size of each element in the Vec
- *
- * @return a Vec with element size of size and default capacity
- */
-Vec vec_default(size_t size);
+#define vec_len(v)          ((v) ? vec_header(v)->len : 0)
+#define vec_cap(v)          ((v) ? vec_header(v)->cap : 0)
+#define vec_is_empty(v)     (vec_len(v) == 0)
+#define vec_clear(v)        ((v) ? vec_header(v)->len = 0 : (void) 0)
+#define vec_push(v, x)      (vec_reserve(v, 1), (v)[vec_header(v)->len++] = (x))
+#define vec_pop(v)          ((v) ? (v)[--(vec_header(v)->len)] : (void) 0)
+#define vec_insert(v, i, x) (vec_reserve_index(v, i, 1), (v)[(i)] = (x))
+#define vec_remove(v, i)                                    \
+    ((v) ? (memmove((v) + (i), (v) + (i) + 1,               \
+                    sizeof(*(v)) * (vec_len(v) - 1 - (i))), \
+            vec_header(v)->len--)                           \
+         : (void) 0)
+#define vec_extend(v, slice, len)              \
+    (assert(sizeof(*(v)) == sizeof(*(slice))), \
+     (v) = _vec_extend((v), (slice), sizeof(*(slice)), (len)))
+#define vec_reserve_exact(v, n) \
+    ((v) = _vec_reserve_exact((v), sizeof(*(v)), (n)))
+#define vec_reserve(v, n) ((v) = _vec_reserve((v), sizeof(*(v)), (n)))
+#define vec_reserve_index(v, i, n)                          \
+    (vec_reserve(v, n), memmove((v) + (i) + (n), (v) + (i), \
+                                sizeof(*(v)) * (vec_len(v) - (n) - (i))))
+#define vec_shrink(v, cap)   ((v) = _vec_shrink((v), sizeof(*(v)), (cap))
+#define vec_shrink_to_fit(v) vec_shrink(v, vec_len(v))
 
 /**
- * Clones (creates a copy) a Vec.
+ * Clones (creates a copy of) a vector.
  *
- * @param[in] vec the Vec to clone
+ * @param[in] vec the vector to clone
+ * @param[in] size the size of each element
  *
- * @return a clone of a Vec, creating a copy of the underlying memory
+ * @return a clone of a vector
  */
-Vec vec_clone(Vec vec);
-
-/**
- * Appends value pointed to by item to the end of the Vec.
- *
- * @param[in] vec pointer to the Vec to append to
- * @param[in] item memory address of value to append
- *
- * @return non-zero if the append operation was successful; else 0
- */
-int _vec_append(Vec *vec, const void *item);
+void *_vec_clone(const void *vec, size_t size);
 
 /**
  * Extends the vector by with the values from the slice.
  *
- * @param[in] vec pointer to the Vec to extend
+ * @param[in] vec pointer to the vector to extend
  * @param[in] slice the memory address of the slice to extend from
+ * @param[in] size the size of each element
  * @param[in] len the length of the slice
  *
- * @return non-zero if the extend operation was successful; else 0
+ * @return pointer to the vector after extended with slice
  */
-int _vec_extend(Vec *vec, const void *slice, size_t len);
+void *_vec_extend(void *vec, const void *slice, size_t size, size_t len);
 
 /**
- * Reserves exactly enough space in Vec for n more elements.
+ * Reserves exactly enough space in the vector for n more elements.
  *
- * @param[in] vec pointer to the Vec to reserve space for
+ * @param[in] vec pointer to the vector to reserve space for
+ * @param[in] size the size of each element
  * @param[in] n the number of elements to ensure space for
+ *
+ * @return pointer to the vector after reserving the space
  */
-void vec_reserve_exact(Vec *vec, size_t n);
+void *_vec_reserve_exact(void *vec, size_t size, size_t n);
 
 /**
- * Reserves enough space in Vec for at least n more elements.
+ * Reserves enough space in the vector for at least n more elements.
  *
- * @param[in] vec pointer to the Vec to reserve space for
+ * @param[in] vec pointer to the vector to reserve space for
+ * @param[in] size the size of each element
  * @param[in] n the number of elements to ensure space for
+ *
+ * @return pointer to the vector after reserving the space
  */
-void vec_reserve(Vec *vec, size_t n);
+void *_vec_reserve(void *vec, size_t size, size_t n);
 
 #endif /* VEC_H */
