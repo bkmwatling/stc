@@ -19,11 +19,11 @@ COMPILE  := $(CC) $(CFLAGS) $(DFLAGS)
 # directories
 SRCDIR   := src
 BINDIR   := bin
-VECDIR   := vec
+FATPDIR   := fatp
 
 # files
 VEC_EXE  := testvec
-VEC_OBJS := $(patsubst %.c, %.o, $(wildcard $(VECDIR)/*.c))
+VEC_OBJS := $(FATPDIR)/vec.o
 
 EXES     := $(VEC_EXE)
 OBJS     := $(VEC_OBJS)

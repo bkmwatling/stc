@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../vec/vec.h"
+#define STC_VEC_USE_SHORT_NAMES
+#include "../fatp/vec.h"
 
 int main(int argc, char *argv[])
 {
