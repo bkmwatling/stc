@@ -5,19 +5,6 @@
 
 /*** Enable short names for macros and functions ******************************/
 
-/* Set all short names macros if STC_USE_SHORT_NAMES is set */
-#ifdef STC_USE_SHORT_NAMES
-#    ifndef STC_COMMON_USE_SHORT_NAMES
-#        define STC_COMMON_USE_SHORT_NAMES
-#    endif
-#    ifndef STC_SLICE_USE_SHORT_NAMES
-#        define STC_SLICE_USE_SHORT_NAMES
-#    endif
-#    ifndef STC_VEC_USE_SHORT_NAMES
-#        define STC_VEC_USE_SHORT_NAMES
-#    endif
-#endif /* STC_USE_SHORT_NAMES */
-
 #ifdef STC_COMMON_USE_SHORT_NAMES
 #    ifndef STC_DISABLE_ASSERT
 #        define assert stc_assert
@@ -37,17 +24,6 @@
 #    define GLOBAL        STC_GLOBAL
 #    define LOCAL         STC_LOCAL
 #    define FUNC          STC_FUNC
-#    ifndef STC_DISABLE_MEMORY_OPS
-#        define memzero        stc_memzero
-#        define MEMZERO_STRUCT STC_MEMZERO_STRUCT
-#        define MEMZERO_ARRAY  STC_MEMZERO_ARRAY
-#        define MEMZERO_TYPED  STC_MEMZERO_TYPED
-
-#        define memeq         stc_memeq
-#        define MEMCPY_STRUCT STC_MEMCPY_STRUCT
-#        define MEMCPY_ARRAY  STC_MEMCPY_ARRAY
-#        define MEMCPY_TYPED  STC_MEMCPY_TYPED
-#    endif
 #endif /* STC_COMMON_USE_SHORT_NAMES */
 
 /*** Compiler and OS detection ************************************************/
@@ -135,7 +111,7 @@
 
 #ifndef STC_DISABLE_STDIO
 #    include <stdio.h>
-#    define STC_PRINTF(...)  printf(__VA_ARGS__)
+#    define STC_PRINTF       printf
 #    define STC_EPRINTF(...) fprintf(stderr, __VA_ARGS__)
 #else
 #    define STC_PRINTF(...)
@@ -168,7 +144,7 @@
 
 #define STC_UNUSED(x) ((void) (x))
 #define STC_UNIMPLEMENTED(msg) \
-    STC_PRINTF(msg "\n");      \
+    STC_EPRINTF(msg "\n");     \
     exit(1)
 
 #define STC_ARRAY_COUNT(a) (sizeof(a) / sizeof(*(a)))
@@ -185,25 +161,12 @@
 #define STC_CLAMP_TOP(x, y) STC_MIN(x, y)
 #define STC_CLAMP_BOT(x, y) STC_MAX(x, y)
 
+#define STC_ALIGN_UP_POW2(x, pow2)   (((x) + (pow2) -1) & ~((pow2) -1))
+#define STC_ALIGN_DOWN_POW2(x, pow2) ((x) & ~((pow2) -1))
+
 #define STC_GLOBAL static
 #define STC_LOCAL  static
 #define STC_FUNC   static
-
-#ifndef STC_DISABLE_MEMORY_OPS
-#    include <string.h>
-#    define stc_memzero(p, size)      memset((p), 0, (size))
-#    define STC_MEMZERO_STRUCT(p)     stc_memzero((p), sizeof(*(p)))
-#    define STC_MEMZERO_ARRAY(p)      stc_memzero((p), sizeof(p))
-#    define STC_MEMZERO_TYPED(p, len) stc_memzero((p), sizeof(*(p)) * (len))
-
-#    define stc_memeq(x, y, size) (memcmp((x), (y), (size)) == 0)
-#    define STC_MEMCPY_STRUCT(p, q) \
-        memcpy((p), (q), STC_MIN(sizeof(*(p)), sizeof(*(q))))
-#    define STC_MEMCPY_ARRAY(p, q) \
-        memcpy((p), (q), STC_MIN(sizeof(p), sizeof(q)))
-#    define STC_MEMCPY_TYPED(p, q, size) \
-        memcpy((p), (q), STC_MIN(sizeof(*(p)), sizeof(*(q))) * (size))
-#endif /* STC_DISABLE_MEMORY_OPS */
 
 /*** Basic types **************************************************************/
 

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "memory.h"
 #include "vec.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
