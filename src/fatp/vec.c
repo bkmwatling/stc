@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "memory.h"
 #include "vec.h"
 
 /* TODO: encorporate stc_mem for realloc */
