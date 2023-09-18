@@ -18,12 +18,12 @@ COMPILE  := $(CC) $(CFLAGS) $(DFLAGS)
 
 # directories
 SRCDIR   := src
+TESTDIR  := tests
 BINDIR   := bin
-FATPDIR   := fatp
 
 # files
 VEC_EXE  := testvec
-VEC_OBJS := $(FATPDIR)/vec.o
+VEC_OBJS := $(SRCDIR)/fatp/vec.o
 
 EXES     := $(VEC_EXE)
 OBJS     := $(VEC_OBJS)
@@ -32,7 +32,7 @@ OBJS     := $(VEC_OBJS)
 
 # executables
 
-$(VEC_EXE): $(SRCDIR)/$(VEC_EXE).c $(VEC_OBJS) | $(BINDIR)
+$(VEC_EXE): $(TESTDIR)/$(VEC_EXE).c $(VEC_OBJS) | $(BINDIR)
 	$(COMPILE) -o $(BINDIR)/$@ $^
 
 # units
