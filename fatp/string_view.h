@@ -1,6 +1,7 @@
 #ifndef STC_STRING_VIEW_H
 #define STC_STRING_VIEW_H
 
+#include <stdarg.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -69,7 +70,39 @@ typedef struct {
  */
 StcStringView stc_sv_from_parts(STC_SV_CONST char *str, size_t len);
 
-/* TODO: implement stc_sv_from_fmt and stc_sv_from_fmtv */
+/**
+ * Creates a string view (containing its own string) from the format specifier
+ * and variable argument list.
+ *
+ * note: this function and stc_sv_from_fmt are the only functions that create a
+ * string view containing its own memory allocated string, and thus a matching
+ * call to stc_sv_free should be called on the returned string view during
+ * cleanup.
+ *
+ * @param[in] fmt the format specifier
+ * @param[in] ap the variable argument list to parse with the format specifier
+ *
+ * @return a string view constructed from the format specifier and variable
+ *         argument list
+ */
+StcStringView stc_sv_from_fmtv(const char *fmt, va_list ap);
+
+/**
+ * Creates a string view (containing its own string) from the format specifier
+ * and variable arguments.
+ *
+ * note: this function and stc_sv_from_fmtv are the only functions that create a
+ * string view containing its own memory allocated string, and thus a matching
+ * call to stc_sv_free should be called on the returned string view during
+ * cleanup.
+ *
+ * @param[in] fmt the format specifier
+ * @param[in] ... the variable arguments to parse with the format specifier
+ *
+ * @return a string view constructed from the format specifier and variable
+ *         arguments
+ */
+StcStringView stc_sv_from_fmt(const char *fmt, ...);
 
 /**
  * Frees the memory of the string pointed to by the string view. This function
