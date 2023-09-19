@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#ifdef STC_VEC_USE_SHORT_NAMES
+#ifdef STC_VEC_ENABLE_SHORT_NAMES
 #    define VEC_DEFAULT_CAP   STC_VEC_DEFAULT_CAP
 #    define vec_header        stc_vec_header
 #    define vec_new           stc_vec_new
@@ -33,7 +33,7 @@
 #    define vec_reserve_index stc_vec_reserve_index
 #    define vec_shrink        stc_vec_shrink
 #    define vec_shrink_to_fit stc_vec_shrink_to_fit
-#endif /* STC_VEC_USE_SHORT_NAMES */
+#endif /* STC_VEC_ENABLE_SHORT_NAMES */
 
 typedef struct {
     size_t len;

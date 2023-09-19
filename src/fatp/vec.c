@@ -1,11 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "memory.h"
 #include "vec.h"
 
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
+/* TODO: encorporate stc_mem for realloc */
 void *_stc_vec_resize(void *vec, size_t size, size_t cap)
 {
     void *w;
@@ -66,8 +64,11 @@ void *_stc_vec_reserve(void *vec, size_t size, size_t n)
 
 void *_stc_vec_shrink(void *vec, size_t size, size_t cap)
 {
-    return vec == NULL || (cap < stc_vec_cap_unsafe(vec) &&
-                           stc_vec_len_unsafe(vec) < stc_vec_cap_unsafe(vec))
-               ? _stc_vec_resize(vec, size, MAX(cap, stc_vec_len(vec)))
-               : vec;
+    if (vec == NULL || (cap < stc_vec_cap_unsafe(vec) &&
+                        stc_vec_len_unsafe(vec) < stc_vec_cap_unsafe(vec))) {
+        if (cap < stc_vec_len(vec)) cap = stc_vec_len_unsafe(vec);
+        vec = _stc_vec_resize(vec, size, cap);
+    }
+
+    return vec;
 }

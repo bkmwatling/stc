@@ -18,7 +18,7 @@ COMPILE  := $(CC) $(CFLAGS) $(DFLAGS)
 
 # directories
 SRCDIR   := src
-TESTDIR  := tests
+TESTDIR  := test
 BINDIR   := bin
 
 # files

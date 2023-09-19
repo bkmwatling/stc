@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define STC_VEC_USE_SHORT_NAMES
+#define STC_VEC_ENABLE_SHORT_NAMES
 #include "../src/fatp/vec.h"
 
 int main(int argc, char *argv[])
@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
     size_t j;
     char **v     = vec_default(sizeof(char *)), **w;
     char   vsa[] = "hellov", wsa[] = "whello";
-    char  *vs = vsa, *ws = wsa;
 
     for (i = 1; i < argc; i++) { vec_push(v, argv[i]); }
     w = vec_clone(v);

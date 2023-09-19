@@ -5,7 +5,7 @@
 
 /*** Enable short names for macros and functions ******************************/
 
-#ifdef STC_COMMON_USE_SHORT_NAMES
+#ifdef STC_COMMON_ENABLE_SHORT_NAMES
 #    ifndef STC_DISABLE_ASSERT
 #        define assert stc_assert
 #    endif
@@ -24,7 +24,7 @@
 #    define GLOBAL        STC_GLOBAL
 #    define LOCAL         STC_LOCAL
 #    define FUNC          STC_FUNC
-#endif /* STC_COMMON_USE_SHORT_NAMES */
+#endif /* STC_COMMON_ENABLE_SHORT_NAMES */
 
 /*** Compiler and OS detection ************************************************/
 
@@ -137,6 +137,7 @@
         STC_STMNTS(if (!(cond)) { STC_ASSERT_BREAK(cond); })
 #endif /* STC_USE_STD_ASSERT */
 
+/* NOTE: Macro indirection recommended due to #s */
 #define __STC_STRINGIFY(s) #s
 #define STC_STRINGIFY(s)   __STC_STRINGIFY(s)
 #define __STC_GLUE(a, b)   a##b
