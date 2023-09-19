@@ -1,9 +1,9 @@
-#ifndef STC_FLOAT_H
-#define STC_FLOAT_H
+#ifndef STC_MATH_H
+#define STC_MATH_H
 
 /* NOTE: this unit only works when basic types are enabled */
 #ifndef STC_DISABLE_BASIC_TYPES
-#    include "../common.h"
+#    include "common.h"
 
 #    define F32_PI                 3.14159265359f
 #    define F32_TAU                6.28318530718f
@@ -38,4 +38,4 @@ f64 f64_tan(f64 x);
 f64 f64_log(f64 x);
 
 #endif /* STC_DISABLE_BASIC_TYPES */
-#endif /* STC_FLOAT_H */
+#endif /* STC_MATH_H */

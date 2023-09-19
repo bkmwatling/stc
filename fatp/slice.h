@@ -3,13 +3,13 @@
 
 #include <stddef.h>
 
-#ifdef STC_SLICE_USE_SHORT_NAMES
+#ifdef STC_SLICE_ENABLE_SHORT_NAMES
 #    define slice_header     stc_slice_header
 #    define slice_new        stc_slice_new
 #    define slice_from_parts stc_slice_from_parts
 #    define slice_len        stc_slice_len
 #    define slice_len_unsafe stc_slice_len_unsafe
-#endif /* STC_SLICE_USE_SHORT_NAMES */
+#endif /* STC_SLICE_ENABLE_SHORT_NAMES */
 
 typedef struct {
     size_t len;

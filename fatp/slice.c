@@ -3,6 +3,7 @@
 
 #include "slice.h"
 
+/* TODO: encorporate stc_mem for malloc */
 void *_stc_slice_from_parts(void *p, size_t size, size_t len)
 {
     StcSliceHeader *slice;
