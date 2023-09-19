@@ -1,6 +1,11 @@
 #include "base.h"
 
-void stc_mem_modify_noop(void *ctx, void *p, u64 size) {}
+void stc_mem_modify_noop(void *ctx, void *p, u64 size)
+{
+    (void) ctx;
+    (void) p;
+    (void) size;
+}
 
 StcMemArena stc_mem_arena_new(StcMemManager *man, u64 size)
 {

@@ -2,9 +2,18 @@
 
 #include "libc.h"
 
-void *stc_mem_libc_alloc(void *ctx, u64 size) { return malloc(size); }
+void *stc_mem_libc_alloc(void *ctx, u64 size)
+{
+    (void) ctx;
+    return malloc(size);
+}
 
-void stc_mem_libc_free(void *ctx, void *p, u64 size) { free(p); }
+void stc_mem_libc_free(void *ctx, void *p, u64 size)
+{
+    (void) ctx;
+    (void) size;
+    free(p);
+}
 
 StcMemManager *stc_mem_libc_mem_manager(void)
 {

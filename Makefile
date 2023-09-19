@@ -5,28 +5,38 @@
 # @version 0.1
 
 # compiler flags
-DEBUG    := -ggdb -gdwarf-4
-OPTIMISE := -O2
-WARNINGS := -Wall -Wextra -Wno-variadic-macros -Wno-overlength-strings -pedantic
-CFLAGS   := $(DEBUG) $(OPTIMISE) $(WARNINGS)
-DFLAGS   := # -DDEBUG
+DEBUG        := -ggdb -gdwarf-4
+OPTIMISE     := -O2
+WARNINGS     := -Wall -Wextra -Wno-variadic-macros -Wno-overlength-strings \
+				-pedantic
+CFLAGS       := $(DEBUG) $(OPTIMISE) $(WARNINGS)
+DFLAGS       := # -DDEBUG
 
 # commands
-CC       := clang
-RM       := rm -f
-COMPILE  := $(CC) $(CFLAGS) $(DFLAGS)
+CC           := clang
+RM           := rm -f
+COMPILE      := $(CC) $(CFLAGS) $(DFLAGS)
 
 # directories
-SRCDIR   := src
-TESTDIR  := test
-BINDIR   := bin
+SRCDIR       := src
+TESTDIR      := test
+BINDIR       := bin
 
 # files
-VEC_EXE  := testvec
-VEC_OBJS := $(SRCDIR)/fatp/vec.o
+VEC_EXE      := testvec
 
-EXES     := $(VEC_EXE)
-OBJS     := $(VEC_OBJS)
+COMMON_OBJS  := $(SRCDIR)/common.o
+MATH_OBJS    := $(SRCDIR)/math.o
+SLICE_OBJS   := $(SRCDIR)/fatp/slice.o
+SV_OBJS      := $(SRCDIR)/fatp/string_view.o
+VEC_OBJS     := $(SRCDIR)/fatp/vec.o
+MEMBASE_OBJS := $(SRCDIR)/memory/base.o
+MEMLIBC_OBJS := $(SRCDIR)/memory/libc.o
+UTF_OBJS     := $(SRCDIR)/util/utf.o
+
+EXES         := $(VEC_EXE)
+OBJS         := $(COMMON_OBJS) $(MATH_OBJS) $(SLICE_OBJS) $(SV_OBJS) \
+				$(VEC_OBJS) $(MEMBASE_OBJS) $(MEMLIBC_OBJS) $(UTF_OBJS)
 
 ### RULES ######################################################################
 
@@ -49,6 +59,8 @@ $(BINDIR):
 
 all: $(EXES)
 
+allobj: $(OBJS)
+
 clean: cleanobj cleanbin
 
 cleanobj:
@@ -57,6 +69,6 @@ cleanobj:
 cleanbin:
 	$(RM) $(addprefix $(BINDIR)/, $(EXES))
 
-.PHONY: all clean cleanobj cleanbin
+.PHONY: all allobj clean cleanobj cleanbin
 
 # end
