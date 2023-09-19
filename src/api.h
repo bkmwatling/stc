@@ -1,21 +1,21 @@
 #ifndef STC_API_H
 #define STC_API_H
 
-/* Set all short names macros if STC_USE_SHORT_NAMES is set */
-#ifdef STC_USE_SHORT_NAMES
-#    ifndef STC_COMMON_USE_SHORT_NAMES
-#        define STC_COMMON_USE_SHORT_NAMES
+/* Set all short names macros if STC_ENABLE_SHORT_NAMES is set */
+#ifdef STC_ENABLE_SHORT_NAMES
+#    ifndef STC_COMMON_ENABLE_SHORT_NAMES
+#        define STC_COMMON_ENABLE_SHORT_NAMES
 #    endif
-#    ifndef STC_MEM_USE_SHORT_NAMES
-#        define STC_MEM_USE_SHORT_NAMES
+#    ifndef STC_MEM_ENABLE_SHORT_NAMES
+#        define STC_MEM_ENABLE_SHORT_NAMES
 #    endif
-#    ifndef STC_SLICE_USE_SHORT_NAMES
-#        define STC_SLICE_USE_SHORT_NAMES
+#    ifndef STC_SLICE_ENABLE_SHORT_NAMES
+#        define STC_SLICE_ENABLE_SHORT_NAMES
 #    endif
-#    ifndef STC_VEC_USE_SHORT_NAMES
-#        define STC_VEC_USE_SHORT_NAMES
+#    ifndef STC_VEC_ENABLE_SHORT_NAMES
+#        define STC_VEC_ENABLE_SHORT_NAMES
 #    endif
-#endif /* STC_USE_SHORT_NAMES */
+#endif /* STC_ENABLE_SHORT_NAMES */
 
 #include "common.h"
 #include "math.h"

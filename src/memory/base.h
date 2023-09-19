@@ -5,7 +5,11 @@
 
 #include "../common.h"
 
-#ifdef STC_MEM_USE_SHORT_NAMES
+#ifdef STC_MEM_ENABLE_SHORT_NAMES
+#    define KB STC_KB
+#    define MB STC_MB
+#    define GB STC_GB
+
 #    define memzero        stc_memzero
 #    define MEMZERO_STRUCT STC_MEMZERO_STRUCT
 #    define MEMZERO_ARRAY  STC_MEMZERO_ARRAY
@@ -16,16 +20,34 @@
 #    define MEMCPY_ARRAY  STC_MEMCPY_ARRAY
 #    define MEMCPY_TYPED  STC_MEMCPY_TYPED
 
-#    define Memory          StcMemory
+typedef StcMemManager MemManager;
 #    define mem_alloc_func  stc_mem_alloc_func
 #    define mem_modify_func stc_mem_modify_func
-#endif /* STC_MEM_USE_SHORT_NAMES */
+#    define mem_modify_noop stc_mem_modify_noop
+
+typedef StcMemArena MemArena;
+#    define MEM_DEFAULT_ALLOC_SIZE        STC_MEM_DEFAULT_ALLOC_SIZE
+#    define MEM_DEFAULT_COMMIT_BLOCK_SIZE STC_MEM_DEFAULT_COMMIT_BLOCK_SIZE
+
+#    define mem_arena_default         stc_mem_arena_default
+#    define mem_arena_push_array      stc_mem_arena_push_array
+#    define mem_arena_push_array_zero stc_mem_arena_push_array_zero
+#    define mem_arena_pop             stc_mem_arena_pop
+#    define mem_arena_align           stc_mem_arena_align
+#    define mem_arena_align_zero      stc_mem_arena_align_zero
+
+#    define mem_arena_new       stc_mem_arena_new
+#    define mem_arena_free      stc_mem_arena_free
+#    define mem_arena_push      stc_mem_arena_push
+#    define mem_arena_push_zero stc_mem_arena_push_zero
+#    define mem_arena_pop_to    stc_mem_arena_pop_to
+#endif /* STC_MEM_ENABLE_SHORT_NAMES */
 
 /*** Simple useful macros *****************************************************/
 
-#define KB(n) ((n) << 10)
-#define MB(n) ((n) << 20)
-#define GB(n) ((n) << 30)
+#define STC_KB(n) ((n) << 10)
+#define STC_MB(n) ((n) << 20)
+#define STC_GB(n) ((n) << 30)
 
 #define stc_memzero(p, size)      memset((p), 0, (size))
 #define STC_MEMZERO_STRUCT(p)     stc_memzero((p), sizeof(*(p)))
@@ -76,12 +98,13 @@ typedef struct {
     u64            cap;
     u64            pos;
     u64            commit_pos;
+    u64            commit_block_size;
 } StcMemArena;
 
 /*** Macros and functions ***/
 
-#define STC_MEM_DEFAULT_ALLOC_SIZE GB(1)
-#define STC_MEM_COMMIT_BLOCK_SIZE  MB(64)
+#define STC_MEM_DEFAULT_ALLOC_SIZE        STC_GB(1)
+#define STC_MEM_DEFAULT_COMMIT_BLOCK_SIZE STC_MB(64)
 
 #define stc_mem_arena_default(man) \
     stc_mem_arena_new(man, STC_MEM_DEFAULT_ALLOC_SIZE)
@@ -91,6 +114,10 @@ typedef struct {
     stc_mem_arena_push_zero((arena), sizeof(T) * (len))
 #define stc_mem_arena_pop(arena, size) \
     stc_mem_arena_pop_to((arena), (arena)->pos - (size))
+#define stc_mem_arena_align(arena, size) \
+    _stc_mem_arena_align((arena), (size), stc_mem_arena_push)
+#define stc_mem_arena_align_zero(arena, size) \
+    _stc_mem_arena_align((arena), (size), stc_mem_arena_push_zero)
 
 /**
  * Creates a new memory arena from a memory manager, allocating space of size.
@@ -139,10 +166,15 @@ void stc_mem_arena_pop_to(StcMemArena *arena, u64 pos);
 
 /**
  * Aligns the memory arena position to a given power of 2.
+ * Note: this function should not be used directly, but rather through the use
+ * of the defined macros stc_mem_arena_align and stc_mem_arena_align_zero.
  *
  * @param[in] arena the pointer to the memory arena
  * @param[in] pow2_align the power of 2 to align to
+ * @param[in] arena_push the memory push function for the memory arena
  */
-void stc_mem_arena_align(StcMemArena *arena, u64 pow2_align);
+void _stc_mem_arena_align(StcMemArena *arena,
+                          u64          pow2_align,
+                          void *(*arena_push)(StcMemArena *, u64));
 
 #endif /* STC_MEMORY_BASE_H */
