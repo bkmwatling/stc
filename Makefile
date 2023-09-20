@@ -9,7 +9,8 @@ DEBUG        := -ggdb -gdwarf-4
 OPTIMISE     := -O2
 WARNINGS     := -Wall -Wextra -Wno-variadic-macros -Wno-overlength-strings \
 				-pedantic
-CFLAGS       := $(DEBUG) $(OPTIMISE) $(WARNINGS)
+STCOPTS      := -DSTC_DISABLE_STD_MATH_H
+CFLAGS       := $(DEBUG) $(OPTIMISE) $(WARNINGS) $(STCOPTS)
 DFLAGS       := # -DDEBUG
 
 # commands
@@ -50,9 +51,6 @@ $(VEC_EXE): $(TESTDIR)/$(VEC_EXE).c $(VEC_OBJS) | $(BINDIR)
 	$(COMPILE) -o $(BINDIR)/$@ $^
 
 # units
-
-$(MATH_OBJS): %.o: %.c
-	$(COMPILE) -DSTC_DISABLE_STD_MATH_H -c -o $@ $<
 
 %.o: %.c
 	$(COMPILE) -c -o $@ $<

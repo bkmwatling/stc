@@ -1,8 +1,7 @@
 #include "math.h"
 
-#ifndef STC_DISABLE_BASIC_TYPES
-#    ifndef STC_DISABLE_STD_MATH_H
-#        include <math.h>
+#ifndef STC_DISABLE_STD_MATH_H
+#    include <math.h>
 
 f32 f32_sqrt(f32 x) { return sqrtf(x); }
 
@@ -24,7 +23,8 @@ f64 f64_tan(f64 x) { return tan(x); }
 
 f64 f64_log(f64 x) { return log(x); }
 
-#    else
+#else
+#    include "common.h"
 
 f32 f32_sqrt(f32 x)
 {
@@ -86,5 +86,4 @@ f64 f64_log(f64 x)
     STC_UNIMPLEMENTED_MSG("f64_log");
 }
 
-#    endif /* STC_DISABLE_STD_MATH_H */
-#endif     /* STC_DISABLE_BASIC_TYPES */
+#endif /* STC_DISABLE_STD_MATH_H */

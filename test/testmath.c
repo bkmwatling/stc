@@ -3,7 +3,7 @@
 
 #include "../src/math.h"
 
-int main(int argc, char *argv[])
+int main(void)
 {
     f32 x = f32_cos(F32_PI);
 

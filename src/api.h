@@ -25,11 +25,11 @@
 
 #ifndef STC_DISABLE_COMMON
 #    include "common.h"
+#endif
 
-#    ifndef STC_DISABLE_MATH
-#        include "math.h"
-#    endif
-#endif /* STC_DISABLE_COMMON */
+#ifndef STC_DISABLE_MATH
+#    include "math.h"
+#endif
 
 #ifndef STC_DISABLE_FATP
 #    ifndef STC_DISABLE_SLICE
