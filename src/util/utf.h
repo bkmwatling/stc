@@ -3,9 +3,13 @@
 
 #include <stddef.h>
 
-#ifndef STC_UTF_DISABLE_SV
+#if defined(STC_DISABLE_FATP) && !defined(STC_DISABLE_SV)
+#    define STC_DISABLE_SV
+#endif
+
+#ifndef STC_DISABLE_SV
 #    include "../fatp/string_view.h"
-#endif /* STC_UTF_DISABLE_SV */
+#endif
 
 #ifdef STC_UTF_ENABLE_SHORT_NAMES
 #    define UTF8_IS_CONTINUATION STC_UTF8_IS_CONTINUATION
@@ -134,7 +138,7 @@ const char *stc_utf8_str_next(const char *s);
 
 /*** UTF-8 string view macros and functions ***********************************/
 
-#ifndef STC_UTF_DISABLE_SV
+#ifndef STC_DISABLE_SV
 
 /*** Single UTF-8 codepoint macros and functions for string views *************/
 
@@ -227,6 +231,6 @@ size_t stc_utf8_sv_ncodepoints(StcStringView sv);
  */
 StcStringView stc_utf8_sv_next(StcStringView sv);
 
-#endif /* STC_UTF_DISABLE_SV */
+#endif /* STC_DISABLE_SV */
 
 #endif /* STC_UTF_H */

@@ -9,21 +9,33 @@
 #    ifndef STC_DISABLE_ASSERT
 #        define assert stc_assert
 #    endif
-#    define STRINGIFY     STC_STRINGIFY
-#    define GLUE          STC_GLUE
+
+#    define STRINGIFY STC_STRINGIFY
+#    define GLUE      STC_GLUE
+
+#    define UNUSED            STC_UNUSED
+#    define UNIMPLEMENTED     STC_UNIMPLEMENTED
+#    define UNIMPLEMENTED_MSG STC_UNIMPLEMENTED_MSG
+#    define TODO              STC_TODO
+#    define TODO_MSG          STC_TODO_MSG
+
 #    define ARRAY_COUNT   STC_ARRAY_COUNT
 #    define INT_FROM_PTR  STC_INT_FROM_PTR
 #    define PTR_FROM_INT  STC_PTR_FROM_INT
 #    define MEMBER        STC_MEMBER
 #    define MEMBER_OFFSET STC_MEMBER_OFFSET
-#    define MIN           STC_MIN
-#    define MAX           STC_MAX
-#    define CLAMP         STC_CLAMP
-#    define CLAMP_TOP     STC_CLAMP_TOP
-#    define CLAMP_BOT     STC_CLAMP_BOT
-#    define GLOBAL        STC_GLOBAL
-#    define LOCAL         STC_LOCAL
-#    define FUNC          STC_FUNC
+
+#    define MIN             STC_MIN
+#    define MAX             STC_MAX
+#    define CLAMP           STC_CLAMP
+#    define CLAMP_TOP       STC_CLAMP_TOP
+#    define CLAMP_BOT       STC_CLAMP_BOT
+#    define ALIGN_UP_POW2   STC_ALIGN_UP_POW2
+#    define ALIGN_DOWN_POW2 STC_ALIGN_DOWN_POW2
+
+#    define GLOBAL STC_GLOBAL
+#    define LOCAL  STC_LOCAL
+#    define FUNC   STC_FUNC
 #endif /* STC_COMMON_ENABLE_SHORT_NAMES */
 
 /*** Compiler and OS detection ************************************************/
@@ -104,9 +116,9 @@
 
 /*** Helper macros ************************************************************/
 
-#define STC_STMTS(stmts) \
-    do {                 \
-        stmts            \
+#define STC_STATMENTS(stmts) \
+    do {                     \
+        stmts                \
     } while (0)
 
 #ifndef STC_DISABLE_STDIO
@@ -123,34 +135,41 @@
 #        undef assert
 #    endif
 #    include <assert.h>
-#    define stc_assert(cond) assert(cond)
+#    define stc_assert(cond)          assert(cond)
+#    define stc_assert_msg(cond, msg) assert((cond) && (msg))
 #elif defined(STC_DISABLE_ASSERT)
 #    define stc_assert(cond)
+#    define stc_assert_msg(cond, msg)
 #else
 #    ifndef STC_ASSERT_BREAK
+#        define STC_ASSERT_MSG(msg) \
+            "Assertion failed in " __FILE__ " line %d: " msg "\n", __LINE__
 #        define STC_ASSERT_BREAK(cond) \
-            STC_EPRINTF(#cond);        \
-            (*(int *) 0 = 0)
+            (STC_EPRINTF(STC_ASSERT_MSG(#cond)), exit(1))
 #    endif
 
-#    define stc_assert(cond) \
-        STC_STMNTS(if (!(cond)) { STC_ASSERT_BREAK(cond); })
+#    define stc_assert(cond) STC_STATMENTS(if (!(cond)) { STC_ASSERT_BREAK; })
+#    define stc_assert_msg(cond, msg) \
+        STC_STATMENTS(                \
+            if (!(cond)) { (STC_EPRINTF(msg "\n"), STC_ASSERT_BREAK(cond)); })
 #endif /* STC_USE_STD_ASSERT */
 
-/* NOTE: Macro indirection recommended due to #s */
+/* NOTE: Macro indirection recommended due to #s and a##b */
 #define __STC_STRINGIFY(s) #s
 #define STC_STRINGIFY(s)   __STC_STRINGIFY(s)
 #define __STC_GLUE(a, b)   a##b
 #define STC_GLUE(a, b)     __STC_GLUE(a, b)
 
-#define STC_UNUSED(x) ((void) (x))
-#define STC_UNIMPLEMENTED(msg) \
-    STC_EPRINTF(msg "\n");     \
-    exit(1)
+/* NOTE: "better" but doesn't work - ((void) (1 ? 0 : ((x), void(), 0))) */
+#define STC_UNUSED(x)              ((void) &(x))
+#define STC_UNIMPLEMENTED          stc_assert_msg(0, "Unimplemented")
+#define STC_UNIMPLEMENTED_MSG(msg) stc_assert_msg(0, "Unimplemented: " msg)
+#define STC_TODO                   stc_assert_msg(0, "TODO")
+#define STC_TODO_MSG(msg)          stc_assert_msg(0, "TODO: " msg)
 
 #define STC_ARRAY_COUNT(a) (sizeof(a) / sizeof(*(a)))
 
-#define STC_INT_FROM_PTR(p) ((unsigned long long) ((char *) p - (char *) 0))
+#define STC_INT_FROM_PTR(p) ((unsigned long long) ((char *) (p) - (char *) 0))
 #define STC_PTR_FROM_INT(n) ((void *) ((char *) 0 + (n)))
 
 #define STC_MEMBER(T, m)        (((T *) 0)->m)
@@ -158,9 +177,9 @@
 
 #define STC_MIN(x, y)       ((x) < (y) ? (x) : (y))
 #define STC_MAX(x, y)       ((x) > (y) ? (x) : (y))
-#define STC_CLAMP(x, a, b)  STC_CLAMP_TOP(STC_CLAMP_BOT(x, a), b)
-#define STC_CLAMP_TOP(x, y) STC_MIN(x, y)
-#define STC_CLAMP_BOT(x, y) STC_MAX(x, y)
+#define STC_CLAMP(x, a, b)  STC_CLAMP_TOP(STC_CLAMP_BOT((x), (a)), (b))
+#define STC_CLAMP_TOP(x, y) STC_MIN((x), (y))
+#define STC_CLAMP_BOT(x, y) STC_MAX((x), (y))
 
 #define STC_ALIGN_UP_POW2(x, pow2)   (((x) + (pow2) -1) & ~((pow2) -1))
 #define STC_ALIGN_DOWN_POW2(x, pow2) ((x) & ~((pow2) -1))

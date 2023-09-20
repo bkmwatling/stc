@@ -23,6 +23,7 @@ TESTDIR      := test
 BINDIR       := bin
 
 # files
+MATH_EXE     := testmath
 VEC_EXE      := testvec
 
 COMMON_OBJS  := $(SRCDIR)/common.o
@@ -34,7 +35,7 @@ MEMBASE_OBJS := $(SRCDIR)/memory/base.o
 MEMLIBC_OBJS := $(SRCDIR)/memory/libc.o
 UTF_OBJS     := $(SRCDIR)/util/utf.o
 
-EXES         := $(VEC_EXE)
+EXES         := $(MATH_EXE) $(VEC_EXE)
 OBJS         := $(COMMON_OBJS) $(MATH_OBJS) $(SLICE_OBJS) $(SV_OBJS) \
 				$(VEC_OBJS) $(MEMBASE_OBJS) $(MEMLIBC_OBJS) $(UTF_OBJS)
 
@@ -42,10 +43,16 @@ OBJS         := $(COMMON_OBJS) $(MATH_OBJS) $(SLICE_OBJS) $(SV_OBJS) \
 
 # executables
 
+$(MATH_EXE): $(TESTDIR)/$(MATH_EXE).c $(MATH_OBJS) | $(BINDIR)
+	$(COMPILE) -o $(BINDIR)/$@ $^
+
 $(VEC_EXE): $(TESTDIR)/$(VEC_EXE).c $(VEC_OBJS) | $(BINDIR)
 	$(COMPILE) -o $(BINDIR)/$@ $^
 
 # units
+
+$(MATH_OBJS): %.o: %.c
+	$(COMPILE) -DSTC_DISABLE_STD_MATH_H -c -o $@ $<
 
 %.o: %.c
 	$(COMPILE) -c -o $@ $<

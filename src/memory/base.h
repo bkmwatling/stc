@@ -3,8 +3,6 @@
 
 #include <string.h>
 
-#include "../common.h"
-
 #ifdef STC_MEM_ENABLE_SHORT_NAMES
 #    define KB STC_KB
 #    define MB STC_MB
@@ -65,8 +63,8 @@ typedef StcMemArena MemArena;
 
 /*** Types ***/
 
-typedef void *stc_mem_alloc_func(void *ctx, u64 size);
-typedef void  stc_mem_modify_func(void *ctx, void *p, u64 size);
+typedef void *stc_mem_alloc_func(void *ctx, size_t size);
+typedef void  stc_mem_modify_func(void *ctx, void *p, size_t size);
 
 typedef struct {
     stc_mem_alloc_func  *alloc;
@@ -86,7 +84,7 @@ typedef struct {
  * @param[in] p the pointer to the memory to modify
  * @param[in] size the size of the memory pointed to by p
  */
-void stc_mem_modify_noop(void *ctx, void *p, u64 size);
+void stc_mem_modify_noop(void *ctx, void *p, size_t size);
 
 /*** Memory Arena *************************************************************/
 
@@ -94,11 +92,11 @@ void stc_mem_modify_noop(void *ctx, void *p, u64 size);
 
 typedef struct {
     StcMemManager *man;
-    byte          *mem;
-    u64            cap;
-    u64            pos;
-    u64            commit_pos;
-    u64            commit_block_size;
+    char          *mem;
+    size_t         cap;
+    size_t         pos;
+    size_t         commit_pos;
+    size_t         commit_block_size;
 } StcMemArena;
 
 /*** Macros and functions ***/
@@ -127,7 +125,7 @@ typedef struct {
  *
  * @return the memory arena using the memory manager with size space allocated
  */
-StcMemArena stc_mem_arena_new(StcMemManager *man, u64 size);
+StcMemArena stc_mem_arena_new(StcMemManager *man, size_t size);
 
 /**
  * Frees the memory of the memory arena using its memory manager.
@@ -144,7 +142,7 @@ void stc_mem_arena_free(StcMemArena *arena);
  *
  * @return a pointer to the allocated memory of the memory arena
  */
-void *stc_mem_arena_push(StcMemArena *arena, u64 size);
+void *stc_mem_arena_push(StcMemArena *arena, size_t size);
 
 /**
  * Allocate (push) size amount of a memory arena's memory, and zero it out.
@@ -154,7 +152,7 @@ void *stc_mem_arena_push(StcMemArena *arena, u64 size);
  *
  * @return a pointer to the zeroed out allocated memory of the memory arena
  */
-void *stc_mem_arena_push_zero(StcMemArena *arena, u64 size);
+void *stc_mem_arena_push_zero(StcMemArena *arena, size_t size);
 
 /**
  * Deallocate (pop) memory to position pos in the memory arena's memory.
@@ -162,7 +160,7 @@ void *stc_mem_arena_push_zero(StcMemArena *arena, u64 size);
  * @param[in] arena the pointer to the memory arena
  * @param[in] pos the position to pop to
  */
-void stc_mem_arena_pop_to(StcMemArena *arena, u64 pos);
+void stc_mem_arena_pop_to(StcMemArena *arena, size_t pos);
 
 /**
  * Aligns the memory arena position to a given power of 2.
@@ -174,7 +172,7 @@ void stc_mem_arena_pop_to(StcMemArena *arena, u64 pos);
  * @param[in] arena_push the memory push function for the memory arena
  */
 void _stc_mem_arena_align(StcMemArena *arena,
-                          u64          pow2_align,
-                          void *(*arena_push)(StcMemArena *, u64));
+                          size_t       pow2_align,
+                          void *(*arena_push)(StcMemArena *, size_t));
 
 #endif /* STC_MEMORY_BASE_H */

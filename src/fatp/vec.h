@@ -5,34 +5,35 @@
 #include <string.h>
 
 #ifdef STC_VEC_ENABLE_SHORT_NAMES
-#    define VEC_DEFAULT_CAP   STC_VEC_DEFAULT_CAP
-#    define vec_header        stc_vec_header
-#    define vec_new           stc_vec_new
-#    define vec_init          stc_vec_init
-#    define vec_default       stc_vec_default
-#    define vec_default_init  stc_vec_default_init
-#    define vec_clone         stc_vec_clone
-#    define vec_free          stc_vec_free
-#    define vec_len           stc_vec_len
-#    define vec_cap           stc_vec_cap
-#    define vec_len_unsafe    stc_vec_len_unsafe
-#    define vec_cap_unsafe    stc_vec_cap_unsafe
-#    define vec_is_empty      stc_vec_is_empty
-#    define vec_clear         stc_vec_clear
-#    define vec_push          stc_vec_push
-#    define vec_pop           stc_vec_pop
-#    define vec_last          stc_vec_last
-#    define vec_insert        stc_vec_insert
-#    define vec_remove        stc_vec_remove
-#    define vec_drain         stc_vec_drain
-#    define vec_truncate      stc_vec_truncate
-#    define vec_append        stc_vec_append
-#    define vec_extend        stc_vec_extend
-#    define vec_reserve_exact stc_vec_reserve_exact
-#    define vec_reserve       stc_vec_reserve
-#    define vec_reserve_index stc_vec_reserve_index
-#    define vec_shrink        stc_vec_shrink
-#    define vec_shrink_to_fit stc_vec_shrink_to_fit
+#    define VEC_DEFAULT_CAP       STC_VEC_DEFAULT_CAP
+#    define vec_header            stc_vec_header
+#    define vec_new               stc_vec_new
+#    define vec_init              stc_vec_init
+#    define vec_default           stc_vec_default
+#    define vec_default_init      stc_vec_default_init
+#    define vec_clone             stc_vec_clone
+#    define vec_free              stc_vec_free
+#    define vec_len               stc_vec_len
+#    define vec_cap               stc_vec_cap
+#    define vec_len_unsafe        stc_vec_len_unsafe
+#    define vec_cap_unsafe        stc_vec_cap_unsafe
+#    define vec_is_empty          stc_vec_is_empty
+#    define vec_clear             stc_vec_clear
+#    define vec_push              stc_vec_push
+#    define vec_pop               stc_vec_pop
+#    define vec_last              stc_vec_last
+#    define vec_insert            stc_vec_insert
+#    define vec_remove            stc_vec_remove
+#    define vec_drain             stc_vec_drain
+#    define vec_truncate          stc_vec_truncate
+#    define vec_append            stc_vec_append
+#    define vec_extend            stc_vec_extend
+#    define vec_extend_from_slice stc_vec_extend_from_slice
+#    define vec_reserve           stc_vec_reserve
+#    define vec_reserve_exact     stc_vec_reserve_exact
+#    define vec_reserve_index     stc_vec_reserve_index
+#    define vec_shrink            stc_vec_shrink
+#    define vec_shrink_to_fit     stc_vec_shrink_to_fit
 #endif /* STC_VEC_ENABLE_SHORT_NAMES */
 
 typedef struct {
@@ -79,11 +80,11 @@ typedef struct {
 #define stc_vec_extend(v, p, len)          \
     (assert(sizeof(*(v)) == sizeof(*(p))), \
      (v) = _stc_vec_extend((v), (p), sizeof(*(p)), (len)))
-#define stc_extend_from_slice(v, s) stc_vec_extend(v, s, stc_slice_len(s))
+#define stc_vec_extend_from_slice(v, s) stc_vec_extend(v, s, stc_slice_len(s))
 
+#define stc_vec_reserve(v, n) ((v) = _stc_vec_reserve((v), sizeof(*(v)), (n)))
 #define stc_vec_reserve_exact(v, n) \
     ((v) = _stc_vec_reserve_exact((v), sizeof(*(v)), (n)))
-#define stc_vec_reserve(v, n) ((v) = _stc_vec_reserve((v), sizeof(*(v)), (n)))
 #define stc_vec_reserve_index(v, i, n)   \
     (stc_vec_reserve(v, n),              \
      memmove((v) + (i) + (n), (v) + (i), \
@@ -100,42 +101,42 @@ typedef struct {
  * @param[in] vec the vector to clone
  * @param[in] size the size of each element
  *
- * @return a clone of a vector
+ * @return a clone of the vector
  */
 void *_stc_vec_clone(const void *vec, size_t size);
 
 /**
  * Extends the vector by with the values from the memory pointed to by p.
  *
- * @param[in] vec pointer to the vector to extend
+ * @param[in] vec the pointer to the vector to extend
  * @param[in] p the memory address of the data to extend from
  * @param[in] size the size of each element
  * @param[in] len the length of (number of elements in) the data
  *
- * @return pointer to the vector after extended with slice
+ * @return a pointer to the vector after extended with memory of p
  */
 void *_stc_vec_extend(void *vec, const void *p, size_t size, size_t len);
 
 /**
- * Reserves exactly enough space in the vector for n more elements.
- *
- * @param[in] vec pointer to the vector to reserve space for
- * @param[in] size the size of each element
- * @param[in] n the number of elements to ensure space for
- *
- * @return pointer to the vector after reserving the space
- */
-void *_stc_vec_reserve_exact(void *vec, size_t size, size_t n);
-
-/**
  * Reserves enough space in the vector for at least n more elements.
  *
- * @param[in] vec pointer to the vector to reserve space for
+ * @param[in] vec the pointer to the vector to reserve space for
  * @param[in] size the size of each element
  * @param[in] n the number of elements to ensure space for
  *
- * @return pointer to the vector after reserving the space
+ * @return a pointer to the vector after reserving the space
  */
 void *_stc_vec_reserve(void *vec, size_t size, size_t n);
+
+/**
+ * Reserves exactly enough space in the vector for n more elements.
+ *
+ * @param[in] vec the pointer to the vector to reserve space for
+ * @param[in] size the size of each element
+ * @param[in] n the number of elements to ensure space for
+ *
+ * @return a pointer to the vector after reserving the space
+ */
+void *_stc_vec_reserve_exact(void *vec, size_t size, size_t n);
 
 #endif /* STC_VEC_H */

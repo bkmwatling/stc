@@ -15,17 +15,19 @@ typedef StcStringView StringView;
 #    define sv_from_range stc_sv_from_range
 #    define sv_from_cstr  stc_sv_from_cstr
 #    define sv_from_lit   stc_sv_from_lit
-#    define sv_trim       stc_sv_trim
+#    define sv_from_fmtv  stc_sv_from_fmtv
+#    define sv_from_fmt   stc_sv_from_fmt
 
+#    define sv_trim              stc_sv_trim
 #    define sv_trim_left         stc_sv_trim_left
 #    define sv_trim_right        stc_sv_trim_right
 #    define sv_take_left_while   stc_sv_take_left_while
+#    define sv_chop_left_while   stc_sv_chop_left_while
 #    define sv_chop_by_delim     stc_sv_chop_by_delim
 #    define sv_chop_by_sv        stc_sv_chop_by_sv
 #    define sv_try_chop_by_delim stc_sv_try_chop_by_delim
 #    define sv_chop_left         stc_sv_chop_left
 #    define sv_chop_right        stc_sv_chop_right
-#    define sv_chop_left_while   stc_sv_chop_left_while
 #    define sv_index_of          stc_sv_index_of
 #    define sv_cmp               stc_sv_cmp
 #    define sv_eq                stc_sv_eq
