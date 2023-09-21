@@ -10,6 +10,16 @@
 #        define assert stc_assert
 #    endif
 
+#    define EPRINTF STC_EPRINTF
+#    define INFO    STC_INFO
+#    define FINFO   STC_FINFO
+#    define WARN    STC_WARN
+#    define FWARN   STC_FWARN
+#    define ERROR   STC_ERROR
+#    define FERROR  STC_FERROR
+#    define DEBUG   STC_DEBUG
+#    define FDEBUG  STC_FDEBUG
+
 #    define STRINGIFY STC_STRINGIFY
 #    define GLUE      STC_GLUE
 
@@ -123,12 +133,29 @@
 
 #ifndef STC_DISABLE_STDIO
 #    include <stdio.h>
-#    define STC_PRINTF       printf
-#    define STC_EPRINTF(...) fprintf(stderr, __VA_ARGS__)
+
+#    define STC_PRINTF               printf
+#    define STC_FPRINTF(stream, ...) fprintf(stream, __VA_ARGS__)
 #else
 #    define STC_PRINTF(...)
-#    define STC_EPRINTF(...)
+#    define STC_FPRINTF(stream, ...)
 #endif /* STC_DISABLE_STDIO */
+
+#define STC_EPRINTF(...)        STC_FPRINTF(stderr, __VA_ARGS__)
+#define STC_INFO(...)           STC_PRINTF("[INFO] " __VA_ARGS__)
+#define STC_FINFO(stream, ...)  STC_FPRINTF(stream, "[INFO] " __VA_ARGS__)
+#define STC_WARN(...)           STC_EPRINTF("[WARN] " __VA_ARGS__)
+#define STC_FWARN(stream, ...)  STC_FPRINTF(stream, "[WARN] " __VA_ARGS__)
+#define STC_ERROR(...)          STC_EPRINTF("[ERROR] " __VA_ARGS__)
+#define STC_FERROR(stream, ...) STC_FPRINTF(stream, "[ERROR] " __VA_ARGS__)
+
+#ifdef STC_ENABLE_DEBUG
+#    define STC_DEBUG(...)          STC_EPRINTF("[DEBUG] " __VA_ARGS__)
+#    define STC_FDEBUG(stream, ...) STC_FPRINTF(stream, "[DEBUG] " __VA_ARGS__)
+#else
+#    define STC_DEBUG(...)
+#    define STC_FDEBUG(stream, ...)
+#endif /* STC_DEBUG */
 
 #ifdef STC_USE_STD_ASSERT
 #    ifdef assert

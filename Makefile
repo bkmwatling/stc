@@ -9,9 +9,9 @@ DEBUG        := -ggdb -gdwarf-4
 OPTIMISE     := -O2
 WARNINGS     := -Wall -Wextra -Wno-variadic-macros -Wno-overlength-strings \
 				-pedantic
-STCOPTS      := -DSTC_DISABLE_STD_MATH_H
+STCOPTS      := -DSTC_DISABLE_STD_MATH_H #-DSTC_ENABLE_DEBUG
 CFLAGS       := $(DEBUG) $(OPTIMISE) $(WARNINGS) $(STCOPTS)
-DFLAGS       := # -DDEBUG
+DFLAGS       := #-DDEBUG
 
 # commands
 CC           := clang
