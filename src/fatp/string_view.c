@@ -12,42 +12,6 @@ StcStringView stc_sv_from_parts(STC_SV_CONST char *str, size_t len)
     return sv;
 }
 
-StcStringView stc_sv_from_fmtv(const char *fmt, va_list ap)
-{
-#define STC_SV_INIT_BUFSIZE 256
-    StcStringView sv;
-    va_list       aq;
-
-    va_copy(aq, ap); /* need to make copy of ap in case retry is needed */
-    sv.str = malloc(STC_SV_INIT_BUFSIZE * sizeof(char));
-    sv.len = vsnprintf((char *) sv.str, STC_SV_INIT_BUFSIZE, fmt, ap);
-
-    /* check if buffer was too small and retry with new size if so */
-    if (sv.len > STC_SV_INIT_BUFSIZE) {
-        stc_sv_free(sv);
-        sv.str = malloc(sv.len * sizeof(char));
-        sv.len = vsnprintf((char *) sv.str, sv.len, fmt, aq);
-    }
-    va_end(aq);
-
-    return sv;
-#undef STC_SV_INIT_BUFSIZE
-}
-
-StcStringView stc_sv_from_fmt(const char *fmt, ...)
-{
-    StcStringView sv;
-    va_list       ap;
-
-    va_start(ap, fmt);
-    sv = stc_sv_from_fmtv(fmt, ap);
-    va_end(ap);
-
-    return sv;
-}
-
-void stc_sv_free(StcStringView sv) { free((void *) sv.str); }
-
 StcStringView stc_sv_trim_left(StcStringView sv)
 {
     for (; sv.len > 0 && isspace(*sv.str); sv.str++, sv.len--)

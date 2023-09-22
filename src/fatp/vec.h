@@ -5,40 +5,49 @@
 #include <string.h>
 
 #ifdef STC_VEC_ENABLE_SHORT_NAMES
-#    define VEC_DEFAULT_CAP       STC_VEC_DEFAULT_CAP
-#    define vec_header            stc_vec_header
-#    define vec_new               stc_vec_new
-#    define vec_init              stc_vec_init
-#    define vec_default           stc_vec_default
-#    define vec_default_init      stc_vec_default_init
-#    define vec_clone             stc_vec_clone
-#    define vec_free              stc_vec_free
-#    define vec_len               stc_vec_len
-#    define vec_cap               stc_vec_cap
-#    define vec_len_unsafe        stc_vec_len_unsafe
-#    define vec_cap_unsafe        stc_vec_cap_unsafe
-#    define vec_is_empty          stc_vec_is_empty
-#    define vec_clear             stc_vec_clear
-#    define vec_push              stc_vec_push
-#    define vec_pop               stc_vec_pop
-#    define vec_last              stc_vec_last
-#    define vec_insert            stc_vec_insert
-#    define vec_remove            stc_vec_remove
-#    define vec_drain             stc_vec_drain
-#    define vec_truncate          stc_vec_truncate
+#    define VEC_DEFAULT_CAP STC_VEC_DEFAULT_CAP
+#    define vec_header      stc_vec_header
+
+#    define vec_new          stc_vec_new
+#    define vec_init         stc_vec_init
+#    define vec_default      stc_vec_default
+#    define vec_default_init stc_vec_default_init
+#    define vec_clone        stc_vec_clone
+#    define vec_free         stc_vec_free
+
+#    define vec_len        stc_vec_len
+#    define vec_cap        stc_vec_cap
+#    define vec_len_unsafe stc_vec_len_unsafe
+#    define vec_cap_unsafe stc_vec_cap_unsafe
+#    define vec_is_empty   stc_vec_is_empty
+#    define vec_clear      stc_vec_clear
+
+#    define vec_push stc_vec_push
+#    define vec_pop  stc_vec_pop
+#    define vec_last stc_vec_last
+
+#    define vec_insert   stc_vec_insert
+#    define vec_remove   stc_vec_remove
+#    define vec_drain    stc_vec_drain
+#    define vec_truncate stc_vec_truncate
+
 #    define vec_append            stc_vec_append
 #    define vec_extend            stc_vec_extend
 #    define vec_extend_from_slice stc_vec_extend_from_slice
-#    define vec_reserve           stc_vec_reserve
-#    define vec_reserve_exact     stc_vec_reserve_exact
-#    define vec_reserve_index     stc_vec_reserve_index
-#    define vec_shrink            stc_vec_shrink
-#    define vec_shrink_to_fit     stc_vec_shrink_to_fit
+
+#    define vec_reserve       stc_vec_reserve
+#    define vec_reserve_exact stc_vec_reserve_exact
+#    define vec_reserve_index stc_vec_reserve_index
+#    define vec_shrink        stc_vec_shrink
+#    define vec_shrink_to_fit stc_vec_shrink_to_fit
+
+#    define vec_as_slice stc_vec_as_slice
+#    define vec_to_slice stc_vec_to_slice
 #endif /* STC_VEC_ENABLE_SHORT_NAMES */
 
 typedef struct {
-    size_t len;
     size_t cap;
+    size_t len;
 } StcVecHeader;
 
 #define STC_VEC_DEFAULT_CAP 4
@@ -64,7 +73,7 @@ typedef struct {
 #define stc_vec_pop(v)  ((v)[--stc_vec_len_unsafe(v)])
 #define stc_vec_last(v) ((v)[stc_vec_len_unsafe(v) - 1])
 
-#define stc_vec_insert(v, i, x)   (stc_vec_reserve_index(v, i, 1), (v)[(i)] = (x))
+#define stc_vec_insert(v, i, x)   (stc_vec_reserve_index(v, i, 1), (v)[i] = (x))
 #define stc_vec_remove(v, i)      stc_vec_drain(v, i, 1)
 #define stc_vec_swap_remove(v, i) ((v) ? (v)[i] = arr_pop(v) : (void) 0)
 #define stc_vec_drain(v, i, n)                                           \
@@ -93,6 +102,7 @@ typedef struct {
     ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap))
 #define stc_vec_shrink_to_fit(v) stc_vec_shrink(v, stc_vec_len(v))
 
+#define stc_vec_as_slice(v) (v)
 #define stc_vec_to_slice(v) stc_slice_from_parts((v), stc_vec_len(v))
 
 /**

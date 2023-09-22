@@ -8,6 +8,8 @@
 #    define slice_new        stc_slice_new
 #    define slice_init       stc_slice_init
 #    define slice_from_parts stc_slice_from_parts
+#    define slice_free       stc_slice_free
+
 #    define slice_len        stc_slice_len
 #    define slice_len_unsafe stc_slice_len_unsafe
 #endif /* STC_SLICE_ENABLE_SHORT_NAMES */
@@ -22,6 +24,7 @@ typedef struct {
 #define stc_slice_init(s, len)   ((s) = stc_slice_new(sizeof(*(s)), (len)))
 #define stc_slice_from_parts(p, len) \
     _stc_slice_from_parts((p), sizeof(*(p)), (len))
+#define stc_slice_free(s) ((s) ? free(stc_slice_header(s)) : (void) 0)
 
 #define stc_slice_len(s)        ((s) ? stc_slice_len_unsafe(s) : 0)
 #define stc_slice_len_unsafe(s) (stc_slice_header(s)->len)
