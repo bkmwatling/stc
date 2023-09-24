@@ -29,6 +29,7 @@ VEC_EXE      := testvec
 
 COMMON_OBJS  := $(SRCDIR)/common.o
 MATH_OBJS    := $(SRCDIR)/math.o
+HASHMAP_OBJS := $(SRCDIR)/collection/hashmap.o
 SLICE_OBJS   := $(SRCDIR)/fatp/slice.o
 STRING_OBJS  := $(SRCDIR)/fatp/string.o
 SV_OBJS      := $(SRCDIR)/fatp/string_view.o
@@ -38,9 +39,9 @@ MEMLIBC_OBJS := $(SRCDIR)/memory/libc.o
 UTF_OBJS     := $(SRCDIR)/util/utf.o
 
 EXES         := $(MATH_EXE) $(VEC_EXE)
-OBJS         := $(COMMON_OBJS) $(MATH_OBJS) $(SLICE_OBJS) $(STRING_OBJS) \
-				$(SV_OBJS) $(VEC_OBJS) $(MEMBASE_OBJS) $(MEMLIBC_OBJS) \
-				$(UTF_OBJS)
+OBJS         := $(COMMON_OBJS) $(MATH_OBJS) $(HASHMAP_OBJS) $(SLICE_OBJS) \
+				$(STRING_OBJS) $(SV_OBJS) $(VEC_OBJS) $(MEMBASE_OBJS) \
+				$(MEMLIBC_OBJS) $(UTF_OBJS)
 
 ### RULES ######################################################################
 
