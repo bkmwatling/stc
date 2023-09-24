@@ -2,6 +2,8 @@
 
 #include "hashmap.h"
 
+/*** Type definitions *********************************************************/
+
 typedef struct stc_hashmap_entry StcHashMapEntry;
 
 struct stc_hashmap_entry {
@@ -19,6 +21,8 @@ struct stc_hashmap {
     stc_hashmap_hash_func   *hash;
     stc_hashmap_keycmp_func *keycmp;
 };
+
+/*** Helper function prototypes ***********************************************/
 
 static StcHashMapEntry **stc_hashmap_talloc(size_t tcap);
 static void              stc_hashmap_rehash(StcHashMap *hashmap);
@@ -39,6 +43,8 @@ static unsigned short stc_hashmap_delta[] = {
 #define STC_HASHMAP_GETCAP(idx)    ((1 << (idx)) - stc_hashmap_delta[idx])
 
 #define STC_HASHMAP_LOADFACTOR(hm) ((float) (hm)->len / (float) (hm)->cap)
+
+/*** Function definitions *****************************************************/
 
 StcHashMap *stc_hashmap_new_with_capacity(size_t                   cap,
                                           float                    loadfactor,
@@ -160,9 +166,33 @@ void *stc_hashmap_remove(StcHashMap *hashmap, void *key)
     return val;
 }
 
-void **stc_hashmap_keys(StcHashMap *hashmap);
+void **stc_hashmap_keys(StcHashMap *hashmap)
+{
+    size_t           i, idx = 0;
+    StcHashMapEntry *p;
+    void           **keys;
 
-void **stc_hashmap_values(StcHashMap *hashmap);
+    if ((keys = malloc(hashmap->len * sizeof(void *))) == NULL) return NULL;
+    for (i = 0; i < hashmap->cap; i++) {
+        for (p = hashmap->hashtable[i]; p; p = p->next) keys[idx++] = p->key;
+    }
+
+    return keys;
+}
+
+void **stc_hashmap_values(StcHashMap *hashmap)
+{
+    size_t           i, idx = 0;
+    StcHashMapEntry *p;
+    void           **vals;
+
+    if ((vals = malloc(hashmap->len * sizeof(void *))) == NULL) return NULL;
+    for (i = 0; i < hashmap->cap; i++) {
+        for (p = hashmap->hashtable[i]; p; p = p->next) vals[idx++] = p->val;
+    }
+
+    return vals;
+}
 
 void stc_hashmap_free(StcHashMap                   *hashmap,
                       stc_hashmap_keyval_free_func *keyfree,
@@ -187,6 +217,8 @@ void stc_hashmap_free(StcHashMap                   *hashmap,
     free(hashmap->hashtable);
     free(hashmap);
 }
+
+/*** Helper function definitions **********************************************/
 
 static StcHashMapEntry **stc_hashmap_talloc(size_t tcap)
 {
