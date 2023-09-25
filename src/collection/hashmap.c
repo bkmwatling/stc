@@ -54,6 +54,8 @@ StcHashMap *stc_hashmap_new_with_capacity(size_t                   cap,
     StcHashMap *hashmap;
     size_t      i;
 
+    if (!(hash && keycmp)) return NULL;
+
     if (loadfactor <= 0.0f || (hashmap = malloc(sizeof(StcHashMap))) == NULL)
         return NULL;
 
@@ -82,7 +84,10 @@ StcHashMap *stc_hashmap_new_with_capacity(size_t                   cap,
     return hashmap;
 }
 
-size_t stc_hashmap_len(StcHashMap *hashmap) { return hashmap->len; }
+size_t stc_hashmap_len(StcHashMap *hashmap)
+{
+    return hashmap ? hashmap->len : 0;
+}
 
 int stc_hashmap_insert(StcHashMap *hashmap, void *key, void *val)
 {
@@ -172,7 +177,9 @@ void **stc_hashmap_keys(StcHashMap *hashmap)
     StcHashMapEntry *p;
     void           **keys;
 
-    if ((keys = malloc(hashmap->len * sizeof(void *))) == NULL) return NULL;
+    if (hashmap == NULL ||
+        (keys = malloc(hashmap->len * sizeof(void *))) == NULL)
+        return NULL;
     for (i = 0; i < hashmap->cap; i++) {
         for (p = hashmap->hashtable[i]; p; p = p->next) keys[idx++] = p->key;
     }
@@ -186,7 +193,9 @@ void **stc_hashmap_values(StcHashMap *hashmap)
     StcHashMapEntry *p;
     void           **vals;
 
-    if ((vals = malloc(hashmap->len * sizeof(void *))) == NULL) return NULL;
+    if (hashmap == NULL ||
+        (vals = malloc(hashmap->len * sizeof(void *))) == NULL)
+        return NULL;
     for (i = 0; i < hashmap->cap; i++) {
         for (p = hashmap->hashtable[i]; p; p = p->next) vals[idx++] = p->val;
     }
@@ -217,6 +226,12 @@ void stc_hashmap_free(StcHashMap                   *hashmap,
     free(hashmap->hashtable);
     free(hashmap);
 }
+
+/*** Map wrapper **************************************************************/
+
+#ifndef STC_HASHMAP_DISABLE_MAP
+STC_MAP_CREATE_WRAPPER(stc_hashmap, StcHashMap)
+#endif /* STC_HASHMAP_DISABLE_MAP */
 
 /*** Helper function definitions **********************************************/
 
@@ -251,7 +266,3 @@ static void stc_hashmap_rehash(StcHashMap *hashmap)
     free(hashmap->hashtable);
     hashmap->hashtable = hashtable;
 }
-
-#ifndef STC_HASHMAP_DISABLE_MAP
-STC_MAP_CREATE_WRAPPER(stc_hashmap, StcHashMap)
-#endif /* STC_HASHMAP_DISABLE_MAP */
