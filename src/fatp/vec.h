@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#ifdef STC_VEC_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_VEC_ENABLE_SHORT_NAMES)
 #    define VEC_DEFAULT_CAP STC_VEC_DEFAULT_CAP
 #    define vec_header      stc_vec_header
 

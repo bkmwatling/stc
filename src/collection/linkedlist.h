@@ -3,7 +3,8 @@
 
 #include <stddef.h>
 
-#ifdef STC_LINKEDLIST_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || \
+    defined(STC_LINKEDLIST_ENABLE_SHORT_NAMES)
 typedef StcLinkedList LinkedList;
 
 #    define linkedlist_new      stc_linkedlist_new

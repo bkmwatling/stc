@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#ifdef STC_SV_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_SV_ENABLE_SHORT_NAMES)
 typedef StcStringView StringView;
 
 #    define SV_FMT STC_SV_FMT

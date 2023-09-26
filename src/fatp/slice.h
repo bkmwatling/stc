@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#ifdef STC_SLICE_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_SLICE_ENABLE_SHORT_NAMES)
 #    define slice_header     stc_slice_header
 #    define slice_new        stc_slice_new
 #    define slice_init       stc_slice_init

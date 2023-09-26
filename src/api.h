@@ -1,28 +1,6 @@
 #ifndef STC_API_H
 #define STC_API_H
 
-/* Set all short names macros if STC_ENABLE_SHORT_NAMES is set */
-#ifdef STC_ENABLE_SHORT_NAMES
-#    ifndef STC_COMMON_ENABLE_SHORT_NAMES
-#        define STC_COMMON_ENABLE_SHORT_NAMES
-#    endif
-#    ifndef STC_MEM_ENABLE_SHORT_NAMES
-#        define STC_MEM_ENABLE_SHORT_NAMES
-#    endif
-#    ifndef STC_SLICE_ENABLE_SHORT_NAMES
-#        define STC_SLICE_ENABLE_SHORT_NAMES
-#    endif
-#    ifndef STC_SV_ENABLE_SHORT_NAMES
-#        define STC_SV_ENABLE_SHORT_NAMES
-#    endif
-#    ifndef STC_VEC_ENABLE_SHORT_NAMES
-#        define STC_VEC_ENABLE_SHORT_NAMES
-#    endif
-#    ifndef STC_UTF_ENABLE_SHORT_NAMES
-#        define STC_UTF_ENABLE_SHORT_NAMES
-#    endif
-#endif /* STC_ENABLE_SHORT_NAMES */
-
 #ifndef STC_DISABLE_COMMON
 #    include "common.h"
 #endif
@@ -31,9 +9,27 @@
 #    include "math.h"
 #endif
 
+#ifndef STC_DISABLE_COLLECTION
+#    ifndef STC_DISABLE_BTREE
+#        include "collection/btree.h"
+#    endif
+#    ifndef STC_DISABLE_HASHMAP
+#        include "collection/hashmap.h"
+#    endif
+#    ifndef STC_DISABLE_LINKEDLIST
+#        include "collection/linkedlist.h"
+#    endif
+#    ifndef STC_DISABLE_MAP
+#        include "collection/map.h"
+#    endif
+#endif /* STC_DISABLE_COLLECTION */
+
 #ifndef STC_DISABLE_FATP
 #    ifndef STC_DISABLE_SLICE
 #        include "fatp/slice.h"
+#    endif
+#    ifndef STC_DISABLE_STRING
+#        include "fatp/string.h"
 #    endif
 #    ifndef STC_DISABLE_SV
 #        include "fatp/string_view.h"

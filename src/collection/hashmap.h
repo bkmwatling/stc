@@ -1,11 +1,15 @@
 #ifndef STC_HASHMAP_H
 #define STC_HASHMAP_H
 
+#if defined(STC_DISABLE_MAP) && !defined(STC_HASHMAP_DISABLE_MAP)
+#    define STC_HASHMAP_DISABLE_MAP
+#endif
+
 #ifndef STC_HASHMAP_DISABLE_MAP
 #    include "map.h"
 #endif
 
-#ifdef STC_HASHMAP_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_HASHMAP_ENABLE_SHORT_NAMES)
 typedef StcHashMap HashMap;
 
 #    define hashmap_hash_func        stc_hashmap_hash_func

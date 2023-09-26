@@ -3,7 +3,7 @@
 
 #include "base.h"
 
-#ifdef STC_MEM_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_MEM_ENABLE_SHORT_NAMES)
 #    define mem_libc_alloc       stc_mem_libc_alloc
 #    define mem_libc_free        stc_mem_libc_free
 #    define mem_libc_mem_manager stc_mem_libc_mem_manager

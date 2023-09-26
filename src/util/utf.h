@@ -6,12 +6,15 @@
 #if defined(STC_DISABLE_FATP) && !defined(STC_DISABLE_SV)
 #    define STC_DISABLE_SV
 #endif
+#if defined(STC_DISABLE_SV) && !defined(STC_UTF_DISABLE_SV)
+#    define STC_UTF_DISABLE_SV
+#endif
 
-#ifndef STC_DISABLE_SV
+#ifndef STC_UTF_DISABLE_SV
 #    include "../fatp/string_view.h"
 #endif
 
-#ifdef STC_UTF_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_UTF_ENABLE_SHORT_NAMES)
 #    define UTF8_IS_CONTINUATION STC_UTF8_IS_CONTINUATION
 #    define UTF8_IS_SINGLE       STC_UTF8_IS_SINGLE
 #    define UTF8_IS_DOUBLE       STC_UTF8_IS_DOUBLE
@@ -138,7 +141,7 @@ const char *stc_utf8_str_next(const char *s);
 
 /*** UTF-8 string view macros and functions ***********************************/
 
-#ifndef STC_DISABLE_SV
+#ifndef STC_UTF_DISABLE_SV
 
 /*** Single UTF-8 codepoint macros and functions for string views *************/
 
@@ -231,6 +234,6 @@ size_t stc_utf8_sv_ncodepoints(StcStringView sv);
  */
 StcStringView stc_utf8_sv_next(StcStringView sv);
 
-#endif /* STC_DISABLE_SV */
+#endif /* STC_UTF_DISABLE_SV */
 
 #endif /* STC_UTF_H */

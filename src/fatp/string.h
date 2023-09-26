@@ -6,7 +6,7 @@
 #include "slice.h"
 #include "vec.h"
 
-#ifdef STC_STRING_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_STRING_ENABLE_SHORT_NAMES)
 #    define STRING_DEFAULT_CAP STC_STRING_DEFAULT_CAP
 #    define string_header      stc_string_header
 
@@ -116,7 +116,7 @@ void _stc_strint_push_fmt(char **string, const char *fmt, ...);
 
 /*** String slice definitions (aliases to slice) ******************************/
 
-#ifdef STC_STR_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_STR_ENABLE_SHORT_NAMES)
 #    define str_header     stc_str_header
 #    define str_new        stc_str_new
 #    define str_from_parts stc_str_from_parts

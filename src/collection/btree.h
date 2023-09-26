@@ -1,11 +1,15 @@
 #ifndef STC_BTREE_H
 #define STC_BTREE_H
 
+#if defined(STC_DISABLE_MAP) && !defined(STC_BTREE_DISABLE_MAP)
+#    define STC_BTREE_DISABLE_MAP
+#endif
+
 #ifndef STC_BTREE_DISABLE_MAP
 #    include "map.h"
 #endif
 
-#ifdef STC_BTREE_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_BTREE_ENABLE_SHORT_NAMES)
 typedef StcBTree BTree;
 
 #    define btree_keycmp_func      stc_btree_keycmp_func

@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-#ifdef STC_MEM_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_MEM_ENABLE_SHORT_NAMES)
 #    define KB STC_KB
 #    define MB STC_MB
 #    define GB STC_GB

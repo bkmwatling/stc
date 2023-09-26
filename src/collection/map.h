@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#ifdef STC_MAP_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_MAP_ENABLE_SHORT_NAMES)
 typedef StcMap Map;
 
 #    define map_len        stc_map_len
