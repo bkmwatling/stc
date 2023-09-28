@@ -98,21 +98,21 @@
  * Pushes a string onto the resizable string created from the format specifier
  * and variable argument list.
  *
- * @param[in] string the pointer to the resizable string
+ * @param[in] self the pointer to the resizable string
  * @param[in] fmt the format specifier
  * @param[in] ap the variable argument list to parse with the format specifier
  */
-void _stc_string_push_vfmt(char **string, const char *fmt, va_list ap);
+void _stc_string_push_vfmt(char **self, const char *fmt, va_list ap);
 
 /**
  * Pushes a string onto the resizable string created from the format specifier
  * and variable arguments.
  *
- * @param[in] string the pointer to the resizable string
+ * @param[in] self the pointer to the resizable string
  * @param[in] fmt the format specifier
  * @param[in] ... the variable arguments to parse with the format specifier
  */
-void _stc_strint_push_fmt(char **string, const char *fmt, ...);
+void _stc_strint_push_fmt(char **self, const char *fmt, ...);
 
 /*** String slice definitions (aliases to slice) ******************************/
 

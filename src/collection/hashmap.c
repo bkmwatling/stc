@@ -25,7 +25,7 @@ struct stc_hashmap {
 /*** Helper function prototypes ***********************************************/
 
 static StcHashMapEntry **stc_hashmap_talloc(size_t tcap);
-static void              stc_hashmap_rehash(StcHashMap *hashmap);
+static void              stc_hashmap_rehash(StcHashMap *self);
 
 /**
  * The array of differences between a power-of-two and the largest prime less
@@ -84,86 +84,83 @@ StcHashMap *stc_hashmap_new_with_capacity(size_t                   cap,
     return hashmap;
 }
 
-size_t stc_hashmap_len(StcHashMap *hashmap)
-{
-    return hashmap ? hashmap->len : 0;
-}
+size_t stc_hashmap_len(StcHashMap *self) { return self ? self->len : 0; }
 
-int stc_hashmap_insert(StcHashMap *hashmap, void *key, void *val)
+int stc_hashmap_insert(StcHashMap *self, void *key, void *val)
 {
     size_t           hash;
     StcHashMapEntry *p;
 
-    if (!(hashmap && key && val)) return 1;
+    if (!(self && key && val)) return 1;
 
-    hash = hashmap->hash(key, hashmap->cap);
-    for (p = hashmap->hashtable[hash]; p; p = p->next) {
-        if (hashmap->keycmp(key, p->key) == 0) return -1;
+    hash = self->hash(key, self->cap);
+    for (p = self->hashtable[hash]; p; p = p->next) {
+        if (self->keycmp(key, p->key) == 0) return -1;
     }
 
     /* rehash if possible and necessary */
-    if (STC_HASHMAP_LOADFACTOR(hashmap) > hashmap->max_loadfactor &&
-        hashmap->idx < STC_HASHMAP_MAX_DELTA_IDX - 1) {
-        hashmap->idx++;
-        stc_hashmap_rehash(hashmap);
+    if (STC_HASHMAP_LOADFACTOR(self) > self->max_loadfactor &&
+        self->idx < STC_HASHMAP_MAX_DELTA_IDX - 1) {
+        self->idx++;
+        stc_hashmap_rehash(self);
     }
 
     if ((p = malloc(sizeof(StcHashMapEntry))) == NULL) return -2;
-    p->key                   = key;
-    p->val                   = val;
-    p->next                  = hashmap->hashtable[hash];
-    hashmap->hashtable[hash] = p;
-    hashmap->len++;
+    p->key                = key;
+    p->val                = val;
+    p->next               = self->hashtable[hash];
+    self->hashtable[hash] = p;
+    self->len++;
 
     return 0;
 }
 
-void *stc_hashmap_get(StcHashMap *hashmap, void *key)
+void *stc_hashmap_get(StcHashMap *self, void *key)
 {
     size_t           hash;
     StcHashMapEntry *p;
 
-    if (!(hashmap && key)) return NULL;
+    if (!(self && key)) return NULL;
 
-    hash = hashmap->hash(key, hashmap->cap);
-    for (p = hashmap->hashtable[hash]; p; p = p->next) {
-        if (hashmap->keycmp(key, p->key) == 0) return p->val;
+    hash = self->hash(key, self->cap);
+    for (p = self->hashtable[hash]; p; p = p->next) {
+        if (self->keycmp(key, p->key) == 0) return p->val;
     }
 
     return NULL;
 }
 
-int stc_hashmap_contains_key(StcHashMap *hashmap, void *key)
+int stc_hashmap_contains_key(StcHashMap *self, void *key)
 {
-    return stc_hashmap_get(hashmap, key) != NULL;
+    return stc_hashmap_get(self, key) != NULL;
 }
 
-void *stc_hashmap_remove(StcHashMap *hashmap, void *key)
+void *stc_hashmap_remove(StcHashMap *self, void *key)
 {
     size_t           hash;
     void            *val;
     StcHashMapEntry *p, *q = NULL;
 
-    if (!(hashmap && key)) return NULL;
+    if (!(self && key)) return NULL;
 
-    hash = hashmap->hash(key, hashmap->cap);
-    for (p = hashmap->hashtable[hash]; p; q = p, p = p->next) {
-        if (hashmap->keycmp(key, p->key) == 0) break;
+    hash = self->hash(key, self->cap);
+    for (p = self->hashtable[hash]; p; q = p, p = p->next) {
+        if (self->keycmp(key, p->key) == 0) break;
     }
 
     if (p == NULL) return NULL;
-    hashmap->len--;
+    self->len--;
     if (q) {
         q->next = p->next;
     } else {
-        hashmap->hashtable[hash] = p->next;
+        self->hashtable[hash] = p->next;
     }
 
     /* rehash if possible to save memory */
-    if (STC_HASHMAP_LOADFACTOR(hashmap) <= hashmap->max_loadfactor * 0.25f &&
-        hashmap->idx > 0) {
-        hashmap->idx--;
-        stc_hashmap_rehash(hashmap);
+    if (STC_HASHMAP_LOADFACTOR(self) <= self->max_loadfactor * 0.25f &&
+        self->idx > 0) {
+        self->idx--;
+        stc_hashmap_rehash(self);
     }
 
     val = p->val;
@@ -171,50 +168,48 @@ void *stc_hashmap_remove(StcHashMap *hashmap, void *key)
     return val;
 }
 
-void **stc_hashmap_keys(StcHashMap *hashmap)
+void **stc_hashmap_keys(StcHashMap *self)
 {
     size_t           i, idx = 0;
     StcHashMapEntry *p;
     void           **keys;
 
-    if (hashmap == NULL ||
-        (keys = malloc(hashmap->len * sizeof(void *))) == NULL)
+    if (self == NULL || (keys = malloc(self->len * sizeof(void *))) == NULL)
         return NULL;
-    for (i = 0; i < hashmap->cap; i++) {
-        for (p = hashmap->hashtable[i]; p; p = p->next) keys[idx++] = p->key;
+    for (i = 0; i < self->cap; i++) {
+        for (p = self->hashtable[i]; p; p = p->next) keys[idx++] = p->key;
     }
 
     return keys;
 }
 
-void **stc_hashmap_values(StcHashMap *hashmap)
+void **stc_hashmap_values(StcHashMap *self)
 {
     size_t           i, idx = 0;
     StcHashMapEntry *p;
     void           **vals;
 
-    if (hashmap == NULL ||
-        (vals = malloc(hashmap->len * sizeof(void *))) == NULL)
+    if (self == NULL || (vals = malloc(self->len * sizeof(void *))) == NULL)
         return NULL;
-    for (i = 0; i < hashmap->cap; i++) {
-        for (p = hashmap->hashtable[i]; p; p = p->next) vals[idx++] = p->val;
+    for (i = 0; i < self->cap; i++) {
+        for (p = self->hashtable[i]; p; p = p->next) vals[idx++] = p->val;
     }
 
     return vals;
 }
 
-void stc_hashmap_free(StcHashMap                   *hashmap,
+void stc_hashmap_free(StcHashMap                   *self,
                       stc_hashmap_keyval_free_func *keyfree,
                       stc_hashmap_keyval_free_func *valfree)
 {
     size_t           i;
     StcHashMapEntry *p, *q;
 
-    if (!(hashmap && keyfree && valfree)) return;
+    if (!(self && keyfree && valfree)) return;
 
     /* free the nodes in the buckets */
-    for (i = 0; i < hashmap->cap; i++) {
-        for (p = hashmap->hashtable[i]; p; p = q) {
+    for (i = 0; i < self->cap; i++) {
+        for (p = self->hashtable[i]; p; p = q) {
             q = p->next;
             keyfree(p->key);
             valfree(p->val);
@@ -223,8 +218,8 @@ void stc_hashmap_free(StcHashMap                   *hashmap,
     }
 
     /* free the table and container */
-    free(hashmap->hashtable);
-    free(hashmap);
+    free(self->hashtable);
+    free(self);
 }
 
 /*** Map wrapper **************************************************************/
@@ -240,29 +235,27 @@ static StcHashMapEntry **stc_hashmap_talloc(size_t tcap)
     return malloc(tcap * sizeof(StcHashMapEntry *));
 }
 
-static void stc_hashmap_rehash(StcHashMap *hashmap)
+static void stc_hashmap_rehash(StcHashMap *self)
 {
     size_t           hash, cap;
     size_t           i;
     StcHashMapEntry *p, *q, **hashtable;
 
     /* silently refuse to hash if table allocation fails */
-    if ((hashtable = stc_hashmap_talloc(
-             (cap = STC_HASHMAP_GETCAP(hashmap->idx)))) == NULL) {
-        return;
-    }
+    cap = STC_HASHMAP_GETCAP(self->idx);
+    if ((hashtable = stc_hashmap_talloc(cap)) == NULL) return;
     for (i = 0; i < cap; i++) hashtable[i] = NULL;
 
-    for (i = 0; i < hashmap->cap; i++) {
-        for (p = hashmap->hashtable[i]; p; p = q) {
+    for (i = 0; i < self->cap; i++) {
+        for (p = self->hashtable[i]; p; p = q) {
             q               = p->next;
-            hash            = hashmap->hash(p->key, cap);
+            hash            = self->hash(p->key, cap);
             p->next         = hashtable[hash];
             hashtable[hash] = p;
         }
     }
 
-    hashmap->cap = cap;
-    free(hashmap->hashtable);
-    hashmap->hashtable = hashtable;
+    self->cap = cap;
+    free(self->hashtable);
+    self->hashtable = hashtable;
 }

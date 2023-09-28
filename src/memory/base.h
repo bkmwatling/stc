@@ -130,48 +130,48 @@ StcMemArena stc_mem_arena_new(StcMemManager *man, size_t size);
 /**
  * Frees the memory of the memory arena using its memory manager.
  *
- * @param[in] arena the memory arena to free
+ * @param[in] self the memory arena to free
  */
-void stc_mem_arena_free(StcMemArena *arena);
+void stc_mem_arena_free(StcMemArena *self);
 
 /**
  * Allocate (push) size amount of a memory arena's memory.
  *
- * @param[in] arena the pointer to the memory arena
+ * @param[in] self the pointer to the memory arena
  * @param[in] size the size of memory to allocate
  *
  * @return a pointer to the allocated memory of the memory arena
  */
-void *stc_mem_arena_push(StcMemArena *arena, size_t size);
+void *stc_mem_arena_push(StcMemArena *self, size_t size);
 
 /**
  * Allocate (push) size amount of a memory arena's memory, and zero it out.
  *
- * @param[in] arena the pointer to the memory arena
+ * @param[in] self the pointer to the memory arena
  * @param[in] size the size of memory to allocate
  *
  * @return a pointer to the zeroed out allocated memory of the memory arena
  */
-void *stc_mem_arena_push_zero(StcMemArena *arena, size_t size);
+void *stc_mem_arena_push_zero(StcMemArena *self, size_t size);
 
 /**
  * Deallocate (pop) memory to position pos in the memory arena's memory.
  *
- * @param[in] arena the pointer to the memory arena
+ * @param[in] self the pointer to the memory arena
  * @param[in] pos the position to pop to
  */
-void stc_mem_arena_pop_to(StcMemArena *arena, size_t pos);
+void stc_mem_arena_pop_to(StcMemArena *self, size_t pos);
 
 /**
  * Aligns the memory arena position to a given power of 2.
  * Note: this function should not be used directly, but rather through the use
  * of the defined macros stc_mem_arena_align and stc_mem_arena_align_zero.
  *
- * @param[in] arena the pointer to the memory arena
+ * @param[in] self the pointer to the memory arena
  * @param[in] pow2_align the power of 2 to align to
  * @param[in] arena_push the memory push function for the memory arena
  */
-void _stc_mem_arena_align(StcMemArena *arena,
+void _stc_mem_arena_align(StcMemArena *self,
                           size_t       pow2_align,
                           void *(*arena_push)(StcMemArena *, size_t));
 

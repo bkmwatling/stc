@@ -73,21 +73,21 @@ StcStringView stc_sv_from_parts(STC_SV_CONST char *str, size_t len);
  * Trims the string view from the left (skipping over spaces), returning the
  * trimmed string view.
  *
- * @param[in] sv the string view to trim from the left
+ * @param[in] self the string view to trim from the left
  *
  * @return the trimmed string view
  */
-StcStringView stc_sv_trim_left(StcStringView sv);
+StcStringView stc_sv_trim_left(StcStringView self);
 
 /**
  * Trims the string view from the right (skipping over spaces), returning the
  * trimmed string view.
  *
- * @param[in] sv the string view to trim from the right
+ * @param[in] self the string view to trim from the right
  *
  * @return the trimmed string view
  */
-StcStringView stc_sv_trim_right(StcStringView sv);
+StcStringView stc_sv_trim_right(StcStringView self);
 
 /**
  * Takes the left side (prefix) of the string view such that the returned string
@@ -95,78 +95,78 @@ StcStringView stc_sv_trim_right(StcStringView sv);
  * maximal prefix of the given string view with all characters matching the
  * predicate.
  *
- * @param[in] sv the string view to take from
+ * @param[in] self the string view to take from
  * @param[in] predicate the predicate function to test the characters of the
  *                      string view
  *
- * @return a string view of the maximal prefix of sv with all characters
+ * @return a string view of the maximal prefix of self with all characters
  *         matching the predicate
  */
-StcStringView stc_sv_take_left_while(StcStringView sv, int (*predicate)(char));
+StcStringView stc_sv_take_left_while(StcStringView self,
+                                     int (*predicate)(char));
 
 /**
- * Chops the string view sv from the left and returns the left side (prefix) of
- * sv such that the returned string view's characters all match the predicate.
- * The returned string view is a maximal prefix of the sv with all characters
- * matching the predicate. Then sv is updated to point to the string after the
- * returned prefix.
- * If the all the characters of sv match the predicate then sv will be set to
- * have length 0 and point to the character after the end of the string it used
- * to view. In this case the returned string view will be a copy of what sv was.
+ * Chops the string view self from the left and returns the left side (prefix)
+ * of self such that the returned string view's characters all match the
+ * predicate. The returned string view is a maximal prefix of the self with all
+ * characters matching the predicate. Then self is updated to point to the
+ * string after the returned prefix. If the all the characters of self match the
+ * predicate then self will be set to have length 0 and point to the character
+ * after the end of the string it used to view. In this case the returned string
+ * view will be a copy of what self was.
  *
- * @param[in,out] sv the pointer to the string view to chop
+ * @param[in,out] self the pointer to the string view to chop
  * @param[in] predicate the predicate function to test the characters of the
  *                      string view
  *
- * @return a string view of the maximal prefix of sv with all characters
+ * @return a string view of the maximal prefix of self with all characters
  *         matching the predicate
  */
-StcStringView stc_sv_chop_left_while(StcStringView *sv, int (*predicate)(char));
+StcStringView stc_sv_chop_left_while(StcStringView *self,
+                                     int (*predicate)(char));
 
 /**
- * Chops the string view sv at the delimeter and returns a string view of the
- * sv from the left of the delimeter and updates sv to view the string from the
- * right of the delimeter.
- * If the delimeter is not in sv, then sv will be set to have length 0 and point
- * to the end of the string is used to view. In this case the returned string
- * view will be a copy of what sv was.
+ * Chops the string view self at the delimeter and returns a string view of the
+ * self from the left of the delimeter and updates self to view the string from
+ * the right of the delimeter. If the delimeter is not in self, then self will
+ * be set to have length 0 and point to the end of the string is used to view.
+ * In this case the returned string view will be a copy of what self was.
  *
- * @param[in,out] sv the pointer to the string view to chop
+ * @param[in,out] self the pointer to the string view to chop
  * @param[in] delim the character delimeter to chop the string view at
  *
  * @return a string view of the string to the left of the delimeter
  */
-StcStringView stc_sv_chop_by_delim(StcStringView *sv, char delim);
+StcStringView stc_sv_chop_by_delim(StcStringView *self, char delim);
 
 /**
- * Chops the string view sv at the delimeter and returns a string view of the
- * sv from the left of the delimeter and updates sv to view the string from the
- * right of the delimeter.
- * If the delimeter is not in sv, then sv will be set to have length 0 and point
- * to the end of the string is used to view. In this case the returned string
- * view will be a copy of what sv was.
+ * Chops the string view self at the delimeter and returns a string view of the
+ * self from the left of the delimeter and updates self to view the string from
+ * the right of the delimeter. If the delimeter is not in self, then self will
+ * be set to have length 0 and point to the end of the string is used to view.
+ * In this case the returned string view will be a copy of what self was.
  *
- * @param[in,out] sv the pointer to the string view to chop
+ * @param[in,out] self the pointer to the string view to chop
  * @param[in] delim the string view delimeter to chop the string view at
  *
  * @return a string view of the string to the left of the delimeter
  */
-StcStringView stc_sv_chop_by_sv(StcStringView *sv, StcStringView delim);
+StcStringView stc_sv_chop_by_sv(StcStringView *self, StcStringView delim);
 
 /**
- * Tries to chop the string view sv at the delimeter and returns whether or not
- * the delimeter was found in sv. If the delimeter is found in sv, then a string
- * view of the sv from the left of the delimeter is returned through the second
- * string view pointer and sv is updated to view the string from the right of
- * the delimeter.
- * If the delimeter is not in sv, then nothing will happen and sv will remain
- * unchanged. In this case the second string view pointer is also not modified.
+ * Tries to chop the string view self at the delimeter and returns whether or
+ * not the delimeter was found in self. If the delimeter is found in self, then
+ * a string view of self from the left of the delimeter is returned through the
+ * second string view pointer and self is updated to view the string from the
+ * right of the delimeter. If the delimeter is not in self, then nothing will
+ * happen and self will remain unchanged. In this case the second string view
+ * pointer is also not modified.
  *
  * Note: if the second string view pointer is NULL, setting its memory is not
  * attempted, and so it can be set to NULL if you don't care about string on the
  * left side of the delimeter.
  *
- * @param[in,out] sv the pointer to the string view to chop
+ * @param[in,out] self the pointer to the string view to chop
  * @param[in] delim the string view delimeter to chop the string view at
  * @param[out] left the pointer to the string view to store the string on the
  *                  left of the delimiter if found and is not NULL
@@ -174,7 +174,7 @@ StcStringView stc_sv_chop_by_sv(StcStringView *sv, StcStringView delim);
  * @return whether the delimeter was found and thus if the string views where
  *         modified
  */
-int stc_sv_try_chop_by_delim(StcStringView *sv,
+int stc_sv_try_chop_by_delim(StcStringView *self,
                              char           delim,
                              StcStringView *left);
 
@@ -183,36 +183,36 @@ int stc_sv_try_chop_by_delim(StcStringView *sv,
  * view to the chopped off characters whilst updating the given string view to
  * start after the last chopped off character.
  *
- * @param[in,out] sv the pointer to the string view to chop
+ * @param[in,out] self the pointer to the string view to chop
  * @param[in] n the number of characters to chop from the left
  *
  * @return a string view to the characters that were chopped off
  */
-StcStringView stc_sv_chop_left(StcStringView *sv, size_t n);
+StcStringView stc_sv_chop_left(StcStringView *self, size_t n);
 
 /**
  * Chops off the last n characters from the string view and returns a string
  * view to the chopped off characters whilst updating the given string view to
  * end before the first chopped off character.
  *
- * @param[in,out] sv the pointer to the string view to chop
+ * @param[in,out] self the pointer to the string view to chop
  * @param[in] n the number of characters to chop from the right
  *
  * @return a string view to the characters that were chopped off
  */
-StcStringView stc_sv_chop_right(StcStringView *sv, size_t n);
+StcStringView stc_sv_chop_right(StcStringView *self, size_t n);
 
 /**
  * Finds the index of the character c in the string view if it is contained in
  * the string view.
  *
- * @param[in] sv the string view to find the index of c in
+ * @param[in] self the string view to find the index of c in
  * @param[in] c the character to find the index of
  * @param[out] idx the pointer to save the index of c in only if found
  *
  * @return whether the character was found in the string view
  */
-int stc_sv_index_of(StcStringView sv, char c, size_t *idx);
+int stc_sv_index_of(StcStringView self, char c, size_t *idx);
 
 /**
  * Compares two string views.
@@ -249,35 +249,35 @@ int stc_sv_eq_ignorecase(StcStringView a, StcStringView b);
 /**
  * Checks if a string view is a prefix of the other string view.
  *
- * @param[in] sv the string view to check the prefix of
- * @param[in] prefix the string view to test if it is a prefix of sv
+ * @param[in] self the string view to check the prefix of
+ * @param[in] prefix the string view to test if it is a prefix of self
  *
- * @return a non-zero value of the prefix string view is a prefix of sv; else 0
- *         if it is not
+ * @return a non-zero value of the prefix string view is a prefix of self;
+ *         else 0 if it is not
  */
-int stc_sv_starts_with(StcStringView sv, StcStringView prefix);
+int stc_sv_starts_with(StcStringView self, StcStringView prefix);
 
 /**
  * Checks if a string view is a suffix of the other string view.
  *
- * @param[in] sv the string view to check the suffix of
- * @param[in] suffix the string view to test if it is a suffix of sv
+ * @param[in] self the string view to check the suffix of
+ * @param[in] suffix the string view to test if it is a suffix of self
  *
- * @return a non-zero value of the suffix string view is a suffix of sv; else 0
- *         if it is not
+ * @return a non-zero value of the suffix string view is a suffix of self;
+ *         else 0 if it is not
  */
-int stc_sv_ends_with(StcStringView sv, StcStringView suffix);
+int stc_sv_ends_with(StcStringView self, StcStringView suffix);
 
 /**
  * Converts the string view into an unsigned integer, ignoring any junk after
  * the last contiguous digit. If the first character is not a digit then zero is
  * returned.
  *
- * @param[in] sv the string view to parse the unsigned integer from
+ * @param[in] self the string view to parse the unsigned integer from
  *
  * @return the unsigned integer parsed from the string view
  */
-size_t stc_sv_to_int(StcStringView sv);
+size_t stc_sv_to_int(StcStringView self);
 
 /**
  * Converts the string view into an unsigned integer, ignoring any junk after
@@ -288,11 +288,11 @@ size_t stc_sv_to_int(StcStringView sv);
  * length 0 and point to the character after the end of the string it used to
  * view.
  *
- * @param[in] sv the pointer to the string view to parse the unsigned integer
- *               from
+ * @param[in] self the pointer to the string view to parse the unsigned integer
+ *                 from
  *
  * @return the unsigned integer parsed from the string view
  */
-size_t stc_sv_chop_int(StcStringView *sv);
+size_t stc_sv_chop_int(StcStringView *self);
 
 #endif /* STC_STRING_VIEW_H */

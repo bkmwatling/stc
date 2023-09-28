@@ -79,86 +79,86 @@ StcHashMap *stc_hashmap_new_with_capacity(size_t                   cap,
 /**
  * Gets the length of (number of entries in) the hash map.
  *
- * @param[in] hashmap the pointer to the hash map
+ * @param[in] self the pointer to the hash map
  *
  * @return the length of the hash map
  */
-size_t stc_hashmap_len(StcHashMap *hashmap);
+size_t stc_hashmap_len(StcHashMap *self);
 
 /**
  * Inserts the key and value into the hash map only if the key is not already in
  * the hash map.
  *
- * @param[in] hashmap the pointer to the hash map
+ * @param[in] self the pointer to the hash map
  * @param[in] key the key to insert into the hash map
  * @param[in] val the value to insert into the hash map
  *
  * @return 0 if the insert was successful; else non-zero value
  */
-int stc_hashmap_insert(StcHashMap *hashmap, void *key, void *val);
+int stc_hashmap_insert(StcHashMap *self, void *key, void *val);
 
 /**
  * Gets the value corresponding to the key from the hash map if the key is
  * contained in the hash map.
  *
- * @param[in] hashmap the pointer to the hash map
+ * @param[in] self the pointer to the hash map
  * @param[in] key the key to get the corresponding value of from the hash map
  *
  * @return the value corresponding to the key if found; else NULL
  */
-void *stc_hashmap_get(StcHashMap *hashmap, void *key);
+void *stc_hashmap_get(StcHashMap *self, void *key);
 
 /**
  * Checks whether the key is contained in the hash map.
  *
- * @param[in] hashmap the pointer to the hash map
+ * @param[in] self the pointer to the hash map
  * @param[in] key the key to check for in the hash map
  *
  * @return non-zero if the key was found; else 0 if it was not found
  */
-int stc_hashmap_contains_key(StcHashMap *hashmap, void *key);
+int stc_hashmap_contains_key(StcHashMap *self, void *key);
 
 /**
  * Removes the key-value pair from the hash map if the key is contained in the
  * hash map and returns the value corresponding to the key.
  *
- * @param[in] hashmap the pointer to the hash map
+ * @param[in] self the pointer to the hash map
  * @param[in] key the key of the key-value pair to remove from the hash map
  *
  * @return the value corresponding to the key if the key is contained in the
  *         hash map; else NULL if it is not
  */
-void *stc_hashmap_remove(StcHashMap *hashmap, void *key);
+void *stc_hashmap_remove(StcHashMap *self, void *key);
 
 /**
  * Creates an unordered array of the keys contained in the hash map.
  *
- * @param[in] hashmap the pointer to the hash map
+ * @param[in] self the pointer to the hash map
  *
  * @return an unordered array of the keys contained in the hash map with the
  *         same length as the hash map
  */
-void **stc_hashmap_keys(StcHashMap *hashmap);
+void **stc_hashmap_keys(StcHashMap *self);
 
 /**
  * Creates an unordered array of the values contained in the hash map.
  *
- * @param[in] hashmap the pointer to the hash map
+ * @param[in] self the pointer to the hash map
  *
  * @return an unordered array of the values contained in the hash map with the
  *         same length as the hash map
  */
-void **stc_hashmap_values(StcHashMap *hashmap);
+void **stc_hashmap_values(StcHashMap *self);
 
 /**
  * Frees the memory occupied by the hash map, freeing the memory of each key and
  * value in the hash map.
  *
- * @param[in] hashmap the pointer to the hash map
+ * @param[in] self the pointer to the hash map
  * @param[in] keyfree the function used to free each key in the hash map
  * @param[in] valfree the function used to free each value in the hash map
  */
-void stc_hashmap_free(StcHashMap                   *hashmap,
+void stc_hashmap_free(StcHashMap                   *self,
                       stc_hashmap_keyval_free_func *keyfree,
                       stc_hashmap_keyval_free_func *valfree);
 
@@ -167,21 +167,21 @@ void stc_hashmap_free(StcHashMap                   *hashmap,
  * Wraps the hash map inside a map "interface" but as a borrowed reference,
  * i.e., it cannot be freed from the map wrapper.
  *
- * @param[in] hashmap the pointer to the hash map
+ * @param[in] self the pointer to the hash map
  *
  * @return a pointer to the map "interface" that wraps around the hash map
  */
-StcMap *stc_hashmap_as_map(StcHashMap *hashmap);
+StcMap *stc_hashmap_as_map(StcHashMap *self);
 
 /**
  * Wraps the hash map inside a map "interface" giving full ownership to the map,
  * i.e., it can and must be freed from the map wrapper.
  *
- * @param[in] hashmap the pointer to the hash map
+ * @param[in] self the pointer to the hash map
  *
  * @return a pointer to the map "interface" that wraps around the hash map
  */
-StcMap *stc_hashmap_to_map(StcHashMap *hashmap);
+StcMap *stc_hashmap_to_map(StcHashMap *self);
 #endif /* STC_HASHMAP_DISABLE_MAP */
 
 #endif /* STC_HASHMAP_H */
