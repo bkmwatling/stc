@@ -45,7 +45,7 @@ typedef void stc_btree_keyval_free_func(void *);
  *
  * @param[in] keycmp the key comparison function to use
  *
- * @return a pointer to the created btree
+ * @return a pointer to the created btree if keycmp is not NULL; else NULL
  */
 StcBTree *stc_btree_new(stc_btree_keycmp_func *keycmp);
 
@@ -54,7 +54,7 @@ StcBTree *stc_btree_new(stc_btree_keycmp_func *keycmp);
  *
  * @param[in] self the pointer to the btree
  *
- * @return the length of the btree
+ * @return the length of the btree if it is not NULL; else 0
  */
 size_t stc_btree_len(StcBTree *self);
 
@@ -87,7 +87,7 @@ void *stc_btree_get(StcBTree *self, void *key);
  * @param[in] self the pointer to the btree
  * @param[in] key the key to check for in the btree
  *
- * @return non-zero if the key was found; else 0 if it was not found
+ * @return non-zero value if the key was found; else 0 if it was not found
  */
 int stc_btree_contains_key(StcBTree *self, void *key);
 

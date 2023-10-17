@@ -68,19 +68,20 @@ StcStringView stc_sv_chop_by_sv(StcStringView *self, StcStringView delim)
 {
     size_t        i;
     StcStringView left, window = stc_sv_from_parts(self->str, delim.len);
-    for (i = 0; i + delim.len <= self->len && !stc_sv_eq(window, delim);
+    for (i = delim.len; i <= self->len && !stc_sv_eq(window, delim);
          i++, window.str++)
         ;
 
-    left = stc_sv_from_parts(self->str, i);
-    if (i + delim.len > self->len) {
-        /* include last delim.len characters since we never matched delim */
-        left.len += delim.len;
+    left = stc_sv_from_parts(self->str, i - delim.len);
+    if (i > self->len) {
+        /* set left.len to self->len and update i to be self->len for chopping
+         * since we never matched delim */
+        i = left.len = self->len;
     }
 
     /* perform chop */
-    self->str += i + delim.len;
-    self->len -= i + delim.len;
+    self->str += i;
+    self->len -= i;
 
     return left;
 }

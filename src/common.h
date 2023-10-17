@@ -5,9 +5,10 @@
 
 /*** Enable short names for macros and functions ******************************/
 
-#ifdef STC_COMMON_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_COMMON_ENABLE_SHORT_NAMES)
 #    ifndef STC_DISABLE_ASSERT
-#        define assert stc_assert
+#        define assert     stc_assert
+#        define assert_msg stc_assert_msg
 #    endif
 
 #    define EPRINTF STC_EPRINTF
@@ -17,6 +18,8 @@
 #    define FWARN   STC_FWARN
 #    define ERROR   STC_ERROR
 #    define FERROR  STC_FERROR
+#    define FATAL   STC_FATAL
+#    define FFATAL  STC_FFATAL
 #    define DEBUG   STC_DEBUG
 #    define FDEBUG  STC_FDEBUG
 
@@ -32,6 +35,8 @@
 #    define ARRAY_COUNT   STC_ARRAY_COUNT
 #    define INT_FROM_PTR  STC_INT_FROM_PTR
 #    define PTR_FROM_INT  STC_PTR_FROM_INT
+#    define PTR_TO_INT    STC_PTR_TO_INT
+#    define INT_TO_PTR    STC_INT_TO_PTR
 #    define MEMBER        STC_MEMBER
 #    define MEMBER_OFFSET STC_MEMBER_OFFSET
 
@@ -148,6 +153,9 @@
 #define STC_FWARN(stream, ...)  STC_FPRINTF(stream, "[WARN] " __VA_ARGS__)
 #define STC_ERROR(...)          STC_EPRINTF("[ERROR] " __VA_ARGS__)
 #define STC_FERROR(stream, ...) STC_FPRINTF(stream, "[ERROR] " __VA_ARGS__)
+#define STC_FATAL(...)          STC_STATMENTS(STC_ERROR(__VA_ARGS__); abort())
+#define STC_FFATAL(stream, ...) \
+    STC_STATMENTS(STC_FERROR(stream, __VA_ARGS__); abort())
 
 #ifdef STC_ENABLE_DEBUG
 #    define STC_DEBUG(...)          STC_EPRINTF("[DEBUG] " __VA_ARGS__)
@@ -170,15 +178,17 @@
 #else
 #    ifndef STC_ASSERT_BREAK
 #        define STC_ASSERT_MSG(msg) \
-            "Assertion failed in " __FILE__ " line %d: " msg "\n", __LINE__
+            __FILE__ ":%d: Assertion failed: " msg "\n", __LINE__
 #        define STC_ASSERT_BREAK(cond) \
-            (STC_EPRINTF(STC_ASSERT_MSG(#cond)), exit(1))
+            STC_STATMENTS(STC_EPRINTF(STC_ASSERT_MSG(#cond)); abort())
 #    endif
 
-#    define stc_assert(cond) STC_STATMENTS(if (!(cond)) { STC_ASSERT_BREAK; })
+#    define stc_assert(cond) STC_STATMENTS(if (!(cond)) STC_ASSERT_BREAK(cond);)
 #    define stc_assert_msg(cond, msg) \
-        STC_STATMENTS(                \
-            if (!(cond)) { (STC_EPRINTF(msg "\n"), STC_ASSERT_BREAK(cond)); })
+        STC_STATMENTS(if (!(cond)) {  \
+            STC_EPRINTF(msg "\n");    \
+            STC_ASSERT_BREAK(cond);   \
+        })
 #endif /* STC_USE_STD_ASSERT */
 
 /* NOTE: Macro indirection recommended due to #s and a##b */
@@ -198,6 +208,8 @@
 
 #define STC_INT_FROM_PTR(p) ((unsigned long long) ((char *) (p) - (char *) 0))
 #define STC_PTR_FROM_INT(n) ((void *) ((char *) 0 + (n)))
+#define STC_PTR_TO_INT      STC_INT_FROM_PTR
+#define STC_INT_TO_PTR      STC_PTR_TO_INT
 
 #define STC_MEMBER(T, m)        (((T *) 0)->m)
 #define STC_MEMBER_OFFSET(T, m) STC_INT_FROM_PTR(&STC_MEMBER(T, m))
@@ -225,23 +237,23 @@ typedef int8_t    i8;
 typedef int16_t   i16;
 typedef int32_t   i32;
 typedef int64_t   i64;
-typedef intmax_t  imax;
+typedef intmax_t  isize;
 typedef uint8_t   u8;
 typedef uint16_t  u16;
 typedef uint32_t  u32;
 typedef uint64_t  u64;
-typedef uintmax_t umax;
+typedef uintmax_t usize;
 #    else
 typedef signed char        i8;
 typedef signed short       i16;
 typedef signed int         i32;
 typedef signed long        i64;
-typedef signed long long   imax;
+typedef signed long long   isize;
 typedef unsigned char      u8;
 typedef unsigned short     u16;
 typedef unsigned int       u32;
 typedef unsigned long      u64;
-typedef unsigned long long umax;
+typedef unsigned long long usize;
 #    endif /* STC_C99 */
 
 typedef u8     byte;
@@ -272,6 +284,7 @@ typedef void void_func(void);
 
 /*** Floating point standard and constant functions ***/
 
+#    ifndef STC_DISABLE_FUNCTIONS
 f32 f32_inf(void);
 f32 f32_neg_inf(void);
 f64 f64_inf(void);
@@ -279,6 +292,7 @@ f64 f64_neg_inf(void);
 
 f32 f32_abs(f32 x);
 f64 f64_abs(f64 x);
+#    endif /* STC_DISABLE_FUNCTIONS */
 
 #endif /* STC_DISABLE_BASIC_TYPES */
 

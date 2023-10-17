@@ -69,7 +69,8 @@ typedef void   stc_hashmap_keyval_free_func(void *);
  * @param[in] hash the hash function to use
  * @param[in] keycmp the key comparison function to use
  *
- * @return a pointer to the created hash map
+ * @return a pointer to the created hash map if all arguments are valid;
+ *         else NULL if loadfactor <= 0.0f, hash is NULL, or keycmp is NULL
  */
 StcHashMap *stc_hashmap_new_with_capacity(size_t                   cap,
                                           float                    loadfactor,
@@ -81,7 +82,7 @@ StcHashMap *stc_hashmap_new_with_capacity(size_t                   cap,
  *
  * @param[in] self the pointer to the hash map
  *
- * @return the length of the hash map
+ * @return the length of the hash map if it is not NULL; else 0
  */
 size_t stc_hashmap_len(StcHashMap *self);
 
@@ -114,7 +115,7 @@ void *stc_hashmap_get(StcHashMap *self, void *key);
  * @param[in] self the pointer to the hash map
  * @param[in] key the key to check for in the hash map
  *
- * @return non-zero if the key was found; else 0 if it was not found
+ * @return non-zero value if the key was found; else 0 if it was not found
  */
 int stc_hashmap_contains_key(StcHashMap *self, void *key);
 
@@ -145,8 +146,9 @@ void **stc_hashmap_keys(StcHashMap *self);
  *
  * @param[in] self the pointer to the hash map
  *
- * @return an unordered array of the values contained in the hash map with the
- *         same length as the hash map
+ * @return an array of the values contained in the hash map in the order
+ *         corresponding to a call to stc_hashmap_keys with the same length as
+ *         the hash map
  */
 void **stc_hashmap_values(StcHashMap *self);
 
