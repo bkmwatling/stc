@@ -180,7 +180,7 @@
 #        define STC_ASSERT_MSG(msg) \
             __FILE__ ":%d: Assertion failed: " msg "\n", __LINE__
 #        define STC_ASSERT_BREAK(cond) \
-            STC_STATMENTS(STC_EPRINTF(STC_ASSERT_MSG(#cond)); abort())
+            STC_STATMENTS(STC_EPRINTF(STC_ASSERT_MSG(#cond)); abort();)
 #    endif
 
 #    define stc_assert(cond) STC_STATMENTS(if (!(cond)) STC_ASSERT_BREAK(cond);)

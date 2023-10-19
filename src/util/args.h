@@ -2,52 +2,65 @@
 #define STC_ARGS_H
 
 typedef enum {
-    STC_ARG_STR,  /**< string argument                                        */
-    STC_ARG_BOOL, /**< boolean argument                                       */
+    STC_ARG_STR,  /*<< string argument                                        */
+    STC_ARG_BOOL, /*<< boolean argument                                       */
 } StcArgType;
 
 typedef struct {
-    StcArgType type;        /**< type of the argument                         */
-    char      *shortopt;    /**< short option string (should start with "-")  */
-    char      *longopt;     /**< long option string (should start with "--")  */
-    char      *description; /**< optional description of the argument         */
-    void      *def;         /**< optional default value of the argument       */
-    void      *out;         /**< optional pointer to store argument value     */
+    StcArgType type;        /*<< type of the argument                         */
+    char      *shortopt;    /*<< short name string (must start with '-' if
+                                 longopt does)                                */
+    char      *longopt;     /*<< long name string (must start with '-' if
+                                 shortopt does)                               */
+    char      *description; /*<< optional description of the argument         */
+    void      *def;         /*<< optional default value of the argument       */
+    void      *out;         /*<< optional pointer to store argument value     */
 } StcArg;
+
+#define STC_ARG_NULL                    \
+    {                                   \
+        0, NULL, NULL, NULL, NULL, NULL \
+    }
+
+#define STC_ARG_IS_POSITIONAL(arg)                   \
+    (((arg).shortopt && (arg).shortopt[0] != '-') || \
+     ((arg).longopt && (arg).longopt[0] != '-'))
+#define STC_ARG_IS_STR(argtype)  ((argtype) == STC_ARG_STR)
+#define STC_ARG_IS_BOOL(argtype) ((argtype) == STC_ARG_BOOL)
 
 /**
  * Parses the command-line arguments using the given array of argument
  * specifications. This function reorders argv such that once it is done argv
  * has all the recognised arguments listed first (based off the given
  * specifications), then the unrecognised arguments after (still in their
- * relative order). Note that opts_len may be zero in which case opts is
- * expected to be null-terminated.
+ * relative order). Note that opts_len may be zero in which case the last
+ * element of opts is expected to be filled with zero and NULL values.
  *
  * @param[in] argc the number of command-line arguments
  * @param[in] argv the array of command-line arguments
- * @param[in] opts the array of optional argument specifications
- * @param[in] opts_len the length the array of optional argument specifications
+ * @param[in] args the array of argument specifications
+ * @param[in] args_len the length the array of argument specifications
  * @param[in] usage the optional custom usage print function to override
  *                  printing usage based on given argument specifications
  *
  * @return the index into argv of the first unrecognised command-line argument
  *         after reordering argv to have recognised arguments first
  */
-int stc_args_parse(int     argc,
-                   char  **argv,
-                   StcArg *opts,
-                   int     opts_len,
-                   void (*usage)(char *));
+int stc_args_parse(int          argc,
+                   const char **argv,
+                   StcArg      *args,
+                   int          args_len,
+                   void (*usage)(const char *));
 
 /**
  * This function is almost identical to stc_args_parse except if there are
  * unrecognised arguments, it prints the usage of the program and exits the
  * program with EXIT_FAILURE.
  */
-void stc_args_parse_exact(int     argc,
-                          char  **argv,
-                          StcArg *opts,
-                          int     opts_len,
-                          void (*usage)(char *));
+void stc_args_parse_exact(int          argc,
+                          const char **argv,
+                          StcArg      *args,
+                          int          args_len,
+                          void (*usage)(const char *));
 
 #endif /* STC_ARGS_H */
