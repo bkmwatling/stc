@@ -1,6 +1,10 @@
 #ifndef STC_ARGS_H
 #define STC_ARGS_H
 
+#include <stdio.h>
+
+typedef void StcArgsUsage(FILE *stream, const char *program);
+
 typedef enum {
     STC_ARG_STR,  /*<< string argument                                        */
     STC_ARG_BOOL, /*<< boolean argument                                       */
@@ -46,21 +50,26 @@ typedef struct {
  * @return the index into argv of the first unrecognised command-line argument
  *         after reordering argv to have recognised arguments first
  */
-int stc_args_parse(int          argc,
-                   const char **argv,
-                   StcArg      *args,
-                   int          args_len,
-                   void (*usage)(const char *));
+int stc_args_parse(int           argc,
+                   const char  **argv,
+                   StcArg       *args,
+                   int           args_len,
+                   StcArgsUsage *usage);
 
 /**
  * This function is almost identical to stc_args_parse except if there are
  * unrecognised arguments, it prints the usage of the program and exits the
  * program with EXIT_FAILURE.
  */
-void stc_args_parse_exact(int          argc,
-                          const char **argv,
-                          StcArg      *args,
-                          int          args_len,
-                          void (*usage)(const char *));
+void stc_args_parse_exact(int           argc,
+                          const char  **argv,
+                          StcArg       *args,
+                          int           args_len,
+                          StcArgsUsage *usage);
+
+void stc_args_usage(FILE       *stream,
+                    const char *program,
+                    StcArg     *args,
+                    int         args_len);
 
 #endif /* STC_ARGS_H */

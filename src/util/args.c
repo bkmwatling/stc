@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -13,22 +12,30 @@
     (STC_ARG_SHORTOPT_MATCHES(found, len, arg) || \
      STC_ARG_LONGOPT_MATCHES(found, len, arg))
 
+#define STC_ARGS_USAGE(usage, program, args, args_len) \
+    (usage) ? usage(stderr, program)                   \
+            : stc_args_usage(stderr, program, args, args_len)
+
 /* --- Helper function prototypes ------------------------------------------- */
 
-static int  stc_args_len(StcArg *opts);
-static void stc_args_usage(const char *program, StcArg *opts, int opts_len);
-static void
-stc_arg_process(const char *found, StcArg *arg, void (*usage)(const char *));
+static int    stc_args_len(StcArg *args);
+static void   stc_arg_usage(FILE *stream, StcArg *arg);
+static int    stc_arg_process(const char   *found,
+                              StcArg       *arg,
+                              const char   *program,
+                              StcArg       *args,
+                              int           args_len,
+                              StcArgsUsage *usage);
 static void   stc_arg_memcpy(void *dst, const void *src, StcArgType type);
 static size_t is_prefixed(const char *str, const char *prefix);
 
 /* --- Public API function definitions -------------------------------------- */
 
-int stc_args_parse(int          argc,
-                   const char **argv,
-                   StcArg      *args,
-                   int          args_len,
-                   void (*usage)(const char *))
+int stc_args_parse(int           argc,
+                   const char  **argv,
+                   StcArg       *args,
+                   int           args_len,
+                   StcArgsUsage *usage)
 {
     int         i, j, k, idx;
     size_t      len;
@@ -37,6 +44,7 @@ int stc_args_parse(int          argc,
     int        *argset, *pos, *opts;
     const char *found;
     StcArg     *arg;
+    void       *src;
 
     if (args_len <= 0) args_len = stc_args_len(args);
     argset = malloc(args_len * sizeof(int));
@@ -91,12 +99,14 @@ int stc_args_parse(int          argc,
             if (j >= nopt) goto unrecognised;
         } else {
             /* check if we still have positional arguments to match */
-            if (pos_idx == npos) {
+            if (pos_idx >= npos) {
             unrecognised:
                 /* process unrecognised argument */
                 memmove(argv + i, argv + i + 1,
-                        (arg_end - i - 1) * sizeof(char *));
-                argv[--arg_end] = found;
+                        (argc - i - 1) * sizeof(char *));
+                argv[argc - 1] = found;
+                arg_end--;
+                i--;
                 continue;
             }
 
@@ -105,48 +115,78 @@ int stc_args_parse(int          argc,
         }
 
         /* process the command-line argument against specification */
-        stc_arg_process(*found || i + 1 == arg_end ? found : argv[i + 1], arg,
-                        usage);
+        if (stc_arg_process(*found || i + 1 == arg_end ? found : argv[i + 1],
+                            arg, argv[0], args, args_len, usage))
+            i++;
         argset[idx] = 1;
     }
 
     /* check if any arguments were not found/set */
-    for (i = 0; i < args_len; i++) {
+    for (i = k = 0; i < args_len; i++) {
         if (argset[i]) continue;
         arg = args + i;
         if (arg->def == NULL && !STC_ARG_IS_BOOL(arg->type)) {
-            fprintf(stderr, "Argument '%s' not specified\n",
+            fprintf(stderr, "ERROR: Argument '%s' not specified\n",
                     arg->shortopt ? arg->shortopt : arg->longopt);
-            if (usage) {
-                usage(argv[0]);
-            } else {
-                stc_args_usage(argv[0], args, args_len);
-            }
+            STC_ARGS_USAGE(usage, argv[0], args, args_len);
             exit(EXIT_FAILURE);
         }
-        if (arg->out) stc_arg_memcpy(arg->out, arg->def, arg->type);
+        if (arg->out) {
+            src = STC_ARG_IS_BOOL(arg->type) ? &k : arg->def;
+            stc_arg_memcpy(arg->out, src, arg->type);
+        }
     }
 
     return arg_end;
 }
 
-void stc_args_parse_exact(int          argc,
-                          const char **argv,
-                          StcArg      *args,
-                          int          args_len,
-                          void (*usage)(const char *))
+void stc_args_parse_exact(int           argc,
+                          const char  **argv,
+                          StcArg       *args,
+                          int           args_len,
+                          StcArgsUsage *usage)
 {
     int idx = stc_args_parse(argc, argv, args, args_len, usage);
 
     if (idx < argc) {
         fprintf(stderr, "ERROR: unrecognised argument '%s'\n", argv[idx]);
         if (usage) {
-            usage(argv[0]);
+            usage(stderr, argv[0]);
         } else {
             if (args_len <= 0) args_len = stc_args_len(args);
-            stc_args_usage(argv[0], args, args_len);
+            stc_args_usage(stderr, argv[0], args, args_len);
         }
         exit(EXIT_FAILURE);
+    }
+}
+
+void stc_args_usage(FILE       *stream,
+                    const char *program,
+                    StcArg     *args,
+                    int         args_len)
+{
+    int     i;
+    StcArg *arg;
+
+    /* print top usage line */
+    fprintf(stream, "Usage: %s [OPTION]...", program);
+    for (i = 0; i < args_len; i++) {
+        if (!STC_ARG_IS_POSITIONAL(args[i])) continue;
+        fprintf(stream, " %s",
+                args[i].shortopt ? args[i].shortopt : args[i].longopt);
+    }
+
+    /* print descriptions of arguments */
+    fprintf(stream, "\n\nList of positional arguments:\n");
+    for (i = 0; i < args_len; i++) {
+        arg = args + i;
+        if (STC_ARG_IS_POSITIONAL(*arg)) stc_arg_usage(stream, arg);
+    }
+
+    fprintf(stream, "\nList of options:\n");
+    for (i = 0; i < args_len; i++) {
+        arg = args + i;
+        if (!STC_ARG_IS_POSITIONAL(*arg)) stc_arg_usage(stream, arg);
     }
 }
 
@@ -163,42 +203,55 @@ static int stc_args_len(StcArg *args)
     return args_len;
 }
 
-static void stc_args_usage(const char *program, StcArg *args, int args_len)
+static void stc_arg_usage(FILE *stream, StcArg *arg)
 {
-    int     i;
-    StcArg *arg;
-
-    /* print top usage line */
-    fprintf(stderr, "Usage: %s [OPTION]...", program);
-    for (i = 0; i < args_len; i++) {
-        if (!STC_ARG_IS_POSITIONAL(args[i])) continue;
-        fprintf(stderr, " %s", args[i].longopt);
-    }
-
-    /* print descriptions of arguments */
-    fprintf(stderr, "\nList of options:\n");
-    for (i = 0; i < args_len; i++) {
-        arg = args + i;
-        if (arg->shortopt) fprintf(stderr, "  %s", arg->shortopt);
-        if (arg->longopt) {
-            if (arg->shortopt) {
-                fprintf(stderr, ", %s", arg->longopt);
-            } else {
-                fprintf(stderr, "  %s", arg->longopt);
-            }
+    if (arg->shortopt) fprintf(stream, "  %s", arg->shortopt);
+    if (arg->longopt) {
+        if (arg->shortopt) {
+            fprintf(stream, ", %s", arg->longopt);
+        } else {
+            fprintf(stream, "      %s", arg->longopt);
         }
-
-        /* TODO: print whether the argument requires a value */
-
-        if (arg->description) fprintf(stderr, "\t\t\t\t%s", arg->description);
-        fprintf(stderr, "\n");
     }
+
+    /* TODO: print whether the argument requires a value */
+
+    if (arg->description) fprintf(stream, "\t\t\t\t%s", arg->description);
+    fprintf(stream, "\n");
 }
 
-static void
-stc_arg_process(const char *found, StcArg *arg, void (*usage)(const char *))
+static int stc_arg_process(const char   *found,
+                           StcArg       *arg,
+                           const char   *program,
+                           StcArg       *args,
+                           int           args_len,
+                           StcArgsUsage *usage)
 {
-    /* TODO: implement */
+    int has_eq            = *found == '=';
+    int consumed_next_arg = !STC_ARG_IS_POSITIONAL(*arg) && !has_eq;
+
+    if (arg->out == NULL) {
+        if (STC_ARG_IS_BOOL(arg->type) && has_eq) goto bool_with_eq;
+        return consumed_next_arg;
+    }
+    if (has_eq) found++;
+
+    switch (arg->type) {
+        case STC_ARG_STR: *(const char **) arg->out = found; break;
+        case STC_ARG_BOOL:
+            if (has_eq) {
+            bool_with_eq:
+                fprintf(stderr,
+                        "ERROR: unexpected value found for boolean flag\n");
+                STC_ARGS_USAGE(usage, program, args, args_len);
+                exit(EXIT_FAILURE);
+            }
+            consumed_next_arg = 0;
+            *(int *) arg->out = 1;
+            break;
+    }
+
+    return consumed_next_arg;
 }
 
 static void stc_arg_memcpy(void *dst, const void *src, StcArgType type)

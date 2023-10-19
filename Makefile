@@ -26,6 +26,7 @@ BINDIR          := bin
 # files
 MATH_EXE        := testmath
 VEC_EXE         := testvec
+ARGS_EXE        := testargs
 
 COMMON_OBJS     := $(SRCDIR)/common.o
 MATH_OBJS       := $(SRCDIR)/math.o
@@ -40,7 +41,7 @@ MEMLIBC_OBJS    := $(SRCDIR)/memory/libc.o
 ARGS_OBJS       := $(SRCDIR)/util/args.o
 UTF_OBJS        := $(SRCDIR)/util/utf.o
 
-EXES            := $(MATH_EXE) $(VEC_EXE)
+EXES            := $(MATH_EXE) $(VEC_EXE) $(ARGS_EXE)
 OBJS            := $(COMMON_OBJS) $(MATH_OBJS) $(HASHMAP_OBJS) \
 				   $(LINKEDLIST_OBJS) $(SLICE_OBJS) $(STRING_OBJS) $(SV_OBJS) \
 				   $(VEC_OBJS) $(MEMBASE_OBJS) $(MEMLIBC_OBJS) $(UTF_OBJS) \
@@ -49,6 +50,9 @@ OBJS            := $(COMMON_OBJS) $(MATH_OBJS) $(HASHMAP_OBJS) \
 ### RULES ######################################################################
 
 # executables
+
+$(ARGS_EXE): $(TESTDIR)/$(ARGS_EXE).c $(ARGS_OBJS) | $(BINDIR)
+	$(COMPILE) -o $(BINDIR)/$@ $^
 
 $(MATH_EXE): $(TESTDIR)/$(MATH_EXE).c $(MATH_OBJS) | $(BINDIR)
 	$(COMPILE) -o $(BINDIR)/$@ $^
