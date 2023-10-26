@@ -16,14 +16,15 @@ typedef struct {
                                  longopt does)                                */
     char      *longopt;     /*<< long name string (must start with '-' if
                                  shortopt does)                               */
+    char      *valname;     /*<< optional name of the value to show in usage  */
     char      *description; /*<< optional description of the argument         */
     void      *def;         /*<< optional default value of the argument       */
     void      *out;         /*<< optional pointer to store argument value     */
 } StcArg;
 
-#define STC_ARG_NULL                    \
-    {                                   \
-        0, NULL, NULL, NULL, NULL, NULL \
+#define STC_ARG_NULL                          \
+    {                                         \
+        0, NULL, NULL, NULL, NULL, NULL, NULL \
     }
 
 #define STC_ARG_IS_POSITIONAL(arg)                   \
