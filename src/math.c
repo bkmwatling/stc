@@ -1,5 +1,31 @@
 #include "math.h"
 
+f32 f32_abs(f32 x)
+{
+    /* FIXME: untested */
+    union {
+        f32          f;
+        unsigned int u;
+    } mask;
+
+    mask.f  = x;
+    mask.u &= 0x7fffffff;
+    return mask.f;
+}
+
+f64 f64_abs(f64 x)
+{
+    /* FIXME: untested */
+    union {
+        f64           f;
+        unsigned long u;
+    } mask;
+
+    mask.f  = x;
+    mask.u &= 0x7fffffffffffffff;
+    return mask.f;
+}
+
 #ifndef STC_DISABLE_STD_MATH_H
 #    include <math.h>
 

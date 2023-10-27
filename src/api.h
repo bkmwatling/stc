@@ -47,6 +47,9 @@
 #endif /* STC_DISABLE_MEM */
 
 #ifndef STC_DISABLE_UTIL
+#    ifndef STC_DISABLE_ARGS
+#        include "util/args.h"
+#    endif
 #    ifndef STC_DISABLE_UTF
 #        include "util/utf.h"
 #    endif

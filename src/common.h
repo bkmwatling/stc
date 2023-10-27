@@ -285,13 +285,33 @@ typedef void void_func(void);
 /*** Floating point standard and constant functions ***/
 
 #    ifndef STC_DISABLE_FUNCTIONS
+/**
+ * Creates positive infinity as a 32-bit floating-point number.
+ *
+ * @return positive infinity in 32-bit floating-point
+ */
 f32 f32_inf(void);
-f32 f32_neg_inf(void);
-f64 f64_inf(void);
-f64 f64_neg_inf(void);
 
-f32 f32_abs(f32 x);
-f64 f64_abs(f64 x);
+/**
+ * Creates negative infinity as a 32-bit floating-point number.
+ *
+ * @return negative infinity in 32-bit floating-point
+ */
+f32 f32_neg_inf(void);
+
+/**
+ * Creates positive infinity as a 64-bit floating-point number.
+ *
+ * @return positive infinity in 64-bit floating-point
+ */
+f64 f64_inf(void);
+
+/**
+ * Creates negative infinity as a 64-bit floating-point number.
+ *
+ * @return negative infinity in 64-bit floating-point
+ */
+f64 f64_neg_inf(void);
 #    endif /* STC_DISABLE_FUNCTIONS */
 
 #endif /* STC_DISABLE_BASIC_TYPES */

@@ -10,7 +10,7 @@ int main(int argc, const char *argv[])
     const char *name;
     const char *set;
 
-    StcArg args[] = {
+    const StcArg args[] = {
         {STC_ARG_BOOL, "-c",     "--create", NULL,       "Creates a value", NULL, &c   },
         { STC_ARG_STR, "<name>", NULL,       "name",     "Name of value",   NULL, &name},
         { STC_ARG_STR, NULL,     "--set",    "set-type", "Sets a value",    NULL, &set },

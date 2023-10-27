@@ -18,13 +18,13 @@
 
 /* --- Helper function prototypes ------------------------------------------- */
 
-static int    stc_args_len(StcArg *args);
-static void   stc_arg_usage(FILE *stream, StcArg *arg, int shortlen);
+static int    stc_args_len(const StcArg *args);
+static void   stc_arg_usage(FILE *stream, const StcArg *arg, int shortlen);
 static int    stc_arg_process(const char   *found,
-                              StcArg       *arg,
+                              const StcArg *arg,
                               const char   *opt,
                               const char   *program,
-                              StcArg       *args,
+                              const StcArg *args,
                               int           args_len,
                               StcArgsUsage *usage);
 static void   stc_arg_memcpy(void *dst, const void *src, StcArgType type);
@@ -34,18 +34,18 @@ static size_t is_prefixed(const char *str, const char *prefix);
 
 int stc_args_parse(int           argc,
                    const char  **argv,
-                   StcArg       *args,
+                   const StcArg *args,
                    int           args_len,
                    StcArgsUsage *usage)
 {
-    int         i, j, k, idx;
-    size_t      len;
-    int         npos = 0, nopt = 0, pos_idx = 0;
-    int         arg_end = argc;
-    int         exit_code;
-    int        *argset, *pos, *opts;
-    const char *found, *opt;
-    StcArg     *arg;
+    int           i, j, k, idx;
+    size_t        len;
+    int           npos = 0, nopt = 0, pos_idx = 0;
+    int           arg_end = argc;
+    int           exit_code;
+    int          *argset, *pos, *opts;
+    const char   *found, *opt;
+    const StcArg *arg;
 
     if (args_len <= 0) args_len = stc_args_len(args);
     argset = malloc(args_len * sizeof(int));
@@ -159,7 +159,7 @@ exit_parsing:
 
 void stc_args_parse_exact(int           argc,
                           const char  **argv,
-                          StcArg       *args,
+                          const StcArg *args,
                           int           args_len,
                           StcArgsUsage *usage)
 {
@@ -177,13 +177,13 @@ void stc_args_parse_exact(int           argc,
     }
 }
 
-void stc_args_usage(FILE       *stream,
-                    const char *program,
-                    StcArg     *args,
-                    int         args_len)
+void stc_args_usage(FILE         *stream,
+                    const char   *program,
+                    const StcArg *args,
+                    int           args_len)
 {
-    int     i, len, pos_shortlen, opt_shortlen = 0;
-    StcArg *arg;
+    int           i, len, pos_shortlen = 0, opt_shortlen = 0;
+    const StcArg *arg;
 
     /* print top usage line */
     fprintf(stream, "Usage: %s [OPTIONS]", program);
@@ -227,7 +227,7 @@ void stc_args_usage(FILE       *stream,
 
 /* --- Helper function definitions ------------------------------------------ */
 
-static int stc_args_len(StcArg *args)
+static int stc_args_len(const StcArg *args)
 {
     int    args_len = 0;
     StcArg arg_null = STC_ARG_NULL;
@@ -238,7 +238,7 @@ static int stc_args_len(StcArg *args)
     return args_len;
 }
 
-static void stc_arg_usage(FILE *stream, StcArg *arg, int shortlen)
+static void stc_arg_usage(FILE *stream, const StcArg *arg, int shortlen)
 {
     fprintf(stream, "  %*s%2s%s", shortlen, arg->shortopt ? arg->shortopt : "",
             arg->shortopt && arg->longopt ? ", " : "",
@@ -254,10 +254,10 @@ static void stc_arg_usage(FILE *stream, StcArg *arg, int shortlen)
 }
 
 static int stc_arg_process(const char   *found,
-                           StcArg       *arg,
+                           const StcArg *arg,
                            const char   *opt,
                            const char   *program,
-                           StcArg       *args,
+                           const StcArg *args,
                            int           args_len,
                            StcArgsUsage *usage)
 {

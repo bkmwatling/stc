@@ -53,7 +53,7 @@ typedef struct {
  */
 int stc_args_parse(int           argc,
                    const char  **argv,
-                   StcArg       *args,
+                   const StcArg *args,
                    int           args_len,
                    StcArgsUsage *usage);
 
@@ -64,13 +64,13 @@ int stc_args_parse(int           argc,
  */
 void stc_args_parse_exact(int           argc,
                           const char  **argv,
-                          StcArg       *args,
+                          const StcArg *args,
                           int           args_len,
                           StcArgsUsage *usage);
 
-void stc_args_usage(FILE       *stream,
-                    const char *program,
-                    StcArg     *args,
-                    int         args_len);
+void stc_args_usage(FILE         *stream,
+                    const char   *program,
+                    const StcArg *args,
+                    int           args_len);
 
 #endif /* STC_ARGS_H */
