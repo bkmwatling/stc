@@ -3,7 +3,7 @@
 
 #include "base.h"
 
-#ifdef STC_MEM_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_MEM_ENABLE_SHORT_NAMES)
 #    define mem_libc_alloc       stc_mem_libc_alloc
 #    define mem_libc_free        stc_mem_libc_free
 #    define mem_libc_mem_manager stc_mem_libc_mem_manager
@@ -17,7 +17,7 @@
  *
  * @return a pointer to the allocated memory
  */
-void *stc_mem_libc_alloc(void *ctx, u64 size);
+void *stc_mem_libc_alloc(void *ctx, size_t size);
 
 /**
  * Frees memory of given size using LibC (free).
@@ -26,7 +26,7 @@ void *stc_mem_libc_alloc(void *ctx, u64 size);
  * @param[in] p the pointer to the memory to free
  * @param[in] size the size of memory to free (ignored)
  */
-void stc_mem_libc_free(void *ctx, void *p, u64 size);
+void stc_mem_libc_free(void *ctx, void *p, size_t size);
 
 /**
  * Creates a pointer to a statically defined memory manager that uses LibC.

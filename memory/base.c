@@ -1,13 +1,17 @@
 #include "base.h"
 
-void stc_mem_modify_noop(void *ctx, void *p, u64 size)
+/* redefine these macros from common.h to avoid need of inclusion */
+#define STC_MEM_ALIGN_UP_POW2(x, pow2) (((x) + (pow2) -1) & ~((pow2) -1))
+#define STC_MEM_CLAMP_TOP(x, y)        ((x) < (y) ? (x) : (y))
+
+void stc_mem_modify_noop(void *ctx, void *p, size_t size)
 {
     (void) ctx;
     (void) p;
     (void) size;
 }
 
-StcMemArena stc_mem_arena_new(StcMemManager *man, u64 size)
+StcMemArena stc_mem_arena_new(StcMemManager *man, size_t size)
 {
     StcMemArena arena       = { 0 };
     arena.man               = man;
@@ -17,64 +21,67 @@ StcMemArena stc_mem_arena_new(StcMemManager *man, u64 size)
     return arena;
 }
 
-void stc_mem_arena_free(StcMemArena *arena)
+void stc_mem_arena_free(StcMemArena *self)
 {
-    StcMemManager *man = arena->man;
-    man->free(man->ctx, arena->mem, arena->cap);
+    StcMemManager *man = self->man;
+    man->free(man->ctx, self->mem, self->cap);
 }
 
-void *stc_mem_arena_push(StcMemArena *arena, u64 size)
+void *stc_mem_arena_push(StcMemArena *self, size_t size)
 {
-    void *p;
-    u64   next_commit_pos, commit_size;
+    void  *p;
+    size_t next_commit_pos, commit_size;
 
-    if (arena->pos + size > arena->cap) return NULL;
+    if (self->pos + size > self->cap) return NULL;
 
-    p           = arena->mem + arena->pos;
-    arena->pos += size;
-    if (arena->pos > arena->commit_pos) {
+    p          = self->mem + self->pos;
+    self->pos += size;
+    if (self->pos > self->commit_pos) {
         next_commit_pos =
-            STC_ALIGN_UP_POW2(arena->pos, arena->commit_block_size);
-        next_commit_pos = STC_CLAMP_TOP(next_commit_pos, arena->cap);
-        commit_size     = next_commit_pos - arena->commit_pos;
+            STC_MEM_ALIGN_UP_POW2(self->pos, self->commit_block_size);
+        next_commit_pos = STC_MEM_CLAMP_TOP(next_commit_pos, self->cap);
+        commit_size     = next_commit_pos - self->commit_pos;
 
-        arena->man->commit(arena->man->ctx, arena->mem + arena->commit_pos,
-                           commit_size);
-        arena->commit_pos = next_commit_pos;
+        self->man->commit(self->man->ctx, self->mem + self->commit_pos,
+                          commit_size);
+        self->commit_pos = next_commit_pos;
     }
 
     return p;
 }
 
-void *stc_mem_arena_push_zero(StcMemArena *arena, u64 size)
+void *stc_mem_arena_push_zero(StcMemArena *self, size_t size)
 {
-    void *p = stc_mem_arena_push(arena, size);
+    void *p = stc_mem_arena_push(self, size);
     stc_memzero(p, size);
     return p;
 }
 
-void stc_mem_arena_pop_to(StcMemArena *arena, u64 pos)
+void stc_mem_arena_pop_to(StcMemArena *self, size_t pos)
 {
-    u64 next_commit_pos, decommit_size;
+    size_t next_commit_pos, decommit_size;
 
-    if (pos >= arena->pos) return;
+    if (pos >= self->pos) return;
 
-    arena->pos      = pos;
-    next_commit_pos = STC_ALIGN_UP_POW2(arena->pos, arena->commit_block_size);
-    next_commit_pos = STC_CLAMP_TOP(next_commit_pos, arena->cap);
-    if (next_commit_pos < arena->commit_pos) {
-        decommit_size = arena->commit_pos - next_commit_pos;
-        arena->man->commit(arena->man->ctx, arena->mem + next_commit_pos,
-                           decommit_size);
-        arena->commit_pos = next_commit_pos;
+    self->pos       = pos;
+    next_commit_pos = STC_MEM_ALIGN_UP_POW2(self->pos, self->commit_block_size);
+    next_commit_pos = STC_MEM_CLAMP_TOP(next_commit_pos, self->cap);
+    if (next_commit_pos < self->commit_pos) {
+        decommit_size = self->commit_pos - next_commit_pos;
+        self->man->commit(self->man->ctx, self->mem + next_commit_pos,
+                          decommit_size);
+        self->commit_pos = next_commit_pos;
     }
 }
 
-void _stc_mem_arena_align(StcMemArena *arena,
-                          u64          pow2_align,
-                          void *(*arena_push)(StcMemArena *, u64))
+void _stc_mem_arena_align(StcMemArena *self,
+                          size_t       pow2_align,
+                          void *(*arena_push)(StcMemArena *, size_t))
 {
-    u64 pos_aligned = STC_ALIGN_UP_POW2(arena->pos, pow2_align);
-    u64 size        = pos_aligned - arena->pos;
-    if (size > 0) arena_push(arena, size);
+    size_t pos_aligned = STC_MEM_ALIGN_UP_POW2(self->pos, pow2_align);
+    size_t size        = pos_aligned - self->pos;
+    if (size > 0) arena_push(self, size);
 }
+
+#undef STC_MEM_ALIGN_UP_POW2
+#undef STC_MEM_CLAMP_TOP

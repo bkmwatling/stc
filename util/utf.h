@@ -3,11 +3,18 @@
 
 #include <stddef.h>
 
+#if defined(STC_DISABLE_FATP) && !defined(STC_DISABLE_SV)
+#    define STC_DISABLE_SV
+#endif
+#if defined(STC_DISABLE_SV) && !defined(STC_UTF_DISABLE_SV)
+#    define STC_UTF_DISABLE_SV
+#endif
+
 #ifndef STC_UTF_DISABLE_SV
 #    include "../fatp/string_view.h"
-#endif /* STC_UTF_DISABLE_SV */
+#endif
 
-#ifdef STC_UTF_ENABLE_SHORT_NAMES
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_UTF_ENABLE_SHORT_NAMES)
 #    define UTF8_IS_CONTINUATION STC_UTF8_IS_CONTINUATION
 #    define UTF8_IS_SINGLE       STC_UTF8_IS_SINGLE
 #    define UTF8_IS_DOUBLE       STC_UTF8_IS_DOUBLE

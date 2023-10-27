@@ -39,19 +39,3 @@ f64 f64_neg_inf(void)
     neg_inf.u = 0xfff0000000000000;
     return neg_inf.f;
 }
-
-f32 f32_abs(f32 x)
-{
-    __stc_f32_u32 mask;
-    mask.f  = x;
-    mask.u &= 0x7fffffff;
-    return mask.f;
-}
-
-f64 f64_abs(f64 x)
-{
-    __stc_f64_u64 mask;
-    mask.f  = x;
-    mask.u &= 0x7fffffffffffffff;
-    return mask.f;
-}
