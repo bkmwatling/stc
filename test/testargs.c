@@ -1,25 +1,71 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "../src/util/args.h"
 
 #define ARR_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
 
+#define REALLY_LONG_DESCRIPTION                                                \
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque et" \
+    " risus commodo, aliquet nulla vel, pretium leo. Praesent commodo "        \
+    "venenatis leo ac interdum. Proin sodales cursus dui eu lobortis. Sed id " \
+    "aliquam elit. Cras ipsum risus, sodales posuere neque scelerisque, "      \
+    "feugiat tempor lorem. Integer eget est at est commodo semper pulvinar "   \
+    "non eros. Mauris vel pulvinar turpis, sed commodo purus. In et augue "    \
+    "quam. Suspendisse sed dolor odio. Nulla tempus varius neque, vel rutrum " \
+    "odio. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas " \
+    "sagittis quam augue, eget lacinia odio dapibus in. Aenean bibendum "      \
+    "convallis imperdiet. Integer sed lobortis lacus."
+
+typedef enum { STR, BOOL, INT } Type;
+
+StcArgConvertResult convert_to_type(const char *arg, void *out)
+{
+    Type *type = out;
+
+    if (strcmp(arg, "string") == 0) {
+        *type = STR;
+    } else if (strcmp(arg, "bool") == 0) {
+        *type = BOOL;
+    } else if (strcmp(arg, "int") == 0) {
+        *type = INT;
+    } else {
+        return STC_CR_FAILURE;
+    }
+
+    return STC_CR_SUCCESS;
+}
+
 int main(int argc, const char *argv[])
 {
     int         c;
-    const char *name;
-    const char *set;
+    const char *name, *set, *filename, *database;
+    Type        type;
 
     const StcArg args[] = {
-        {STC_ARG_BOOL, "-c",     "--create", NULL,       "Creates a value", NULL, &c   },
-        { STC_ARG_STR, "<name>", NULL,       "name",     "Name of value",   NULL, &name},
-        { STC_ARG_STR, NULL,     "--set",    "set-type", "Sets a value",    NULL, &set },
+        { STC_ARG_BOOL, "-c", "--create", &c, NULL,
+          "Creates the value if it does not exist", NULL, NULL },
+        { STC_ARG_STR, "<name>", NULL, &name, "name", "Name of value", NULL,
+          NULL },
+        { STC_ARG_STR, NULL, "--set", &set, "set-string",
+          "Sets the value to the given value (must exist)", NULL, NULL },
+        { STC_ARG_STR, "-o", "--output-file", &filename, "filename",
+          "The name of the file to save the values to", "out.json", NULL },
+        { STC_ARG_CUSTOM, "-t", "--type", &type, "string | bool | int",
+          "The type of the value for set", "bool", convert_to_type },
+        { STC_ARG_BOOL, NULL, "--really-long-description", NULL, NULL,
+          REALLY_LONG_DESCRIPTION, NULL, NULL },
+        { STC_ARG_STR, NULL, "<database>", &database, NULL,
+          "Name of database of values", "redis", NULL },
     };
 
     stc_args_parse_exact(argc, argv, args, ARR_LEN(args), NULL);
     printf("c=%d\n", c);
     printf("name=%s\n", name);
     printf("set=%s\n", set);
+    printf("filename=%s\n", filename);
+    printf("type=%d\n", type);
+    printf("database=%s\n", database);
 
     return EXIT_SUCCESS;
 }

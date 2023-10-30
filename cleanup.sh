@@ -2,11 +2,9 @@
 
 set -xe
 
-if [ -f Makefile ]; then
-    make clean
-fi
+[ -f Makefile ] && make clean
 rm -rf bin/ test/
-rm -f .clang-format .gitignore Makefile
+rm -f .clang-format Makefile
 
 mv src/* .
 rmdir src/
