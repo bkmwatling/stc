@@ -1,7 +1,11 @@
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "args.h"
+
+#define STC_ARG_DESC_PADDING   10
+#define STC_ARG_DESC_MAX_WIDTH 70
 
 #define STC_ARG_SHORTOPT_MATCHES(found, opt, len, arg) \
     ((opt = arg->shortopt) && (len = is_prefixed(found, opt)) && !found[len])
@@ -18,16 +22,14 @@
 
 /* --- Helper function prototypes ------------------------------------------- */
 
-static int    stc_args_len(const StcArg *args);
-static void   stc_arg_usage(FILE *stream, const StcArg *arg, int shortlen);
-static int    stc_arg_process(const char   *found,
-                              const StcArg *arg,
-                              const char   *opt,
-                              const char   *program,
-                              const StcArg *args,
-                              int           args_len,
-                              StcArgsUsage *usage);
-static void   stc_arg_memcpy(void *dst, const void *src, StcArgType type);
+static int  stc_args_len(const StcArg *args);
+static void stc_arg_usage(FILE *stream, const StcArg *arg, int shortlen);
+static int
+stc_arg_process(const char *found, const StcArg *arg, const char *opt);
+static int    stc_arg_memcpy(void          *dst,
+                             const void    *src,
+                             StcArgConvert *convert,
+                             StcArgType     type);
 static size_t is_prefixed(const char *str, const char *prefix);
 
 /* --- Public API function definitions -------------------------------------- */
@@ -66,7 +68,7 @@ int stc_args_parse(int           argc,
             exit(EXIT_FAILURE);
         }
 
-        if (STC_ARG_IS_POSITIONAL(args[i])) {
+        if (STC_ARG_IS_POSITIONAL(args + i)) {
             npos++;
         } else {
             nopt++;
@@ -77,7 +79,7 @@ int stc_args_parse(int           argc,
     pos  = malloc(npos * sizeof(int));
     opts = malloc(nopt * sizeof(int));
     for (i = j = k = 0; i < args_len; i++) {
-        if (STC_ARG_IS_POSITIONAL(args[i])) {
+        if (STC_ARG_IS_POSITIONAL(args + i)) {
             pos[j++] = i;
         } else {
             opts[k++] = i;
@@ -124,9 +126,13 @@ int stc_args_parse(int           argc,
         }
 
         /* process the command-line argument against specification */
-        if (stc_arg_process(*found || i + 1 == arg_end ? found : argv[i + 1],
-                            arg, opt, argv[0], args, args_len, usage))
+        if (*found == '\0' && i + 1 < arg_end) found = argv[i + 1];
+        if ((exit_code = stc_arg_process(found, arg, opt)) > 0) {
             i++;
+        } else if (exit_code < 0) {
+            exit_code = EXIT_FAILURE;
+            goto exit_parsing;
+        }
         argset[idx] = 1;
     }
 
@@ -135,12 +141,19 @@ int stc_args_parse(int           argc,
         if (argset[i]) continue;
         arg = args + i;
         if (arg->def == NULL && !STC_ARG_IS_BOOL(arg->type)) {
-            fprintf(stderr, "ERROR: Argument '%s' not specified\n",
+            fprintf(stderr, "ERROR: argument '%s' not specified\n",
                     arg->shortopt ? arg->shortopt : arg->longopt);
-            exit_code = EXIT_SUCCESS;
+            exit_code = EXIT_FAILURE;
             goto exit_parsing;
         }
-        if (arg->out) stc_arg_memcpy(arg->out, arg->def, arg->type);
+        if (arg->out &&
+            !stc_arg_memcpy(arg->out, arg->def, arg->convert, arg->type)) {
+            fprintf(stderr,
+                    "ERROR: failed to set default value for argument '%s'\n",
+                    arg->shortopt ? arg->shortopt : arg->longopt);
+            exit_code = EXIT_FAILURE;
+            goto exit_parsing;
+        }
     }
 
     free(argset);
@@ -183,14 +196,16 @@ void stc_args_usage(FILE         *stream,
                     int           args_len)
 {
     int           i, len, pos_shortlen = 0, opt_shortlen = 0;
+    const char   *shortopt;
     const StcArg *arg;
 
     /* print top usage line */
     fprintf(stream, "Usage: %s [OPTIONS]", program);
     for (i = 0; i < args_len; i++) {
         arg = args + i;
-        if (STC_ARG_IS_POSITIONAL(args[i])) {
-            if (arg->shortopt && (len = strlen(arg->shortopt)) > pos_shortlen)
+        if (STC_ARG_IS_POSITIONAL(args + i)) {
+            shortopt = arg->shortopt ? arg->shortopt : arg->longopt;
+            if (shortopt && (len = strlen(shortopt)) > pos_shortlen)
                 pos_shortlen = len;
         } else {
             if (arg->shortopt && (len = strlen(arg->shortopt)) > opt_shortlen)
@@ -204,7 +219,7 @@ void stc_args_usage(FILE         *stream,
     fprintf(stream, "\n\nArguments:\n");
     for (i = 0; i < args_len; i++) {
         arg = args + i;
-        if (STC_ARG_IS_POSITIONAL(*arg)) {
+        if (STC_ARG_IS_POSITIONAL(arg)) {
             stc_arg_usage(stream, arg, pos_shortlen);
             fprintf(stream, "\n");
         }
@@ -214,7 +229,7 @@ void stc_args_usage(FILE         *stream,
     fprintf(stream, "Options:\n");
     for (i = 0; i < args_len; i++) {
         arg = args + i;
-        if (!STC_ARG_IS_POSITIONAL(*arg)) {
+        if (!STC_ARG_IS_POSITIONAL(arg)) {
             if (len) {
                 fprintf(stream, "\n");
             } else {
@@ -240,35 +255,50 @@ static int stc_args_len(const StcArg *args)
 
 static void stc_arg_usage(FILE *stream, const StcArg *arg, int shortlen)
 {
-    fprintf(stream, "  %*s%2s%s", shortlen, arg->shortopt ? arg->shortopt : "",
-            arg->shortopt && arg->longopt ? ", " : "",
-            arg->longopt ? arg->longopt : "");
+    const char   *shortopt, *longopt, *description;
+    unsigned long len;
+    int           width = 2;
 
-    if (!STC_ARG_IS_BOOL(arg->type) && !STC_ARG_IS_POSITIONAL(*arg))
+    shortopt = arg->shortopt ? arg->shortopt : "";
+    longopt  = arg->longopt ? arg->longopt : "";
+    if (STC_ARG_IS_POSITIONAL(arg) && arg->shortopt == NULL) {
+        shortopt = longopt;
+        longopt  = "";
+        width    = 0;
+    }
+    fprintf(stream, "  %-*s%*s%s", shortlen, shortopt, width,
+            arg->shortopt && arg->longopt ? ", " : "", longopt);
+
+    if (!STC_ARG_IS_BOOL(arg->type) && !STC_ARG_IS_POSITIONAL(arg))
         fprintf(stream, " <%s>", arg->valname ? arg->valname : "value");
     if (!STC_ARG_IS_BOOL(arg->type) && arg->def)
         fprintf(stream, " (default: %s)", (char *) arg->def);
     fprintf(stream, "\n");
 
-    if (arg->description) fprintf(stream, "%10s%s\n", "", arg->description);
+    if ((description = arg->description)) {
+        len = strlen(description);
+        while (*description) {
+            while (isspace(*description)) description++;
+            width = len < STC_ARG_DESC_MAX_WIDTH ? len : STC_ARG_DESC_MAX_WIDTH;
+            while (description[width] && !isspace(description[width])) width--;
+            fprintf(stream, "%*s%.*s\n", STC_ARG_DESC_PADDING, "", width,
+                    description);
+            description += width;
+            len         -= width;
+        }
+    }
 }
 
-static int stc_arg_process(const char   *found,
-                           const StcArg *arg,
-                           const char   *opt,
-                           const char   *program,
-                           const StcArg *args,
-                           int           args_len,
-                           StcArgsUsage *usage)
+static int
+stc_arg_process(const char *found, const StcArg *arg, const char *opt)
 {
     int has_eq            = *found == '=';
-    int consumed_next_arg = !STC_ARG_IS_POSITIONAL(*arg) && !has_eq;
+    int consumed_next_arg = !STC_ARG_IS_POSITIONAL(arg) && !has_eq;
 
     if (has_eq) found++;
     if (*found == '\0' && !STC_ARG_IS_BOOL(arg->type)) {
         fprintf(stderr, "ERROR: missing value for argument '%s'\n", opt);
-        STC_ARGS_USAGE(stderr, usage, program, args, args_len);
-        exit(EXIT_FAILURE);
+        return -1;
     }
 
     if (arg->out == NULL) {
@@ -282,24 +312,42 @@ static int stc_arg_process(const char   *found,
             if (has_eq) {
             bool_with_eq:
                 fprintf(stderr,
-                        "ERROR: unexpected value found for boolean flag\n");
-                STC_ARGS_USAGE(stderr, usage, program, args, args_len);
-                exit(EXIT_FAILURE);
+                        "ERROR: unexpected value found for boolean flag '%s'\n",
+                        opt);
+                return -1;
             }
             consumed_next_arg = 0;
             *(int *) arg->out = arg->def == NULL;
+            break;
+        case STC_ARG_CUSTOM:
+            switch (arg->convert(found, arg->out)) {
+                case STC_CR_SUCCESS: break;
+                case STC_CR_FAILURE:
+                    fprintf(stderr,
+                            "ERROR: invalid value '%s' for argument '%s'\n",
+                            found, opt);
+                case STC_CR_FAILURE_HANDLED: return -1;
+            }
             break;
     }
 
     return consumed_next_arg;
 }
 
-static void stc_arg_memcpy(void *dst, const void *src, StcArgType type)
+static int stc_arg_memcpy(void          *dst,
+                          const void    *src,
+                          StcArgConvert *convert,
+                          StcArgType     type)
 {
     switch (type) {
-        case STC_ARG_STR: *(char **) dst = *(char **) src; break;
+        case STC_ARG_STR: *(const char **) dst = (const char *) src; break;
         case STC_ARG_BOOL: *(int *) dst = src != NULL; break;
+        case STC_ARG_CUSTOM:
+            if (convert((const char *) src, dst) != STC_CR_SUCCESS) return 0;
+            break;
     }
+
+    return 1;
 }
 
 static size_t is_prefixed(const char *str, const char *prefix)
