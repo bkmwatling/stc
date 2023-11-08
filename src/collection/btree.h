@@ -9,11 +9,16 @@
 #    include "map.h"
 #endif
 
+typedef struct stc_btree StcBTree;
+
+typedef int  stc_btree_keycmp_func(void *key1, void *key2);
+typedef void stc_btree_keyval_free_func(void *);
+
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_BTREE_ENABLE_SHORT_NAMES)
 typedef StcBTree BTree;
 
-#    define btree_keycmp_func      stc_btree_keycmp_func
-#    define btree_keyval_free_func stc_btree_keyval_free_func
+typedef stc_btree_keycmp_func      stc_btree_keycmp_func;
+typedef stc_btree_keyval_free_func stc_btree_keyval_free_func;
 
 #    define btree_new      stc_btree_new
 #    define btree_len      stc_btree_len
@@ -32,11 +37,6 @@ typedef StcBTree BTree;
 #        define btree_to_map stc_btree_to_map
 #    endif /* STC_BTREE_DISABLE_MAP */
 #endif     /* STC_BTREE_ENABLE_SHORT_NAMES */
-
-typedef struct stc_btree StcBTree;
-
-typedef int  stc_btree_keycmp_func(void *key1, void *key2);
-typedef void stc_btree_keyval_free_func(void *);
 
 #define stc_btree_is_empty(btree) (stc_btree_len(btree) == 0)
 
