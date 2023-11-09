@@ -9,12 +9,18 @@
 #    include "map.h"
 #endif
 
+typedef struct stc_hashmap StcHashMap;
+
+typedef size_t stc_hashmap_hash_func(void *key, size_t hashmap_cap);
+typedef int    stc_hashmap_keycmp_func(void *key1, void *key2);
+typedef void   stc_hashmap_keyval_free_func(void *);
+
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_HASHMAP_ENABLE_SHORT_NAMES)
 typedef StcHashMap HashMap;
 
-#    define hashmap_hash_func        stc_hashmap_hash_func
-#    define hashmap_keycmp_func      stc_hashmap_keycmp_func
-#    define hashmap_keyval_free_func stc_hashmap_keyval_free_func
+typedef stc_hashmap_hash_func        hashmap_hash_func;
+typedef stc_hashmap_keycmp_func      hashmap_keycmp_func;
+typedef stc_hashmap_keyval_free_func hashmap_keyval_free_func;
 
 #    define HASHMAP_DEFAULT_CAPACITY   STC_HASHMAP_DEFAULT_CAPACITY
 #    define HASHMAP_DEFAULT_LOADFACTOR STC_HASHMAP_DEFAULT_LOADFACTOR
@@ -41,12 +47,6 @@ typedef StcHashMap HashMap;
 #    endif /* STC_HASHMAP_DISABLE_MAP */
 #endif     /* STC_HASHMAP_ENABLE_SHORT_NAMES */
 
-typedef struct stc_hashmap StcHashMap;
-
-typedef size_t stc_hashmap_hash_func(void *key, size_t hashmap_cap);
-typedef int    stc_hashmap_keycmp_func(void *key1, void *key2);
-typedef void   stc_hashmap_keyval_free_func(void *);
-
 #define STC_HASHMAP_DEFAULT_CAPACITY   13
 #define STC_HASHMAP_DEFAULT_LOADFACTOR 0.75f
 
@@ -62,7 +62,8 @@ typedef void   stc_hashmap_keyval_free_func(void *);
 
 /**
  * Creates a hash map with initial capacity of cap and maximum loadfactor of
- * loadfactor using the hash function hash and key comparison function keycmp.
+ * loadfactor using the hash function hash and key comparison function
+ * keycmp.
  *
  * @param[in] cap the initial capacity of the hash map
  * @param[in] loadfactor the maximum loadfactor of the hash map

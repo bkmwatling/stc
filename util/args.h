@@ -55,8 +55,25 @@ typedef struct {
                                      for the convert function for custom
                                      arguments)   */
     StcArgConvert *convert; /*<< optional function to convert custom argument */
-
 } StcArg;
+
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_ARGS_ENABLE_SHORT_NAMES)
+typedef StcArgsUsage        ArgsUsage;
+typedef StcArgConvertResult ArgConvertResult;
+typedef StcArgConvert       ArgConvert;
+typedef StcArgType          ArgType;
+typedef StcArg              Arg;
+
+#    define ARG_NULL          STC_ARG_NULL
+#    define ARG_IS_POSITIONAL STC_ARG_IS_POSITIONAL
+#    define ARG_IS_STR        STC_ARG_IS_STR
+#    define ARG_IS_BOOL       STC_ARG_IS_BOOL
+#    define ARG_IS_CUSTOM     STC_ARG_IS_CUSTOM
+
+#    define args_parse       stc_args_parse
+#    define args_parse_exact stc_args_parse_exact
+#    define args_usage       stc_args_usage
+#endif /* STC_ARGS_ENABLE_SHORT_NAMES */
 
 #define STC_ARG_NULL                                \
     {                                               \

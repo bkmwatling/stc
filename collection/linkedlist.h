@@ -3,9 +3,15 @@
 
 #include <stddef.h>
 
+typedef struct stc_linkedlist StcLinkedList;
+
+typedef int stc_linkedlist_cmp_func(void *item1, void *item2);
+
 #if defined(STC_ENABLE_SHORT_NAMES) || \
     defined(STC_LINKEDLIST_ENABLE_SHORT_NAMES)
 typedef StcLinkedList LinkedList;
+
+typedef stc_linkedlist_cmp_func linkedlist_cmp_func;
 
 #    define linkedlist_new      stc_linkedlist_new
 #    define linkedlist_len      stc_linkedlist_len
@@ -31,10 +37,6 @@ typedef StcLinkedList LinkedList;
 #    define linkedlist_contains stc_linkedlist_contains
 #    define linkedlist_free     stc_linkedlist_free
 #endif /* STC_LINKEDLIST_ENABLE_SHORT_NAMES */
-
-typedef int stc_linkedlist_cmp_func(void *item1, void *item2);
-
-typedef struct stc_linkedlist StcLinkedList;
 
 #define stc_linkedlist_new() stc_linkedlist_new_with_cmp(NULL)
 

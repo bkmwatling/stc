@@ -66,7 +66,7 @@ typedef struct {
 #define stc_vec_len_unsafe(v) (stc_vec_header(v)->len)
 #define stc_vec_cap_unsafe(v) (stc_vec_header(v)->cap)
 #define stc_vec_is_empty(v)   (stc_vec_len(v) == 0)
-#define stc_vec_clear(v)      ((v) ? stc_vec_len_unsafe(v) = 0 : (void) 0)
+#define stc_vec_clear(v)      ((v) ? stc_vec_len_unsafe(v) = 0 : 0)
 
 #define stc_vec_push(v, x) \
     (stc_vec_reserve(v, 1), (v)[stc_vec_len_unsafe(v)++] = (x))
@@ -137,6 +137,29 @@ void *_stc_vec_extend(void *vec, const void *p, size_t size, size_t len);
  * @return a pointer to the vector after reserving the space
  */
 void *_stc_vec_reserve(void *vec, size_t size, size_t n);
+
+/**
+ * Reserves exactly enough space in the vector for n more elements.
+ *
+ * @param[in] vec the pointer to the vector to reserve space for
+ * @param[in] size the size of each element
+ * @param[in] n the number of elements to ensure space for
+ *
+ * @return a pointer to the vector after reserving the space
+ */
+void *_stc_vec_reserve_exact(void *vec, size_t size, size_t n);
+
+/**
+ * Shrinks the vector to have a capacity of exactly max(stc_vec_len(vec), cap)
+ * if cap is less than the capacity of the vector.
+ *
+ * @param[in] vec the pointer to the vector to shrink
+ * @param[in] size the size of each element
+ * @param[in] cap the capacity to shrink to
+ *
+ * @return a pointer to the vector after shrinking
+ */
+void *_stc_vec_shrink(void *vec, size_t size, size_t cap);
 
 /**
  * Reserves exactly enough space in the vector for n more elements.

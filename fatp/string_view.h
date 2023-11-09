@@ -4,6 +4,17 @@
 #include <stddef.h>
 #include <string.h>
 
+#ifdef STC_SV_DISABLE_CONST
+#    define STC_SV_CONST
+#else
+#    define STC_SV_CONST const
+#endif
+
+typedef struct {
+    size_t             len;
+    STC_SV_CONST char *str;
+} StcStringView;
+
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_SV_ENABLE_SHORT_NAMES)
 typedef StcStringView StringView;
 
@@ -35,17 +46,6 @@ typedef StcStringView StringView;
 #    define sv_chop_int          stc_sv_chop_int
 #endif /* STC_SV_ENABLE_SHORT_NAMES */
 
-#ifdef STC_SV_DISABLE_CONST
-#    define STC_SV_CONST
-#else
-#    define STC_SV_CONST const
-#endif
-
-typedef struct {
-    size_t             len;
-    STC_SV_CONST char *str;
-} StcStringView;
-
 /* printf macros for StcStringView */
 #define STC_SV_FMT     "%.*s"
 #define STC_SV_ARG(sv) (int) (sv).len, (sv).str
@@ -54,7 +54,7 @@ typedef struct {
  *   printf("Name: "STC_SV_FMT"\n", STC_SV_ARG(name)); */
 
 #define stc_sv_from_range(start, end) \
-    stc_sv_from_parts((start), (end) - (start) + 1)
+    stc_sv_from_parts((start), (end) - (start))
 #define stc_sv_from_cstr(cstr) stc_sv_from_parts((cstr), strlen((cstr)))
 #define stc_sv_from_lit(s)     stc_sv_from_parts((s), sizeof(s) - 1)
 #define stc_sv_trim(sv)        stc_sv_trim_right(stc_sv_trim_left(sv))
