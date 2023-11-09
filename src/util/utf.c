@@ -185,4 +185,18 @@ StcStringView stc_utf8_sv_next(StcStringView sv)
     return sv;
 }
 
+StcStringView stc_utf8_sv_advance(StcStringView *sv)
+{
+    int           n            = sv ? stc_utf8_nbytes_sv(*sv) : 0;
+    StcStringView codepoint_sv = { n, NULL };
+
+    if (n > 0) {
+        codepoint_sv.str  = sv->str;
+        sv->len          -= n;
+        sv->str          += n;
+    }
+
+    return codepoint_sv;
+}
+
 #endif /* STC_UTF_DISABLE_SV */

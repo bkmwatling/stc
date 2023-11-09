@@ -30,6 +30,7 @@
 #    define utf8_str_is_valid    stc_utf8_str_is_valid
 #    define utf8_str_ncodepoints stc_utf8_str_ncodepoints
 #    define utf8_str_next        stc_utf8_str_next
+#    define utf8_str_advance     stc_utf8_str_advance
 
 #    ifndef STC_UTF_DISABLE_SV
 #        define utf8_is_valid_sv stc_utf8_is_valid_sv
@@ -41,6 +42,7 @@
 #        define utf8_sv_is_valid    stc_utf8_sv_is_valid
 #        define utf8_sv_ncodepoints stc_utf8_sv_ncodepoints
 #        define utf8_sv_next        stc_utf8_sv_next
+#        define utf8_sv_advance     stc_utf8_sv_advance
 #    endif /* STC_UTF_DISABLE_SV */
 #endif     /* STC_UTF_ENABLE_SHORT_NAMES */
 
@@ -244,10 +246,26 @@ size_t stc_utf8_sv_ncodepoints(StcStringView sv);
  * @param[in] sv the string view to advance to the next UTF-8 codepoint from
  *
  * @return a string view to the start of the next UTF-8 codepoint in the string
- *         if the current character of the string view is the start of a valid
- *         UTF-8 codepoint; else a string view of length 0
+ *         view if the current character of the string view is the start of a
+ *         valid UTF-8 codepoint; else a string view of length 0
  */
 StcStringView stc_utf8_sv_next(StcStringView sv);
+
+/**
+ * Advances the UTF-8 string view pointed to by s to the next UTF-8 codepoint
+ * and returns the current UTF-8 codepoint of the string view as a string view
+ * if the current character of the string view is the start of a valid UTF-8
+ * codepoint. If the character is not the start of a valid UTF-8 codepoint then
+ * a string view of length 0 is returned and the given UTF-8 string view is left
+ * unchanged.
+ *
+ * @param[in] sv the string view pointer to advance to the next UTF-8 codepoint
+ *
+ * @return a string view to the start of the current UTF-8 codepoint in the
+ *         string view if the current character of the string view is the start
+ *         of a valid UTF-8 codepoint; else a string view of length 0
+ */
+StcStringView stc_utf8_sv_advance(StcStringView *sv);
 
 #endif /* STC_UTF_DISABLE_SV */
 
