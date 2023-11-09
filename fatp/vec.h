@@ -161,15 +161,4 @@ void *_stc_vec_reserve_exact(void *vec, size_t size, size_t n);
  */
 void *_stc_vec_shrink(void *vec, size_t size, size_t cap);
 
-/**
- * Reserves exactly enough space in the vector for n more elements.
- *
- * @param[in] vec the pointer to the vector to reserve space for
- * @param[in] size the size of each element
- * @param[in] n the number of elements to ensure space for
- *
- * @return a pointer to the vector after reserving the space
- */
-void *_stc_vec_reserve_exact(void *vec, size_t size, size_t n);
-
 #endif /* STC_VEC_H */
