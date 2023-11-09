@@ -139,6 +139,21 @@ size_t stc_utf8_str_ncodepoints(const char *s);
  */
 const char *stc_utf8_str_next(const char *s);
 
+/**
+ * Advances the UTF-8 string pointed to by s to the next UTF-8 codepoint and
+ * returns the current UTF-8 codepoint of the string if the current character of
+ * the string is the start of a valid UTF-8 codepoint. If the character is not
+ * the start of a valid UTF-8 codepoint then NULL is returned and the UTF-8
+ * string is left unchanged.
+ *
+ * @param[in] s the string to advance to the next UTF-8 codepoint
+ *
+ * @return a pointer to the start of the current UTF-8 codepoint in the string
+ *         if the current character of the string is the start of a valid UTF-8
+ *         codepoint; else NULL
+ */
+const char *stc_utf8_str_advance(const char **s);
+
 /*** UTF-8 string view macros and functions ***********************************/
 
 #ifndef STC_UTF_DISABLE_SV

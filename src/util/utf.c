@@ -101,6 +101,19 @@ const char *stc_utf8_str_next(const char *s)
     return n > 0 ? s + n : NULL;
 }
 
+const char *stc_utf8_str_advance(const char **s)
+{
+    const char *codepoint = NULL;
+    int         n         = s && *s ? stc_utf8_nbytes(*s) : 0;
+
+    if (n > 0) {
+        codepoint  = *s;
+        *s        += n;
+    }
+
+    return codepoint;
+}
+
 /*** UTF-8 string view functions **********************************************/
 
 #ifndef STC_UTF_DISABLE_SV
