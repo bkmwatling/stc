@@ -75,14 +75,14 @@ typedef struct {
 
 #define stc_vec_insert(v, i, x)   (stc_vec_reserve_index(v, i, 1), (v)[i] = (x))
 #define stc_vec_remove(v, i)      stc_vec_drain(v, i, 1)
-#define stc_vec_swap_remove(v, i) ((v) ? (v)[i] = arr_pop(v) : (void) 0)
+#define stc_vec_swap_remove(v, i) ((v) ? ((v)[i] = stc_vec_pop(v), 0) : 0)
 #define stc_vec_drain(v, i, n)                                           \
     ((v) ? (memmove((v) + (i), (v) + (i) + (n),                          \
                     sizeof(*(v)) * (stc_vec_len_unsafe(v) - (n) - (i))), \
             stc_vec_len_unsafe(v) -= (n))                                \
-         : (void) 0)
+         : 0)
 #define stc_vec_truncate(v, len) \
-    (len >= 0 && len < stc_vec_len(v) ? stc_vec_len_unsafe(v) = len : (void) 0)
+    (len >= 0 && len < stc_vec_len(v) ? stc_vec_len_unsafe(v) = len : 0)
 
 #define stc_vec_append(v, w) \
     (stc_vec_extend(v, w, stc_vec_len(w)), stc_vec_clear(w))
