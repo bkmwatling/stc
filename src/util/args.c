@@ -272,7 +272,7 @@ static void stc_arg_usage(FILE *stream, const StcArg *arg, int shortlen)
     if (!STC_ARG_IS_BOOL(arg->type) && !STC_ARG_IS_POSITIONAL(arg))
         fprintf(stream, " <%s>", arg->valname ? arg->valname : "value");
     if (!STC_ARG_IS_BOOL(arg->type) && arg->def)
-        fprintf(stream, " (default: %s)", (char *) arg->def);
+        fprintf(stream, " [default: %s]", (char *) arg->def);
     fprintf(stream, "\n");
 
     if ((description = arg->description)) {
