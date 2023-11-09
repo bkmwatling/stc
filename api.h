@@ -10,9 +10,6 @@
 #endif
 
 #ifndef STC_DISABLE_COLLECTION
-#    ifndef STC_DISABLE_BTREE
-#        include "collection/btree.h"
-#    endif
 #    ifndef STC_DISABLE_HASHMAP
 #        include "collection/hashmap.h"
 #    endif

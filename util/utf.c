@@ -101,6 +101,19 @@ const char *stc_utf8_str_next(const char *s)
     return n > 0 ? s + n : NULL;
 }
 
+const char *stc_utf8_str_advance(const char **s)
+{
+    const char *codepoint = NULL;
+    int         n         = s && *s ? stc_utf8_nbytes(*s) : 0;
+
+    if (n > 0) {
+        codepoint  = *s;
+        *s        += n;
+    }
+
+    return codepoint;
+}
+
 /*** UTF-8 string view functions **********************************************/
 
 #ifndef STC_UTF_DISABLE_SV
@@ -170,6 +183,20 @@ StcStringView stc_utf8_sv_next(StcStringView sv)
     }
 
     return sv;
+}
+
+StcStringView stc_utf8_sv_advance(StcStringView *sv)
+{
+    int           n            = sv ? stc_utf8_nbytes_sv(*sv) : 0;
+    StcStringView codepoint_sv = { n, NULL };
+
+    if (n > 0) {
+        codepoint_sv.str  = sv->str;
+        sv->len          -= n;
+        sv->str          += n;
+    }
+
+    return codepoint_sv;
 }
 
 #endif /* STC_UTF_DISABLE_SV */

@@ -4,13 +4,13 @@
 #include "vec.h"
 
 /* TODO: encorporate stc_mem for realloc */
-void *_stc_vec_resize(void *vec, size_t size, size_t cap)
+static void *_stc_vec_resize(void *vec, size_t size, size_t cap)
 {
     void *w;
 
     w = realloc(vec ? stc_vec_header(vec) : NULL,
                 size * cap + sizeof(StcVecHeader));
-    w = (char *) w + sizeof(StcVecHeader);
+    w = (StcVecHeader *) w + 1;
     if (vec == NULL) stc_vec_len_unsafe(w) = 0;
     stc_vec_cap_unsafe(w) = cap;
 

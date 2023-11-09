@@ -3,24 +3,6 @@
 
 #include <stddef.h>
 
-#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_MAP_ENABLE_SHORT_NAMES)
-typedef StcMap Map;
-
-#    define map_len        stc_map_len
-#    define map_len_unsafe stc_map_len_unsafe
-#    define map_is_empty   stc_map_is_empty
-
-#    define map_insert       stc_map_insert
-#    define map_get          stc_map_get
-#    define map_contains_key stc_map_contains_key
-#    define map_remove       stc_map_remove
-
-#    define map_keys   stc_map_keys
-#    define map_values stc_map_values
-
-#    define map_free stc_map_free
-#endif /* STC_MAP_ENABLE_SHORT_NAMES */
-
 typedef size_t stc_map_len_func(void *map);
 typedef int    stc_map_insert_func(void *map, void *key, void *val);
 typedef void  *stc_map_keyval_func(void *map, void *key);
@@ -45,6 +27,35 @@ typedef struct {
     stc_map_free_map_func     *free;
     void                      *map;
 } StcMap;
+
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_MAP_ENABLE_SHORT_NAMES)
+typedef StcMap Map;
+
+typedef stc_map_len_func          map_len_func;
+typedef stc_map_insert_func       map_insert_func;
+typedef stc_map_keyval_func       map_keyval_func;
+typedef stc_map_contains_key_func map_contains_key_func;
+
+typedef stc_map_keys_func   map_keys_func;
+typedef stc_map_values_func map_values_func;
+
+typedef stc_map_free_func     map_free_func;
+typedef stc_map_free_map_func map_free_map_func;
+
+#    define map_len        stc_map_len
+#    define map_len_unsafe stc_map_len_unsafe
+#    define map_is_empty   stc_map_is_empty
+
+#    define map_insert       stc_map_insert
+#    define map_get          stc_map_get
+#    define map_contains_key stc_map_contains_key
+#    define map_remove       stc_map_remove
+
+#    define map_keys   stc_map_keys
+#    define map_values stc_map_values
+
+#    define map_free stc_map_free
+#endif /* STC_MAP_ENABLE_SHORT_NAMES */
 
 #define stc_map_len(m)        ((m) ? stc_map_len_unsafe(m) : 0)
 #define stc_map_len_unsafe(m) ((m)->len((m)->map))
