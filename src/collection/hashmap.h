@@ -1,6 +1,8 @@
 #ifndef STC_HASHMAP_H
 #define STC_HASHMAP_H
 
+#include <stddef.h>
+
 #if defined(STC_DISABLE_MAP) && !defined(STC_HASHMAP_DISABLE_MAP)
 #    define STC_HASHMAP_DISABLE_MAP
 #endif
@@ -126,11 +128,14 @@ int stc_hashmap_contains_key(StcHashMap *self, void *key);
  *
  * @param[in] self the pointer to the hash map
  * @param[in] key the key of the key-value pair to remove from the hash map
+ * @param[in] keyfree the function used to free the key in the hash map if found
  *
  * @return the value corresponding to the key if the key is contained in the
  *         hash map; else NULL if it is not
  */
-void *stc_hashmap_remove(StcHashMap *self, void *key);
+void *stc_hashmap_remove(StcHashMap                   *self,
+                         void                         *key,
+                         stc_hashmap_keyval_free_func *keyfree);
 
 /**
  * Creates an unordered array of the keys contained in the hash map.

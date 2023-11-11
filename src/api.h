@@ -16,11 +16,17 @@
 #    ifndef STC_DISABLE_HASHMAP
 #        include "collection/hashmap.h"
 #    endif
+#    ifndef STC_DISABLE_HASHSET
+#        include "collection/hashset.h"
+#    endif
 #    ifndef STC_DISABLE_LINKEDLIST
 #        include "collection/linkedlist.h"
 #    endif
 #    ifndef STC_DISABLE_MAP
 #        include "collection/map.h"
+#    endif
+#    ifndef STC_DISABLE_SET
+#        include "collection/set.h"
 #    endif
 #endif /* STC_DISABLE_COLLECTION */
 

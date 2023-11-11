@@ -135,7 +135,9 @@ int stc_hashmap_contains_key(StcHashMap *self, void *key)
     return stc_hashmap_get(self, key) != NULL;
 }
 
-void *stc_hashmap_remove(StcHashMap *self, void *key)
+void *stc_hashmap_remove(StcHashMap                   *self,
+                         void                         *key,
+                         stc_hashmap_keyval_free_func *keyfree)
 {
     size_t           hash;
     void            *val;
@@ -164,6 +166,7 @@ void *stc_hashmap_remove(StcHashMap *self, void *key)
     }
 
     val = p->val;
+    keyfree(p->key);
     free(p);
     return val;
 }

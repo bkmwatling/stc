@@ -30,19 +30,21 @@ StcArgConvertResult convert_to_type(const char *arg, void *out)
     } else if (strcmp(arg, "int") == 0) {
         *type = INT;
     } else {
-        return STC_CR_FAILURE;
+        return STC_ARG_CR_FAILURE;
     }
 
-    return STC_CR_SUCCESS;
+    return STC_ARG_CR_SUCCESS;
 }
 
 int main(int argc, const char *argv[])
 {
-    int         c;
-    const char *name, *set, *filename, *database;
+    int         c, arg_idx;
+    const char *cmd, *name, *set, *filename, *database;
     Type        type;
 
     const StcArg args[] = {
+        { STC_ARG_STR, "<subcommand>", NULL, &cmd, NULL,
+          "Subcommand to execute", NULL, NULL },
         { STC_ARG_BOOL, "-c", "--create", &c, NULL,
           "Creates the value if it does not exist", NULL, NULL },
         { STC_ARG_STR, "<name>", NULL, &name, "name", "Name of value", NULL,
@@ -59,7 +61,13 @@ int main(int argc, const char *argv[])
           "Name of database of values", "redis", NULL },
     };
 
-    stc_args_parse_exact(argc, argv, args, ARR_LEN(args), NULL);
+    arg_idx = stc_args_parse(argc, argv, args, 1, NULL);
+    if (cmd == NULL)
+        stc_args_check_for_help(argc, argv, arg_idx, args, 1, NULL);
+    argc -= arg_idx - 1;
+    argv += arg_idx - 1;
+
+    stc_args_parse_exact(argc, argv, args + 1, ARR_LEN(args) - 1, NULL);
     printf("c=%d\n", c);
     printf("name=%s\n", name);
     printf("set=%s\n", set);

@@ -1,6 +1,8 @@
 #ifndef STC_BTREE_H
 #define STC_BTREE_H
 
+#include <stddef.h>
+
 #if defined(STC_DISABLE_MAP) && !defined(STC_BTREE_DISABLE_MAP)
 #    define STC_BTREE_DISABLE_MAP
 #endif
@@ -97,11 +99,14 @@ int stc_btree_contains_key(StcBTree *self, void *key);
  *
  * @param[in] self the pointer to the btree
  * @param[in] key the key of the key-value pair to remove from the btree
+ * @param[in] keyfree the function used to free the key in the btree if found
  *
  * @return the value corresponding to the key if the key is contained in the
  *         btree; else NULL if it is not
  */
-void *stc_btree_remove(StcBTree *self, void *key);
+void *stc_btree_remove(StcBTree                   *self,
+                       void                       *key,
+                       stc_btree_keyval_free_func *keyfree);
 
 /**
  * Creates an ordered array of the keys contained in the btree.
