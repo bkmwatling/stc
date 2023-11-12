@@ -27,6 +27,11 @@ typedef stc_hashset_keyfree_func hashset_keyfree_func;
 #    define HASHSET_DEFAULT_CAPACITY   STC_HASHSET_DEFAULT_CAPACITY
 #    define HASHSET_DEFAULT_LOADFACTOR STC_HASHSET_DEFAULT_LOADFACTOR
 
+#    define HASHSET_OUT_OF_MEMORY STC_HASHSET_OUT_OF_MEMORY
+#    define HASHSET_KEY_EXISTS    STC_HASHSET_KEY_EXISTS
+#    define HASHSET_SUCCESS       STC_HASHSET_SUCCESS
+#    define HASHSET_NULL_ARGUMENT STC_HASHSET_NULL_ARGUMENT
+
 #    define hashset_new                   stc_hashset_new
 #    define hashset_new_with_capacity     stc_hashset_new_with_capacity
 #    define hashset_default               stc_hashset_default
@@ -49,6 +54,11 @@ typedef stc_hashset_keyfree_func hashset_keyfree_func;
 
 #define STC_HASHSET_DEFAULT_CAPACITY   13
 #define STC_HASHSET_DEFAULT_LOADFACTOR 0.75f
+
+#define STC_HASHSET_OUT_OF_MEMORY -2
+#define STC_HASHSET_KEY_EXISTS    -1
+#define STC_HASHSET_SUCCESS       0
+#define STC_HASHSET_NULL_ARGUMENT 1
 
 #define stc_hashset_new(loadfactor, hash, keycmp)                             \
     stc_hashset_new_with_capacity(STC_HASHSET_DEFAULT_CAPACITY, (loadfactor), \

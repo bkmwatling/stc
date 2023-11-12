@@ -91,11 +91,12 @@ int stc_hashmap_insert(StcHashMap *self, void *key, void *val)
     size_t           hash;
     StcHashMapEntry *p;
 
-    if (!(self && key && val)) return 1;
+    if (!(self && key && val)) return STC_HASHMAP_NULL_ARGUMENT;
 
     hash = self->hash(key, self->cap);
     for (p = self->hashtable[hash]; p; p = p->next) {
-        if (self->keycmp(key, p->key) == 0) return -1;
+        if (self->keycmp(key, p->key) == 0)
+            return STC_HASHMAP_KEY_VALUE_PAIR_EXISTS;
     }
 
     /* rehash if possible and necessary */
@@ -105,14 +106,15 @@ int stc_hashmap_insert(StcHashMap *self, void *key, void *val)
         stc_hashmap_rehash(self);
     }
 
-    if ((p = malloc(sizeof(StcHashMapEntry))) == NULL) return -2;
+    if ((p = malloc(sizeof(StcHashMapEntry))) == NULL)
+        return STC_HASHMAP_OUT_OF_MEMORY;
     p->key                = key;
     p->val                = val;
     p->next               = self->hashtable[hash];
     self->hashtable[hash] = p;
     self->len++;
 
-    return 0;
+    return STC_HASHMAP_SUCCESS;
 }
 
 void *stc_hashmap_get(StcHashMap *self, void *key)
@@ -143,7 +145,7 @@ void *stc_hashmap_remove(StcHashMap                   *self,
     void            *val;
     StcHashMapEntry *p, *q = NULL;
 
-    if (!(self && key)) return NULL;
+    if (!(self && key && keyfree)) return NULL;
 
     hash = self->hash(key, self->cap);
     for (p = self->hashtable[hash]; p; q = p, p = p->next) {

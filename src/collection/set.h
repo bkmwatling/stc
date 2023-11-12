@@ -27,6 +27,9 @@ typedef struct {
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_SET_ENABLE_SHORT_NAMES)
 typedef StcSet Set;
 
+#    define SET_KEY_EXISTS STC_SET_KEY_EXISTS
+#    define SET_SUCCESS    STC_SET_SUCCESS
+
 typedef stc_set_len_func      set_len_func;
 typedef stc_set_insert_func   set_insert_func;
 typedef stc_set_contains_func set_contains_func;
@@ -47,6 +50,9 @@ typedef stc_set_free_set_func set_free_set_func;
 #    define set_keys stc_set_keys
 #    define set_free stc_set_free
 #endif /* STC_SET_ENABLE_SHORT_NAMES */
+
+#define STC_SET_KEY_EXISTS -1
+#define STC_SET_SUCCESS    0
 
 #define stc_set_len(s)        ((s) ? stc_set_len_unsafe(m) : 0)
 #define stc_set_len_unsafe(s) ((s)->len((s)->impl))

@@ -34,6 +34,9 @@ typedef struct {
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_MAP_ENABLE_SHORT_NAMES)
 typedef StcMap Map;
 
+#    define MAP_KEY_VALUE_PAIR_EXISTS STC_MAP_KEY_VALUE_PAIR_EXISTS
+#    define MAP_SUCCESS               STC_MAP_SUCCESS
+
 typedef stc_map_len_func          map_len_func;
 typedef stc_map_insert_func       map_insert_func;
 typedef stc_map_get_func          map_get_func;
@@ -60,6 +63,9 @@ typedef stc_map_free_map_func map_free_map_func;
 
 #    define map_free stc_map_free
 #endif /* STC_MAP_ENABLE_SHORT_NAMES */
+
+#define STC_MAP_KEY_VALUE_PAIR_EXISTS -1
+#define STC_MAP_SUCCESS               0
 
 #define stc_map_len(m)        ((m) ? stc_map_len_unsafe(m) : 0)
 #define stc_map_len_unsafe(m) ((m)->len((m)->impl))

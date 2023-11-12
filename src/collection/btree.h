@@ -22,6 +22,10 @@ typedef StcBTree BTree;
 typedef stc_btree_keycmp_func      stc_btree_keycmp_func;
 typedef stc_btree_keyval_free_func stc_btree_keyval_free_func;
 
+#    define BTREE_KEY_VALUE_PAIR_EXISTS STC_BTREE_KEY_VALUE_PAIR_EXISTS
+#    define BTREE_SUCCESS               STC_BTREE_SUCCESS
+#    define BTREE_NULL_ARGUMENT         STC_BTREE_NULL_ARGUMENT
+
 #    define btree_new      stc_btree_new
 #    define btree_len      stc_btree_len
 #    define btree_is_empty stc_btree_is_empty
@@ -39,6 +43,10 @@ typedef stc_btree_keyval_free_func stc_btree_keyval_free_func;
 #        define btree_to_map stc_btree_to_map
 #    endif /* STC_BTREE_DISABLE_MAP */
 #endif     /* STC_BTREE_ENABLE_SHORT_NAMES */
+
+#define STC_BTREE_KEY_VALUE_PAIR_EXISTS -1
+#define STC_BTREE_SUCCESS               0
+#define STC_BTREE_NULL_ARGUMENT         1
 
 #define stc_btree_is_empty(btree) (stc_btree_len(btree) == 0)
 

@@ -90,11 +90,11 @@ int stc_hashset_insert(StcHashSet *self, void *key)
     size_t           hash;
     StcHashSetEntry *p;
 
-    if (!(self && key)) return 1;
+    if (!(self && key)) return STC_HASHSET_NULL_ARGUMENT;
 
     hash = self->hash(key, self->cap);
     for (p = self->hashtable[hash]; p; p = p->next) {
-        if (self->keycmp(key, p->key) == 0) return -1;
+        if (self->keycmp(key, p->key) == 0) return STC_HASHSET_KEY_EXISTS;
     }
 
     /* rehash if possible and necessary */
@@ -104,13 +104,14 @@ int stc_hashset_insert(StcHashSet *self, void *key)
         stc_hashset_rehash(self);
     }
 
-    if ((p = malloc(sizeof(StcHashSetEntry))) == NULL) return -2;
+    if ((p = malloc(sizeof(StcHashSetEntry))) == NULL)
+        return STC_HASHSET_OUT_OF_MEMORY;
     p->key                = key;
     p->next               = self->hashtable[hash];
     self->hashtable[hash] = p;
     self->len++;
 
-    return 0;
+    return STC_HASHSET_SUCCESS;
 }
 
 int stc_hashset_contains(StcHashSet *self, void *key)

@@ -27,6 +27,11 @@ typedef stc_hashmap_keyval_free_func hashmap_keyval_free_func;
 #    define HASHMAP_DEFAULT_CAPACITY   STC_HASHMAP_DEFAULT_CAPACITY
 #    define HASHMAP_DEFAULT_LOADFACTOR STC_HASHMAP_DEFAULT_LOADFACTOR
 
+#    define HASHMAP_OUT_OF_MEMORY         STC_HASHMAP_OUT_OF_MEMORY
+#    define HASHMAP_KEY_VALUE_PAIR_EXISTS STC_HASHMAP_KEY_VALUE_PAIR_EXISTS
+#    define HASHMAP_SUCCESS               STC_HASHMAP_SUCCESS
+#    define HASHMAP_NULL_ARGUMENT         STC_HASHMAP_NULL_ARGUMENT
+
 #    define hashmap_new                   stc_hashmap_new
 #    define hashmap_new_with_capacity     stc_hashmap_new_with_capacity
 #    define hashmap_default               stc_hashmap_default
@@ -51,6 +56,11 @@ typedef stc_hashmap_keyval_free_func hashmap_keyval_free_func;
 
 #define STC_HASHMAP_DEFAULT_CAPACITY   13
 #define STC_HASHMAP_DEFAULT_LOADFACTOR 0.75f
+
+#define STC_HASHMAP_OUT_OF_MEMORY         -2
+#define STC_HASHMAP_KEY_VALUE_PAIR_EXISTS -1
+#define STC_HASHMAP_SUCCESS               0
+#define STC_HASHMAP_NULL_ARGUMENT         1
 
 #define stc_hashmap_new(loadfactor, hash, keycmp)                             \
     stc_hashmap_new_with_capacity(STC_HASHMAP_DEFAULT_CAPACITY, (loadfactor), \
