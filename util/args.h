@@ -12,9 +12,9 @@
 typedef void StcArgsUsage(FILE *stream, const char *program);
 
 typedef enum {
-    STC_CR_SUCCESS,         /*<< conversion was successful                    */
-    STC_CR_FAILURE,         /*<< conversion failed but not reported           */
-    STC_CR_FAILURE_HANDLED, /*<< conversion failed and function reported it   */
+    STC_ARG_CR_SUCCESS,         /*<< conversion was successful                */
+    STC_ARG_CR_FAILURE,         /*<< conversion failed but not reported       */
+    STC_ARG_CR_FAILURE_HANDLED, /*<< conversion failed but function reported  */
 } StcArgConvertResult;
 
 /**
@@ -63,6 +63,14 @@ typedef StcArgConvertResult ArgConvertResult;
 typedef StcArgConvert       ArgConvert;
 typedef StcArgType          ArgType;
 typedef StcArg              Arg;
+
+#    define ARG_CR_SUCCESS         STC_ARG_CR_SUCCESS
+#    define ARG_CR_FAILURE         STC_ARG_CR_FAILURE
+#    define ARG_CR_FAILURE_HANDLED STC_ARG_CR_FAILURE_HANDLED
+
+#    define ARG_STR    STC_ARG_STR
+#    define ARG_BOOL   STC_ARG_BOOL
+#    define ARG_CUSTOM STC_ARG_CUSTOM
 
 #    define ARG_NULL          STC_ARG_NULL
 #    define ARG_IS_POSITIONAL STC_ARG_IS_POSITIONAL
@@ -135,5 +143,25 @@ void stc_args_usage(FILE         *stream,
                     const char   *program,
                     const StcArg *args,
                     int           args_len);
+
+/**
+ * Checks for the '-h' or '--help' flags in the command-line arguments starting
+ * from the given argument index `arg_idx` and prints the usage information to
+ * stdout if found.
+ *
+ * @param[in] argc the number of command-line arguments
+ * @param[in] argv the array of command-line arguments
+ * @param[in] arg_idx the start index of argv to search for the help flags
+ * @param[in] args the array of argument specifications
+ * @param[in] args_len the length the array of argument specifications
+ * @param[in] usage the optional custom usage print function to override
+ *                  printing usage based on given argument specifications
+ */
+void stc_args_check_for_help(int           argc,
+                             const char  **argv,
+                             int           arg_idx,
+                             const StcArg *args,
+                             int           args_len,
+                             StcArgsUsage *usage);
 
 #endif /* STC_ARGS_H */
