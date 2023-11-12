@@ -58,21 +58,20 @@ int main(int argc, const char *argv[])
         { STC_ARG_BOOL, NULL, "--really-long-description", NULL, NULL,
           REALLY_LONG_DESCRIPTION, NULL, NULL },
         { STC_ARG_STR, NULL, "<database>", &database, NULL,
-          "Name of database of values", "redis", NULL },
+          "Name of database of values", "redis", NULL }
     };
 
-    arg_idx = stc_args_parse(argc, argv, args, 1, NULL);
-    if (cmd == NULL)
-        stc_args_check_for_help(argc, argv, arg_idx, args, 1, NULL);
-    argc -= arg_idx - 1;
-    argv += arg_idx - 1;
+    arg_idx  = stc_args_parse(argc, argv, args, 1, NULL);
+    argc    -= arg_idx - 1;
+    argv    += arg_idx - 1;
 
     stc_args_parse_exact(argc, argv, args + 1, ARR_LEN(args) - 1, NULL);
-    printf("c=%d\n", c);
-    printf("name=%s\n", name);
-    printf("set=%s\n", set);
-    printf("filename=%s\n", filename);
-    printf("type=%d\n", type);
+    printf("cmd=%s\n", cmd);
+    // printf("c=%d\n", c);
+    // printf("name=%s\n", name);
+    // printf("set=%s\n", set);
+    // printf("filename=%s\n", filename);
+    // printf("type=%d\n", type);
     printf("database=%s\n", database);
 
     return EXIT_SUCCESS;
