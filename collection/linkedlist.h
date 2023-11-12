@@ -5,13 +5,21 @@
 
 typedef struct stc_linkedlist StcLinkedList;
 
-typedef int stc_linkedlist_cmp_func(void *item1, void *item2);
+typedef int  stc_linkedlist_cmp_func(void *item1, void *item2);
+typedef void stc_linkedlist_free_func(void *);
 
 #if defined(STC_ENABLE_SHORT_NAMES) || \
     defined(STC_LINKEDLIST_ENABLE_SHORT_NAMES)
 typedef StcLinkedList LinkedList;
 
-typedef stc_linkedlist_cmp_func linkedlist_cmp_func;
+typedef stc_linkedlist_cmp_func  linkedlist_cmp_func;
+typedef stc_linkedlist_free_func linkedlist_free_func;
+
+#    define LINKEDLIST_INSERT_INDEX_OUT_OF_BOUNDS \
+        STC_LINKEDLIST_INSERT_INDEX_OUT_OF_BOUNDS
+#    define LINKEDLIST_INSERT_TARGET_NOT_FOUND \
+        STC_LINKEDLIST_INSERT_TARGET_NOT_FOUND
+#    define LINKEDLIST_SUCCESS STC_LINKEDLIST_SUCCESS
 
 #    define linkedlist_new      stc_linkedlist_new
 #    define linkedlist_len      stc_linkedlist_len
@@ -37,6 +45,10 @@ typedef stc_linkedlist_cmp_func linkedlist_cmp_func;
 #    define linkedlist_contains stc_linkedlist_contains
 #    define linkedlist_free     stc_linkedlist_free
 #endif /* STC_LINKEDLIST_ENABLE_SHORT_NAMES */
+
+#define STC_LINKEDLIST_INSERT_INDEX_OUT_OF_BOUNDS -2
+#define STC_LINKEDLIST_INSERT_TARGET_NOT_FOUND    -1
+#define STC_LINKEDLIST_SUCCESS                    0
 
 #define stc_linkedlist_new() stc_linkedlist_new_with_cmp(NULL)
 
@@ -160,8 +172,12 @@ int stc_linkedlist_insert_before(StcLinkedList *self, void *item, void *target);
  *
  * @param[in] self the pointer to the linked list
  * @param[in] item the item to remove from the linked list
+ * @param[in] itemfree the function used to free the item in the linked list if
+ *                     found
  */
-void stc_linkedlist_remove_item(StcLinkedList *self, void *item);
+void stc_linkedlist_remove_item(StcLinkedList            *self,
+                                void                     *item,
+                                stc_linkedlist_free_func *itemfree);
 
 /**
  * Inserts the item into the linked list at the specified index.
@@ -217,6 +233,7 @@ int stc_linkedlist_contains(StcLinkedList *self, void *item);
  * @param[in] self the pointer to the linked list
  * @param[in] itemfree the function used to free each item in the linked list
  */
-void stc_linkedlist_free(StcLinkedList *self, void (*itemfree)(void *));
+void stc_linkedlist_free(StcLinkedList            *self,
+                         stc_linkedlist_free_func *itemfree);
 
 #endif /* STC_LINKEDLIST_H */

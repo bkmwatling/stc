@@ -100,13 +100,7 @@ int stc_args_parse(int           argc,
                     break;
                 }
             }
-            if (j >= nopt) {
-                if (strcmp(found, "-h") == 0 || strcmp(found, "--help") == 0) {
-                    exit_code = EXIT_SUCCESS;
-                    goto exit_parsing;
-                }
-                goto unrecognised;
-            }
+            if (j >= nopt) { goto unrecognised; }
         } else {
             /* check if we still have positional arguments to match */
             if (pos_idx >= npos) {
@@ -141,6 +135,7 @@ int stc_args_parse(int           argc,
         if (argset[i]) continue;
         arg = args + i;
         if (arg->def == NULL && !STC_ARG_IS_BOOL(arg->type)) {
+            stc_args_check_for_help(argc, argv, arg_end, args, args_len, usage);
             fprintf(stderr, "ERROR: argument '%s' not specified\n",
                     arg->shortopt ? arg->shortopt : arg->longopt);
             exit_code = EXIT_FAILURE;
@@ -148,6 +143,7 @@ int stc_args_parse(int           argc,
         }
         if (arg->out &&
             !stc_arg_memcpy(arg->out, arg->def, arg->convert, arg->type)) {
+            stc_args_check_for_help(argc, argv, arg_end, args, args_len, usage);
             fprintf(stderr,
                     "ERROR: failed to set default value for argument '%s'\n",
                     arg->shortopt ? arg->shortopt : arg->longopt);
@@ -178,6 +174,7 @@ void stc_args_parse_exact(int           argc,
 {
     int idx = stc_args_parse(argc, argv, args, args_len, usage);
 
+    stc_args_check_for_help(argc, argv, idx, args, args_len, usage);
     if (idx < argc) {
         fprintf(stderr, "ERROR: unrecognised argument '%s'\n", argv[idx]);
         if (usage) {
@@ -236,6 +233,28 @@ void stc_args_usage(FILE         *stream,
                 len = 1;
             }
             stc_arg_usage(stream, arg, opt_shortlen);
+        }
+    }
+}
+
+void stc_args_check_for_help(int           argc,
+                             const char  **argv,
+                             int           arg_idx,
+                             const StcArg *args,
+                             int           args_len,
+                             StcArgsUsage *usage)
+{
+    int i;
+
+    for (i = arg_idx; i < argc; i++) {
+        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+            if (usage) {
+                usage(stdout, argv[0]);
+            } else {
+                if (args_len <= 0) args_len = stc_args_len(args);
+                stc_args_usage(stdout, argv[0], args, args_len);
+            }
+            exit(EXIT_SUCCESS);
         }
     }
 }
@@ -321,12 +340,12 @@ stc_arg_process(const char *found, const StcArg *arg, const char *opt)
             break;
         case STC_ARG_CUSTOM:
             switch (arg->convert(found, arg->out)) {
-                case STC_CR_SUCCESS: break;
-                case STC_CR_FAILURE:
+                case STC_ARG_CR_SUCCESS: break;
+                case STC_ARG_CR_FAILURE:
                     fprintf(stderr,
                             "ERROR: invalid value '%s' for argument '%s'\n",
                             found, opt);
-                case STC_CR_FAILURE_HANDLED: return -1;
+                case STC_ARG_CR_FAILURE_HANDLED: return -1;
             }
             break;
     }
@@ -343,7 +362,8 @@ static int stc_arg_memcpy(void          *dst,
         case STC_ARG_STR: *(const char **) dst = (const char *) src; break;
         case STC_ARG_BOOL: *(int *) dst = src != NULL; break;
         case STC_ARG_CUSTOM:
-            if (convert((const char *) src, dst) != STC_CR_SUCCESS) return 0;
+            if (convert((const char *) src, dst) != STC_ARG_CR_SUCCESS)
+                return 0;
             break;
     }
 

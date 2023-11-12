@@ -1,6 +1,8 @@
 #ifndef STC_HASHMAP_H
 #define STC_HASHMAP_H
 
+#include <stddef.h>
+
 #if defined(STC_DISABLE_MAP) && !defined(STC_HASHMAP_DISABLE_MAP)
 #    define STC_HASHMAP_DISABLE_MAP
 #endif
@@ -24,6 +26,11 @@ typedef stc_hashmap_keyval_free_func hashmap_keyval_free_func;
 
 #    define HASHMAP_DEFAULT_CAPACITY   STC_HASHMAP_DEFAULT_CAPACITY
 #    define HASHMAP_DEFAULT_LOADFACTOR STC_HASHMAP_DEFAULT_LOADFACTOR
+
+#    define HASHMAP_OUT_OF_MEMORY         STC_HASHMAP_OUT_OF_MEMORY
+#    define HASHMAP_KEY_VALUE_PAIR_EXISTS STC_HASHMAP_KEY_VALUE_PAIR_EXISTS
+#    define HASHMAP_SUCCESS               STC_HASHMAP_SUCCESS
+#    define HASHMAP_NULL_ARGUMENT         STC_HASHMAP_NULL_ARGUMENT
 
 #    define hashmap_new                   stc_hashmap_new
 #    define hashmap_new_with_capacity     stc_hashmap_new_with_capacity
@@ -49,6 +56,11 @@ typedef stc_hashmap_keyval_free_func hashmap_keyval_free_func;
 
 #define STC_HASHMAP_DEFAULT_CAPACITY   13
 #define STC_HASHMAP_DEFAULT_LOADFACTOR 0.75f
+
+#define STC_HASHMAP_OUT_OF_MEMORY         -2
+#define STC_HASHMAP_KEY_VALUE_PAIR_EXISTS -1
+#define STC_HASHMAP_SUCCESS               0
+#define STC_HASHMAP_NULL_ARGUMENT         1
 
 #define stc_hashmap_new(loadfactor, hash, keycmp)                             \
     stc_hashmap_new_with_capacity(STC_HASHMAP_DEFAULT_CAPACITY, (loadfactor), \
@@ -126,11 +138,14 @@ int stc_hashmap_contains_key(StcHashMap *self, void *key);
  *
  * @param[in] self the pointer to the hash map
  * @param[in] key the key of the key-value pair to remove from the hash map
+ * @param[in] keyfree the function used to free the key in the hash map if found
  *
  * @return the value corresponding to the key if the key is contained in the
  *         hash map; else NULL if it is not
  */
-void *stc_hashmap_remove(StcHashMap *self, void *key);
+void *stc_hashmap_remove(StcHashMap                   *self,
+                         void                         *key,
+                         stc_hashmap_keyval_free_func *keyfree);
 
 /**
  * Creates an unordered array of the keys contained in the hash map.

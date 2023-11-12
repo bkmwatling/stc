@@ -88,25 +88,34 @@ void *stc_linkedlist_last(StcLinkedList *self)
 int stc_linkedlist_insert_after(StcLinkedList *self, void *item, void *target)
 {
     StcLinkedListNode *node = stc_linkedlist_find(self, target);
-    return node ? stc_linkedlist_add_after(self, item, node) : 2;
+    return node ? stc_linkedlist_add_after(self, item, node)
+                : STC_LINKEDLIST_INSERT_TARGET_NOT_FOUND;
 }
 
 int stc_linkedlist_insert_before(StcLinkedList *self, void *item, void *target)
 {
     StcLinkedListNode *node = stc_linkedlist_find(self, target);
-    return node ? stc_linkedlist_add_after(self, item, node->prev) : 2;
+    return node ? stc_linkedlist_add_after(self, item, node->prev)
+                : STC_LINKEDLIST_INSERT_TARGET_NOT_FOUND;
 }
 
-void stc_linkedlist_remove_item(StcLinkedList *self, void *item)
+void stc_linkedlist_remove_item(StcLinkedList            *self,
+                                void                     *item,
+                                stc_linkedlist_free_func *itemfree)
 {
-    StcLinkedListNode *node = stc_linkedlist_find(self, item);
-    if (node) stc_linkedlist_remove_node(self, node);
+    StcLinkedListNode *node;
+
+    if (itemfree == NULL) return;
+
+    node = stc_linkedlist_find(self, item);
+    if (node) itemfree(stc_linkedlist_remove_node(self, node));
 }
 
 int stc_linkedlist_insert(StcLinkedList *self, size_t idx, void *item)
 {
     StcLinkedListNode *node = stc_linkedlist_find_at(self, idx);
-    return node ? stc_linkedlist_add_after(self, item, node->prev) : 2;
+    return node ? stc_linkedlist_add_after(self, item, node->prev)
+                : STC_LINKEDLIST_INSERT_INDEX_OUT_OF_BOUNDS;
 }
 
 void *stc_linkedlist_get(StcLinkedList *self, size_t idx)
@@ -126,7 +135,8 @@ int stc_linkedlist_contains(StcLinkedList *self, void *item)
     return stc_linkedlist_find(self, item) != NULL;
 }
 
-void stc_linkedlist_free(StcLinkedList *self, void (*itemfree)(void *))
+void stc_linkedlist_free(StcLinkedList            *self,
+                         stc_linkedlist_free_func *itemfree)
 {
     StcLinkedListNode *p, *q;
 
@@ -183,7 +193,7 @@ static int stc_linkedlist_add_after(StcLinkedList     *self,
 {
     StcLinkedListNode *node;
 
-    if (target == NULL) return 1;
+    if (target == NULL) return STC_LINKEDLIST_INSERT_TARGET_NOT_FOUND;
 
     node             = malloc(sizeof(StcLinkedListNode));
     node->item       = item;
@@ -193,7 +203,7 @@ static int stc_linkedlist_add_after(StcLinkedList     *self,
     node->next->prev = node;
     self->len++;
 
-    return 0;
+    return STC_LINKEDLIST_SUCCESS;
 }
 
 static void *stc_linkedlist_remove_node(StcLinkedList     *self,
