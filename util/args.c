@@ -192,47 +192,68 @@ void stc_args_usage(FILE         *stream,
                     const StcArg *args,
                     int           args_len)
 {
-    int           i, len, pos_shortlen = 0, opt_shortlen = 0;
+    int           i, len, has_arg, has_opt, pos_shortlen = 0, opt_shortlen = 0;
     const char   *shortopt;
     const StcArg *arg;
 
+    /* check if there are any options or arguments */
+    has_arg = has_opt = 0;
+    for (i = 0; i < args_len && (!has_arg || !has_opt); i++) {
+        if (STC_ARG_IS_POSITIONAL(args + i)) {
+            has_arg = 1;
+        } else {
+            has_opt = 1;
+        }
+    }
+
     /* print top usage line */
-    fprintf(stream, "Usage: %s [OPTIONS]", program);
+    fprintf(stream, "Usage: %s%s", program, has_opt ? " [OPTIONS]" : "");
     for (i = 0; i < args_len; i++) {
         arg = args + i;
         if (STC_ARG_IS_POSITIONAL(args + i)) {
             shortopt = arg->shortopt ? arg->shortopt : arg->longopt;
             if (shortopt && (len = strlen(shortopt)) > pos_shortlen)
                 pos_shortlen = len;
-        } else {
-            if (arg->shortopt && (len = strlen(arg->shortopt)) > opt_shortlen)
-                opt_shortlen = len;
-            continue;
+            fprintf(stream, " %s",
+                    arg->shortopt ? arg->shortopt : arg->longopt);
+        } else if (arg->shortopt &&
+                   (len = strlen(arg->shortopt)) > opt_shortlen) {
+            opt_shortlen = len;
         }
-        fprintf(stream, " %s", arg->shortopt ? arg->shortopt : arg->longopt);
     }
+    fprintf(stream, "\n");
 
     /* print descriptions of arguments */
-    fprintf(stream, "\n\nArguments:\n");
-    for (i = 0; i < args_len; i++) {
-        arg = args + i;
-        if (STC_ARG_IS_POSITIONAL(arg)) {
-            stc_arg_usage(stream, arg, pos_shortlen);
-            fprintf(stream, "\n");
+    if (has_arg) {
+        len = 0; /* use len as flag to indicate whether first argument done */
+        fprintf(stream, "\nArguments:\n");
+        for (i = 0; i < args_len; i++) {
+            arg = args + i;
+            if (STC_ARG_IS_POSITIONAL(arg)) {
+                if (len) {
+                    fprintf(stream, "\n");
+                } else {
+                    len = 1;
+                }
+                stc_arg_usage(stream, arg, pos_shortlen);
+            }
         }
     }
 
-    len = 0; /* use len as flag to indicate whether first option done */
-    fprintf(stream, "Options:\n");
-    for (i = 0; i < args_len; i++) {
-        arg = args + i;
-        if (!STC_ARG_IS_POSITIONAL(arg)) {
-            if (len) {
-                fprintf(stream, "\n");
-            } else {
-                len = 1;
+    /* print descriptions of options */
+    if (has_opt) {
+        len = 0; /* use len as flag to indicate whether first option done */
+        fprintf(stream, "\nOptions:\n");
+        for (i = 0; i < args_len; i++) {
+            arg = args + i;
+            if (!STC_ARG_IS_POSITIONAL(arg)) {
+                if (len) {
+                    fprintf(stream, "\n");
+                } else {
+                    len = 1;
+                }
+                stc_arg_usage(stream, arg, opt_shortlen);
             }
-            stc_arg_usage(stream, arg, opt_shortlen);
         }
     }
 }
