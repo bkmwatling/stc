@@ -73,9 +73,10 @@ typedef struct {
 #define stc_vec_pop(v)  ((v)[--stc_vec_len_unsafe(v)])
 #define stc_vec_last(v) ((v)[stc_vec_len_unsafe(v) - 1])
 
-#define stc_vec_insert(v, i, x)   (stc_vec_reserve_index(v, i, 1), (v)[i] = (x))
+#define stc_vec_insert(v, i, x) \
+    (stc_vec_reserve_index(v, i, 1), stc_vec_len_unsafe(v)++, (v)[i] = (x))
 #define stc_vec_remove(v, i)      stc_vec_drain(v, i, 1)
-#define stc_vec_swap_remove(v, i) ((v) ? ((v)[i] = stc_vec_pop(v), 0) : 0)
+#define stc_vec_swap_remove(v, i) ((v) ? ((v)[i] = stc_vec_pop(v), 1) : 0)
 #define stc_vec_drain(v, i, n)                                           \
     ((v) ? (memmove((v) + (i), (v) + (i) + (n),                          \
                     sizeof(*(v)) * (stc_vec_len_unsafe(v) - (n) - (i))), \
@@ -97,7 +98,7 @@ typedef struct {
 #define stc_vec_reserve_index(v, i, n)   \
     (stc_vec_reserve(v, n),              \
      memmove((v) + (i) + (n), (v) + (i), \
-             sizeof(*(v)) * (stc_vec_len_unsafe(v) - (n) - (i))))
+             sizeof(*(v)) * (stc_vec_len_unsafe(v) - (i))))
 #define stc_vec_shrink(v, cap) \
     ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap))
 #define stc_vec_shrink_to_fit(v) stc_vec_shrink(v, stc_vec_len(v))
