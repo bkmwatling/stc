@@ -44,6 +44,7 @@
 #    define string_as_str stc_string_as_str
 #    define string_to_str stc_string_to_str
 
+#    define string_push_cstr stc_string_push_cstr
 #    define string_push_vfmt stc_string_push_vfmt
 #    define string_push_fmt  stc_string_push_fmt
 #endif /* STC_STRING_ENABLE_SHORT_NAMES */
@@ -87,6 +88,7 @@
 #define stc_string_as_str stc_vec_as_slice
 #define stc_string_to_str stc_vec_to_slice
 
+#define stc_string_push_cstr(s, cstr) stc_string_push_fmt(s, cstr)
 #define stc_string_push_vfmt(s, fmt, ap) \
     _stc_string_push_vfmt(&(s), (fmt), (ap))
 #define stc_string_push_fmt(s, fmt, ...) \
@@ -112,7 +114,7 @@ void _stc_string_push_vfmt(char **self, const char *fmt, va_list ap);
  * @param[in] fmt the format specifier
  * @param[in] ... the variable arguments to parse with the format specifier
  */
-void _stc_strint_push_fmt(char **self, const char *fmt, ...);
+void _stc_string_push_fmt(char **self, const char *fmt, ...);
 
 /*** String slice definitions (aliases to slice) ******************************/
 
@@ -120,6 +122,8 @@ void _stc_strint_push_fmt(char **self, const char *fmt, ...);
 #    define str_header     stc_str_header
 #    define str_new        stc_str_new
 #    define str_from_parts stc_str_from_parts
+#    define str_from_cstr  stc_str_from_cstr
+#    define str_from_lit   stc_str_from_lit
 #    define str_free       stc_str_free
 
 #    define str_len        stc_str_len
@@ -129,10 +133,12 @@ void _stc_strint_push_fmt(char **self, const char *fmt, ...);
 #    define str_from_fmt  stc_str_from_fmt
 #endif /* STC_STR_ENABLE_SHORT_NAMES */
 
-#define stc_str_header     stc_slice_header
-#define stc_str_new(len)   stc_slice_new(sizeof(char), (len))
-#define stc_str_from_parts stc_slice_from_parts
-#define stc_str_free       stc_slice_free
+#define stc_str_header          stc_slice_header
+#define stc_str_new(len)        stc_slice_new(sizeof(char), (len))
+#define stc_str_from_parts      stc_slice_from_parts
+#define stc_str_from_cstr(cstr) stc_str_from_parts(cstr, strlen((cstr)))
+#define stc_str_from_lit(s)     stc_str_from_parts(s, sizeof(s) - 1)
+#define stc_str_free            stc_slice_free
 
 #define stc_str_len        stc_slice_len
 #define stc_str_len_unsafe stc_slice_len_unsafe

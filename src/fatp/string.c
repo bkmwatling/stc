@@ -24,7 +24,7 @@ void _stc_string_push_vfmt(char **self, const char *fmt, va_list ap)
     va_end(aq);
 }
 
-void _stc_strint_push_fmt(char **self, const char *fmt, ...)
+void _stc_string_push_fmt(char **self, const char *fmt, ...)
 {
     va_list ap;
 
