@@ -46,9 +46,9 @@
 #    endif /* STC_UTF_DISABLE_SV */
 #endif     /* STC_UTF_ENABLE_SHORT_NAMES */
 
-/*** Single UTF-8 codepoint macros and functions ******************************/
+/* --- Single UTF-8 codepoint macros and functions -------------------------- */
 
-#define STC_UTF8_IS_CONTINUATION(c) (((c) &0xc0) == 0x80)
+#define STC_UTF8_IS_CONTINUATION(c) (((c) & 0xc0) == 0x80)
 #define STC_UTF8_IS_SINGLE(s)       (((s)[0] & 0x80) == 0x0)
 #define STC_UTF8_IS_DOUBLE(s) \
     (((s)[0] & 0xe0) == 0xc0 && STC_UTF8_IS_CONTINUATION((s)[1]))
@@ -101,8 +101,8 @@ int stc_utf8_cmp(const char *a, const char *b);
  * Note: if cmp is NULL, it is ignored, i.e. if cmp NULL then this function is a
  * convenient way to check if two UTF-8 codepoints are valid at once.
  *
- * @param[in] a the left side UTF-8 codepoint in the comparison
- * @param[in] b the right side UTF-8 codepoint in the comparison
+ * @param[in]  a   the left side UTF-8 codepoint in the comparison
+ * @param[in]  b   the right side UTF-8 codepoint in the comparison
  * @param[out] cmp the value of the comparison (same as stc_utf8_cmp) if both
  *                 a and b are valid UTF-8 codepoints
  *
@@ -112,7 +112,7 @@ int stc_utf8_cmp(const char *a, const char *b);
  */
 int stc_utf8_try_cmp(const char *a, const char *b, int *cmp);
 
-/*** UTF-8 encoded strings macros and functions *******************************/
+/* --- UTF-8 encoded strings macros and functions --------------------------- */
 
 #define stc_utf8_str_is_valid(s) (stc_utf8_str_ncodepoints(s) > 0)
 
@@ -156,11 +156,11 @@ const char *stc_utf8_str_next(const char *s);
  */
 const char *stc_utf8_str_advance(const char **s);
 
-/*** UTF-8 string view macros and functions ***********************************/
+/* --- UTF-8 string view macros and functions ------------------------------- */
 
 #ifndef STC_UTF_DISABLE_SV
 
-/*** Single UTF-8 codepoint macros and functions for string views *************/
+/* --- Single UTF-8 codepoint macros and functions for string views --------- */
 
 #    define stc_utf8_is_valid_sv(codepoint) (stc_utf8_nbytes((codepoint)) > 0)
 
@@ -209,8 +209,8 @@ int stc_utf8_cmp_sv(StcStringView a, StcStringView b);
  * convenient way to check if two UTF-8 codepoint string views are valid at
  * once.
  *
- * @param[in] a the left side UTF-8 codepoint string view in the comparison
- * @param[in] b the right side UTF-8 codepoint string view in the comparison
+ * @param[in]  a   the left side UTF-8 codepoint string view in the comparison
+ * @param[in]  b   the right side UTF-8 codepoint string view in the comparison
  * @param[out] cmp the value of the comparison (same as stc_utf8_cmp_sv) if both
  *                 a and b are valid UTF-8 codepoint string views
  *
@@ -221,7 +221,7 @@ int stc_utf8_cmp_sv(StcStringView a, StcStringView b);
  */
 int stc_utf8_try_cmp_sv(StcStringView a, StcStringView b, int *cmp);
 
-/*** UTF-8 encoded strings macros and functions for string views **************/
+/* --- UTF-8 encoded strings macros and functions for string views ---------- */
 
 #    define stc_utf8_sv_is_valid(s) (stc_utf8_sv_ncodepoints(s) > 0)
 

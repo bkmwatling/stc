@@ -77,10 +77,10 @@ typedef stc_hashmap_keyval_free_func hashmap_keyval_free_func;
  * loadfactor using the hash function hash and key comparison function
  * keycmp.
  *
- * @param[in] cap the initial capacity of the hash map
+ * @param[in] cap        the initial capacity of the hash map
  * @param[in] loadfactor the maximum loadfactor of the hash map
- * @param[in] hash the hash function to use
- * @param[in] keycmp the key comparison function to use
+ * @param[in] hash       the hash function to use
+ * @param[in] keycmp     the key comparison function to use
  *
  * @return a pointer to the created hash map if all arguments are valid;
  *         else NULL if loadfactor <= 0.0f, hash is NULL, or keycmp is NULL
@@ -104,8 +104,8 @@ size_t stc_hashmap_len(StcHashMap *self);
  * the hash map.
  *
  * @param[in] self the pointer to the hash map
- * @param[in] key the key to insert into the hash map
- * @param[in] val the value to insert into the hash map
+ * @param[in] key  the key to insert into the hash map
+ * @param[in] val  the value to insert into the hash map
  *
  * @return 0 if the insert was successful; else non-zero value
  */
@@ -116,7 +116,7 @@ int stc_hashmap_insert(StcHashMap *self, void *key, void *val);
  * contained in the hash map.
  *
  * @param[in] self the pointer to the hash map
- * @param[in] key the key to get the corresponding value of from the hash map
+ * @param[in] key  the key to get the corresponding value of from the hash map
  *
  * @return the value corresponding to the key if found; else NULL
  */
@@ -126,7 +126,7 @@ void *stc_hashmap_get(StcHashMap *self, void *key);
  * Checks whether the key is contained in the hash map.
  *
  * @param[in] self the pointer to the hash map
- * @param[in] key the key to check for in the hash map
+ * @param[in] key  the key to check for in the hash map
  *
  * @return non-zero value if the key was found; else 0 if it was not found
  */
@@ -136,8 +136,8 @@ int stc_hashmap_contains_key(StcHashMap *self, void *key);
  * Removes the key-value pair from the hash map if the key is contained in the
  * hash map and returns the value corresponding to the key.
  *
- * @param[in] self the pointer to the hash map
- * @param[in] key the key of the key-value pair to remove from the hash map
+ * @param[in] self    the pointer to the hash map
+ * @param[in] key     the key of the key-value pair to remove from the hash map
  * @param[in] keyfree the function used to free the key in the hash map if found
  *
  * @return the value corresponding to the key if the key is contained in the
@@ -172,7 +172,7 @@ void **stc_hashmap_values(StcHashMap *self);
  * Frees the memory occupied by the hash map, freeing the memory of each key and
  * value in the hash map.
  *
- * @param[in] self the pointer to the hash map
+ * @param[in] self    the pointer to the hash map
  * @param[in] keyfree the function used to free each key in the hash map
  * @param[in] valfree the function used to free each value in the hash map
  */

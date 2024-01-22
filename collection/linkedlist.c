@@ -2,7 +2,7 @@
 
 #include "linkedlist.h"
 
-/*** Type definitions *********************************************************/
+/* --- Type definitions ----------------------------------------------------- */
 
 typedef struct stc_linkedlist_node StcLinkedListNode;
 
@@ -18,7 +18,7 @@ struct stc_linkedlist {
     stc_linkedlist_cmp_func *cmp;
 };
 
-/*** Helper function prototypes ***********************************************/
+/* --- Helper function prototypes ------------------------------------------- */
 
 static StcLinkedListNode *stc_linkedlist_find(StcLinkedList *self,
                                               void          *target);
@@ -30,7 +30,7 @@ static int                stc_linkedlist_add_after(StcLinkedList     *self,
 static void              *stc_linkedlist_remove_node(StcLinkedList     *self,
                                                      StcLinkedListNode *target);
 
-/*** Function definitions *****************************************************/
+/* --- Function definitions ------------------------------------------------- */
 
 StcLinkedList *stc_linkedlist_new_with_cmp(stc_linkedlist_cmp_func *cmp)
 {
@@ -150,7 +150,7 @@ void stc_linkedlist_free(StcLinkedList            *self,
     free(self);
 }
 
-/*** Helper function definitions **********************************************/
+/* --- Helper function definitions ------------------------------------------ */
 
 static StcLinkedListNode *stc_linkedlist_find(StcLinkedList *self, void *target)
 {

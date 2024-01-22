@@ -2,7 +2,7 @@
 
 #include "hashset.h"
 
-/*** Type definitions *********************************************************/
+/* --- Type definitions ----------------------------------------------------- */
 
 typedef struct stc_hashset_entry StcHashSetEntry;
 
@@ -21,7 +21,7 @@ struct stc_hashset {
     stc_hashset_keycmp_func *keycmp;
 };
 
-/*** Helper function prototypes ***********************************************/
+/* --- Helper function prototypes ------------------------------------------- */
 
 static StcHashSetEntry **stc_hashset_talloc(size_t tcap);
 static void              stc_hashset_rehash(StcHashSet *self);
@@ -43,7 +43,7 @@ static unsigned short stc_hashset_delta[] = {
 
 #define STC_HASHSET_LOADFACTOR(hm) ((float) (hm)->len / (float) (hm)->cap)
 
-/*** Function definitions *****************************************************/
+/* --- Function definitions ------------------------------------------------- */
 
 StcHashSet *stc_hashset_new_with_capacity(size_t                   cap,
                                           float                    loadfactor,
@@ -199,13 +199,13 @@ void stc_hashset_free(StcHashSet *self, stc_hashset_keyfree_func *keyfree)
     free(self);
 }
 
-/*** Set wrapper **************************************************************/
+/* --- Set wrapper ---------------------------------------------------------- */
 
 #ifndef STC_HASHSET_DISABLE_SET
 STC_SET_CREATE_WRAPPER(stc_hashset, StcHashSet)
 #endif /* STC_HASHSET_DISABLE_SET */
 
-/*** Helper function definitions **********************************************/
+/* --- Helper function definitions ------------------------------------------ */
 
 static StcHashSetEntry **stc_hashset_talloc(size_t tcap)
 {

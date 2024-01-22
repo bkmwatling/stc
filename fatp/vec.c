@@ -3,7 +3,6 @@
 
 #include "vec.h"
 
-/* TODO: encorporate stc_mem for realloc */
 static void *_stc_vec_resize(void *vec, size_t size, size_t cap)
 {
     void *w;

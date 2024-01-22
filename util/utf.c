@@ -3,7 +3,7 @@
 
 #include "utf.h"
 
-/*** Helper functions *********************************************************/
+/* --- Helper functions ----------------------------------------------------- */
 
 static int _stc_utf8_nbytes(const char *codepoint, size_t min_len)
 {
@@ -26,7 +26,7 @@ static int _stc_utf8_nbytes(const char *codepoint, size_t min_len)
     return nbytes;
 }
 
-/*** Single UTF-8 codepoint functions *****************************************/
+/* --- Single UTF-8 codepoint functions ------------------------------------- */
 
 int stc_utf8_nbytes(const char *codepoint)
 {
@@ -76,7 +76,7 @@ int stc_utf8_try_cmp(const char *a, const char *b, int *cmp)
 
 #undef STC_UTF8_CMP
 
-/*** UTF-8 encoded strings functions ******************************************/
+/* --- UTF-8 encoded strings functions -------------------------------------- */
 
 size_t stc_utf8_str_ncodepoints(const char *s)
 {
@@ -114,11 +114,11 @@ const char *stc_utf8_str_advance(const char **s)
     return codepoint;
 }
 
-/*** UTF-8 string view functions **********************************************/
+/* --- UTF-8 string view functions ------------------------------------------ */
 
 #ifndef STC_UTF_DISABLE_SV
 
-/*** Single UTF-8 codepoint functions for string views ************************/
+/* --- Single UTF-8 codepoint functions for string views -------------------- */
 
 int stc_utf8_nbytes_sv(StcStringView sv)
 {
@@ -151,7 +151,7 @@ int stc_utf8_try_cmp_sv(StcStringView a, StcStringView b, int *cmp)
     return result;
 }
 
-/*** UTF-8 encoded strings functions for string views *************************/
+/* --- UTF-8 encoded strings functions for string views --------------------- */
 
 size_t stc_utf8_sv_ncodepoints(StcStringView sv)
 {
