@@ -41,7 +41,7 @@ typedef StcMemArena MemArena;
 #    define mem_arena_pop_to    stc_mem_arena_pop_to
 #endif /* STC_MEM_ENABLE_SHORT_NAMES */
 
-/*** Simple useful macros *****************************************************/
+/* --- Simple useful macros ------------------------------------------------- */
 
 #define STC_KB(n) ((n) << 10)
 #define STC_MB(n) ((n) << 20)
@@ -59,9 +59,9 @@ typedef StcMemArena MemArena;
 #define STC_MEMCPY_TYPED(p, q, size) \
     memcpy((p), (q), STC_MIN(sizeof(*(p)), sizeof(*(q))) * (size))
 
-/*** Memory V-Table ***********************************************************/
+/* --- Memory V-Table ------------------------------------------------------- */
 
-/*** Types ***/
+/* --- Types --- */
 
 typedef void *stc_mem_alloc_func(void *ctx, size_t size);
 typedef void  stc_mem_modify_func(void *ctx, void *p, size_t size);
@@ -74,21 +74,21 @@ typedef struct {
     void                *ctx;
 } StcMemManager;
 
-/*** Helper functions ***/
+/* --- Helper functions --- */
 
 /**
  * Performs no operation, which is all that is necessary for some memory
  * management implementations, e.g. LibC.
  *
- * @param[in] ctx the context for the memory
- * @param[in] p the pointer to the memory to modify
+ * @param[in] ctx  the context for the memory
+ * @param[in] p    the pointer to the memory to modify
  * @param[in] size the size of the memory pointed to by p
  */
 void stc_mem_modify_noop(void *ctx, void *p, size_t size);
 
-/*** Memory Arena *************************************************************/
+/* --- Memory Arena --------------------------------------------------------- */
 
-/*** Types ***/
+/* --- Types --- */
 
 typedef struct {
     StcMemManager *man;
@@ -99,7 +99,7 @@ typedef struct {
     size_t         commit_block_size;
 } StcMemArena;
 
-/*** Macros and functions ***/
+/* --- Macros and functions --- */
 
 #define STC_MEM_DEFAULT_ALLOC_SIZE        STC_GB(1)
 #define STC_MEM_DEFAULT_COMMIT_BLOCK_SIZE STC_MB(64)
@@ -120,7 +120,7 @@ typedef struct {
 /**
  * Creates a new memory arena from a memory manager, allocating space of size.
  *
- * @param[in] man the pointer to the memory manager
+ * @param[in] man  the pointer to the memory manager
  * @param[in] size the size of the space to allocate
  *
  * @return the memory arena using the memory manager with size space allocated
@@ -158,7 +158,7 @@ void *stc_mem_arena_push_zero(StcMemArena *self, size_t size);
  * Deallocate (pop) memory to position pos in the memory arena's memory.
  *
  * @param[in] self the pointer to the memory arena
- * @param[in] pos the position to pop to
+ * @param[in] pos  the position to pop to
  */
 void stc_mem_arena_pop_to(StcMemArena *self, size_t pos);
 
@@ -167,12 +167,12 @@ void stc_mem_arena_pop_to(StcMemArena *self, size_t pos);
  * Note: this function should not be used directly, but rather through the use
  * of the defined macros stc_mem_arena_align and stc_mem_arena_align_zero.
  *
- * @param[in] self the pointer to the memory arena
+ * @param[in] self       the pointer to the memory arena
  * @param[in] pow2_align the power of 2 to align to
  * @param[in] arena_push the memory push function for the memory arena
  */
 void _stc_mem_arena_align(StcMemArena *self,
                           size_t       pow2_align,
-                          void *(*arena_push)(StcMemArena *, size_t));
+                          void        *(*arena_push)(StcMemArena *, size_t));
 
 #endif /* STC_MEMORY_BASE_H */

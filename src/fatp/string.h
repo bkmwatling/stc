@@ -22,9 +22,11 @@
 #    define string_is_empty   stc_string_is_empty
 #    define string_clear      stc_string_clear
 
-#    define string_push stc_string_push
-#    define string_pop  stc_string_pop
-#    define string_last stc_string_last
+#    define string_push_back  stc_string_push_back
+#    define string_push_front stc_string_push_front
+#    define string_pop        stc_string_pop
+#    define string_last       stc_string_last
+#    define string_first      stc_string_first
 
 #    define string_insert   stc_string_insert
 #    define string_remove   stc_string_remove
@@ -49,7 +51,7 @@
 #    define string_push_fmt  stc_string_push_fmt
 #endif /* STC_STRING_ENABLE_SHORT_NAMES */
 
-/*** Resizable string definitions (aliases to vec) ****************************/
+/* --- Resizable string definitions (aliases to vec) ------------------------ */
 
 #define STC_STRING_DEFAULT_CAP 32
 #define stc_string_header      stc_vec_header
@@ -66,9 +68,11 @@
 #define stc_string_is_empty   stc_vec_is_empty
 #define stc_string_clear      stc_vec_clear
 
-#define stc_string_push stc_vec_push
-#define stc_string_pop  stc_vec_pop
-#define stc_string_last stc_vec_last
+#define stc_string_push_back  stc_vec_push_back
+#define stc_string_push_front stc_vec_push_front
+#define stc_string_pop        stc_vec_pop
+#define stc_string_last       stc_vec_last
+#define stc_string_first      stc_vec_first
 
 #define stc_string_insert   stc_vec_insert
 #define stc_string_remove   stc_vec_remove
@@ -94,15 +98,15 @@
 #define stc_string_push_fmt(s, fmt, ...) \
     _stc_string_push_fmt(&(s), (fmt), __VA_ARGS__)
 
-/*** Resizable string functions ***********************************************/
+/* --- Resizable string functions ------------------------------------------- */
 
 /**
  * Pushes a string onto the resizable string created from the format specifier
  * and variable argument list.
  *
  * @param[in] self the pointer to the resizable string
- * @param[in] fmt the format specifier
- * @param[in] ap the variable argument list to parse with the format specifier
+ * @param[in] fmt  the format specifier
+ * @param[in] ap   the variable argument list to parse with the format specifier
  */
 void _stc_string_push_vfmt(char **self, const char *fmt, va_list ap);
 
@@ -111,12 +115,12 @@ void _stc_string_push_vfmt(char **self, const char *fmt, va_list ap);
  * and variable arguments.
  *
  * @param[in] self the pointer to the resizable string
- * @param[in] fmt the format specifier
- * @param[in] ... the variable arguments to parse with the format specifier
+ * @param[in] fmt  the format specifier
+ * @param[in] ...  the variable arguments to parse with the format specifier
  */
 void _stc_string_push_fmt(char **self, const char *fmt, ...);
 
-/*** String slice definitions (aliases to slice) ******************************/
+/* --- String slice definitions (aliases to slice) -------------------------- */
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_STR_ENABLE_SHORT_NAMES)
 #    define str_header     stc_str_header
@@ -143,13 +147,13 @@ void _stc_string_push_fmt(char **self, const char *fmt, ...);
 #define stc_str_len        stc_slice_len
 #define stc_str_len_unsafe stc_slice_len_unsafe
 
-/*** String slice functions ***************************************************/
+/* --- String slice functions ----------------------------------------------- */
 
 /**
  * Creates a string slice from the format specifier and variable argument list.
  *
  * @param[in] fmt the format specifier
- * @param[in] ap the variable argument list to parse with the format specifier
+ * @param[in] ap  the variable argument list to parse with the format specifier
  *
  * @return a string slice constructed from the format specifier and variable
  *         argument list

@@ -3,7 +3,7 @@
 
 #include "string.h"
 
-/*** Resizable string functions ***********************************************/
+/* --- Resizable string functions ------------------------------------------- */
 
 void _stc_string_push_vfmt(char **self, const char *fmt, va_list ap)
 {
@@ -33,7 +33,7 @@ void _stc_string_push_fmt(char **self, const char *fmt, ...)
     va_end(ap);
 }
 
-/*** String slice functions ***************************************************/
+/* --- String slice functions ----------------------------------------------- */
 
 char *stc_str_from_vfmt(const char *fmt, va_list ap)
 {

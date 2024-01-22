@@ -140,8 +140,8 @@ void *stc_linkedlist_last(StcLinkedList *self);
  *
  * Note: the linked list must have a non-null cmp function to use this function.
  *
- * @param[in] self the pointer to the linked list
- * @param[in] item the item to insert into the linked list
+ * @param[in] self   the pointer to the linked list
+ * @param[in] item   the item to insert into the linked list
  * @param[in] target the target item to insert the item after in the linked list
  *
  * @return 0 if the insert was successful; else non-zero value
@@ -155,8 +155,8 @@ int stc_linkedlist_insert_after(StcLinkedList *self, void *item, void *target);
  *
  * Note: the linked list must have a non-null cmp function to use this function.
  *
- * @param[in] self the pointer to the linked list
- * @param[in] item the item to insert into the linked list
+ * @param[in] self   the pointer to the linked list
+ * @param[in] item   the item to insert into the linked list
  * @param[in] target the target item to insert the item before in the linked
  *                   list
  *
@@ -170,8 +170,8 @@ int stc_linkedlist_insert_before(StcLinkedList *self, void *item, void *target);
  *
  * Note: the linked list must have a non-null cmp function to use this function.
  *
- * @param[in] self the pointer to the linked list
- * @param[in] item the item to remove from the linked list
+ * @param[in] self     the pointer to the linked list
+ * @param[in] item     the item to remove from the linked list
  * @param[in] itemfree the function used to free the item in the linked list if
  *                     found
  */
@@ -183,7 +183,7 @@ void stc_linkedlist_remove_item(StcLinkedList            *self,
  * Inserts the item into the linked list at the specified index.
  *
  * @param[in] self the pointer to the linked list
- * @param[in] idx the index to insert the item at in the linked list
+ * @param[in] idx  the index to insert the item at in the linked list
  * @param[in] item the item to insert into the linked list
  *
  * @return 0 if the insert was successful; else non-zero value
@@ -195,7 +195,7 @@ int stc_linkedlist_insert(StcLinkedList *self, size_t idx, void *item);
  * the length of the linked list.
  *
  * @param[in] self the pointer to the linked list
- * @param[in] idx the index of item to retrieve from the linked list
+ * @param[in] idx  the index of item to retrieve from the linked list
  *
  * @return the item at the index if the index is less than the length of the
  *         linked list; else NULL
@@ -207,7 +207,7 @@ void *stc_linkedlist_get(StcLinkedList *self, size_t idx);
  * the length of the linked list and returns the item at the index.
  *
  * @param[in] self the pointer to the linked list
- * @param[in] idx the index of item to remove from the linked list
+ * @param[in] idx  the index of item to remove from the linked list
  *
  * @return the item at the index if the index is less than the length of the
  *         linked list; else NULL
@@ -230,7 +230,7 @@ int stc_linkedlist_contains(StcLinkedList *self, void *item);
  * Frees the memory occupied by the linked list, freeing the memory of each item
  * in the linked list.
  *
- * @param[in] self the pointer to the linked list
+ * @param[in] self     the pointer to the linked list
  * @param[in] itemfree the function used to free each item in the linked list
  */
 void stc_linkedlist_free(StcLinkedList            *self,

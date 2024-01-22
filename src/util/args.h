@@ -6,7 +6,7 @@
 /**
  * Prototype for custom usage printing function.
  *
- * @param[in] stream the I/O stream to print to
+ * @param[in] stream  the I/O stream to print to
  * @param[in] program the name of the program as it is executed
  */
 typedef void StcArgsUsage(FILE *stream, const char *program);
@@ -24,7 +24,7 @@ typedef enum {
  * NULL and thus does not have to be checked.
  *
  *
- * @param[in] arg the string argument
+ * @param[in]  arg the string argument
  * @param[out] out the memory address where to store the custom converted value
  *
  * @return STC_CR_SUCCESS on successful converions, else STC_CR_FAILURE on
@@ -103,12 +103,12 @@ typedef StcArg              Arg;
  * relative order). Note that opts_len may be zero in which case the last
  * element of opts is expected to be filled with zero and NULL values.
  *
- * @param[in] argc the number of command-line arguments
- * @param[in] argv the array of command-line arguments
- * @param[in] args the array of argument specifications
+ * @param[in] argc     the number of command-line arguments
+ * @param[in] argv     the array of command-line arguments
+ * @param[in] args     the array of argument specifications
  * @param[in] args_len the length the array of argument specifications
- * @param[in] usage the optional custom usage print function to override
- *                  printing usage based on given argument specifications
+ * @param[in] usage    the optional custom usage print function to override
+ *                     printing usage based on given argument specifications
  *
  * @return the index into argv of the first unrecognised command-line argument
  *         after reordering argv to have recognised arguments first
@@ -134,9 +134,9 @@ void stc_args_parse_exact(int           argc,
  * Prints the usage information of the program based on the given argument
  * specifications.
  *
- * @param[in] stream the I/O stream to print to
- * @param[in] program the name of the program as it is executed
- * @param[in] args the array of argument specifications
+ * @param[in] stream   the I/O stream to print to
+ * @param[in] program  the name of the program as it is executed
+ * @param[in] args     the array of argument specifications
  * @param[in] args_len the length the array of argument specifications
  */
 void stc_args_usage(FILE         *stream,
@@ -149,13 +149,13 @@ void stc_args_usage(FILE         *stream,
  * from the given argument index `arg_idx` and prints the usage information to
  * stdout if found.
  *
- * @param[in] argc the number of command-line arguments
- * @param[in] argv the array of command-line arguments
- * @param[in] arg_idx the start index of argv to search for the help flags
- * @param[in] args the array of argument specifications
+ * @param[in] argc     the number of command-line arguments
+ * @param[in] argv     the array of command-line arguments
+ * @param[in] arg_idx  the start index of argv to search for the help flags
+ * @param[in] args     the array of argument specifications
  * @param[in] args_len the length the array of argument specifications
- * @param[in] usage the optional custom usage print function to override
- *                  printing usage based on given argument specifications
+ * @param[in] usage    the optional custom usage print function to override
+ *                     printing usage based on given argument specifications
  */
 void stc_args_check_for_help(int           argc,
                              const char  **argv,

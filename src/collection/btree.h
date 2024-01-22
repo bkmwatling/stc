@@ -73,8 +73,8 @@ size_t stc_btree_len(StcBTree *self);
  * the btree.
  *
  * @param[in] self the pointer to the btree
- * @param[in] key the key to insert into the btree
- * @param[in] val the value to insert into the btree
+ * @param[in] key  the key to insert into the btree
+ * @param[in] val  the value to insert into the btree
  *
  * @return 0 if the insert was successful; else non-zero value
  */
@@ -85,7 +85,7 @@ int stc_btree_insert(StcBTree *self, void *key, void *val);
  * contained in the btree.
  *
  * @param[in] self the pointer to the btree
- * @param[in] key the key to get the corresponding value of from the btree
+ * @param[in] key  the key to get the corresponding value of from the btree
  *
  * @return the value corresponding to the key if found; else NULL
  */
@@ -95,7 +95,7 @@ void *stc_btree_get(StcBTree *self, void *key);
  * Checks whether the key is contained in the btree.
  *
  * @param[in] self the pointer to the btree
- * @param[in] key the key to check for in the btree
+ * @param[in] key  the key to check for in the btree
  *
  * @return non-zero value if the key was found; else 0 if it was not found
  */
@@ -105,8 +105,8 @@ int stc_btree_contains_key(StcBTree *self, void *key);
  * Removes the key-value pair from the btree if the key is contained in the
  * btree and returns the value corresponding to the key.
  *
- * @param[in] self the pointer to the btree
- * @param[in] key the key of the key-value pair to remove from the btree
+ * @param[in] self    the pointer to the btree
+ * @param[in] key     the key of the key-value pair to remove from the btree
  * @param[in] keyfree the function used to free the key in the btree if found
  *
  * @return the value corresponding to the key if the key is contained in the
@@ -141,7 +141,7 @@ void **stc_btree_values(StcBTree *self);
  * Frees the memory occupied by the btree, freeing the memory of each key and
  * value in the btree.
  *
- * @param[in] self the pointer to the btree
+ * @param[in] self    the pointer to the btree
  * @param[in] keyfree the function used to free each key in the btree
  * @param[in] valfree the function used to free each value in the btree
  */

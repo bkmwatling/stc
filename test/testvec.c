@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     char **v     = vec_default(sizeof(char *)), **w;
     char   vsa[] = "hellov", wsa[] = "whello";
 
-    for (i = 1; i < argc; i++) { vec_push(v, argv[i]); }
+    for (i = 1; i < argc; i++) { vec_push_back(v, argv[i]); }
     w = vec_clone(v);
 
     printf("v:");
@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
     for (j = 0; j < vec_len(w); j++) { printf(" %s", w[j]); }
     printf("\nstuff\n");
 
-    vec_push(v, vsa);
-    vec_push(w, wsa);
+    vec_push_back(v, vsa);
+    vec_push_back(w, wsa);
 
     printf("v:");
     for (j = 0; j < vec_len(v); j++) { printf(" %s", v[j]); }

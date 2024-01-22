@@ -95,7 +95,7 @@ StcStringView stc_sv_trim_right(StcStringView self);
  * maximal prefix of the given string view with all characters matching the
  * predicate.
  *
- * @param[in] self the string view to take from
+ * @param[in] self      the string view to take from
  * @param[in] predicate the predicate function to test the characters of the
  *                      string view
  *
@@ -103,7 +103,7 @@ StcStringView stc_sv_trim_right(StcStringView self);
  *         matching the predicate
  */
 StcStringView stc_sv_take_left_while(StcStringView self,
-                                     int (*predicate)(char));
+                                     int           (*predicate)(char));
 
 /**
  * Chops the string view self from the left and returns the left side (prefix)
@@ -115,15 +115,15 @@ StcStringView stc_sv_take_left_while(StcStringView self,
  * after the end of the string it used to view. In this case the returned string
  * view will be a copy of what self was.
  *
- * @param[in,out] self the pointer to the string view to chop
- * @param[in] predicate the predicate function to test the characters of the
- *                      string view
+ * @param[in,out] self      the pointer to the string view to chop
+ * @param[in]     predicate the predicate function to test the characters of the
+ *                          string view
  *
  * @return a string view of the maximal prefix of self with all characters
  *         matching the predicate
  */
 StcStringView stc_sv_chop_left_while(StcStringView *self,
-                                     int (*predicate)(char));
+                                     int            (*predicate)(char));
 
 /**
  * Chops the string view self at the delimeter and returns a string view of the
@@ -132,8 +132,8 @@ StcStringView stc_sv_chop_left_while(StcStringView *self,
  * be set to have length 0 and point to the end of the string is used to view.
  * In this case the returned string view will be a copy of what self was.
  *
- * @param[in,out] self the pointer to the string view to chop
- * @param[in] delim the character delimeter to chop the string view at
+ * @param[in,out] self  the pointer to the string view to chop
+ * @param[in]     delim the character delimeter to chop the string view at
  *
  * @return a string view of the string to the left of the delimeter
  */
@@ -146,8 +146,8 @@ StcStringView stc_sv_chop_by_delim(StcStringView *self, char delim);
  * be set to have length 0 and point to the end of the string is used to view.
  * In this case the returned string view will be a copy of what self was.
  *
- * @param[in,out] self the pointer to the string view to chop
- * @param[in] delim the string view delimeter to chop the string view at
+ * @param[in,out] self  the pointer to the string view to chop
+ * @param[in]     delim the string view delimeter to chop the string view at
  *
  * @return a string view of the string to the left of the delimeter
  */
@@ -166,10 +166,10 @@ StcStringView stc_sv_chop_by_sv(StcStringView *self, StcStringView delim);
  * attempted, and so it can be set to NULL if you don't care about string on the
  * left side of the delimeter.
  *
- * @param[in,out] self the pointer to the string view to chop
- * @param[in] delim the string view delimeter to chop the string view at
- * @param[out] left the pointer to the string view to store the string on the
- *                  left of the delimiter if found and is not NULL
+ * @param[in,out] self  the pointer to the string view to chop
+ * @param[in]     delim the string view delimeter to chop the string view at
+ * @param[out]    left  the pointer to the string view to store the string on
+ *                      the left of the delimiter if found and is not NULL
  *
  * @return whether the delimeter was found and thus if the string views where
  *         modified
@@ -184,7 +184,7 @@ int stc_sv_try_chop_by_delim(StcStringView *self,
  * start after the last chopped off character.
  *
  * @param[in,out] self the pointer to the string view to chop
- * @param[in] n the number of characters to chop from the left
+ * @param[in]     n    the number of characters to chop from the left
  *
  * @return a string view to the characters that were chopped off
  */
@@ -196,7 +196,7 @@ StcStringView stc_sv_chop_left(StcStringView *self, size_t n);
  * end before the first chopped off character.
  *
  * @param[in,out] self the pointer to the string view to chop
- * @param[in] n the number of characters to chop from the right
+ * @param[in]     n    the number of characters to chop from the right
  *
  * @return a string view to the characters that were chopped off
  */
@@ -206,9 +206,9 @@ StcStringView stc_sv_chop_right(StcStringView *self, size_t n);
  * Finds the index of the character c in the string view if it is contained in
  * the string view.
  *
- * @param[in] self the string view to find the index of c in
- * @param[in] c the character to find the index of
- * @param[out] idx the pointer to save the index of c in only if found
+ * @param[in]  self the string view to find the index of c in
+ * @param[in]  c    the character to find the index of
+ * @param[out] idx  the pointer to save the index of c in only if found
  *
  * @return whether the character was found in the string view
  */
@@ -249,7 +249,7 @@ int stc_sv_eq_ignorecase(StcStringView a, StcStringView b);
 /**
  * Checks if a string view is a prefix of the other string view.
  *
- * @param[in] self the string view to check the prefix of
+ * @param[in] self   the string view to check the prefix of
  * @param[in] prefix the string view to test if it is a prefix of self
  *
  * @return a non-zero value of the prefix string view is a prefix of self;
@@ -260,7 +260,7 @@ int stc_sv_starts_with(StcStringView self, StcStringView prefix);
 /**
  * Checks if a string view is a suffix of the other string view.
  *
- * @param[in] self the string view to check the suffix of
+ * @param[in] self   the string view to check the suffix of
  * @param[in] suffix the string view to test if it is a suffix of self
  *
  * @return a non-zero value of the suffix string view is a suffix of self;

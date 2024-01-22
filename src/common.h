@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-/*** Enable short names for macros and functions ******************************/
+/* --- Enable short names for macros and functions -------------------------- */
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_COMMON_ENABLE_SHORT_NAMES)
 #    ifndef STC_DISABLE_ASSERT
@@ -53,7 +53,7 @@
 #    define FUNC   STC_FUNC
 #endif /* STC_COMMON_ENABLE_SHORT_NAMES */
 
-/*** Compiler and OS detection ************************************************/
+/* --- Compiler and OS detection -------------------------------------------- */
 
 #if defined(__clang__)
 #    define COMPILER_CLANG
@@ -129,7 +129,7 @@
 #    error "unable to detect compiler"
 #endif /* defined(__clang__) */
 
-/*** Helper macros ************************************************************/
+/* --- Helper macros -------------------------------------------------------- */
 
 #define STC_STATMENTS(stmts) \
     do {                     \
@@ -227,7 +227,7 @@
 #define STC_LOCAL  static
 #define STC_FUNC   static
 
-/*** Basic types **************************************************************/
+/* --- Basic types ---------------------------------------------------------- */
 
 #ifndef STC_DISABLE_BASIC_TYPES
 
@@ -262,7 +262,7 @@ typedef double f64;
 
 typedef void void_func(void);
 
-/*** Basic type constants as macros ***/
+/* --- Basic type constants as macros --- */
 
 #    define I8_MIN  ((i8) 0x80)
 #    define I16_MIN ((i16) 0x8000)
@@ -282,7 +282,7 @@ typedef void void_func(void);
 #    define F32_MACHINE_EPS 1.1920929e-7f
 #    define F64_MACHINE_EPS 2.220446e-16
 
-/*** Floating point standard and constant functions ***/
+/* --- Floating point standard and constant functions --- */
 
 #    ifndef STC_DISABLE_FUNCTIONS
 /**
