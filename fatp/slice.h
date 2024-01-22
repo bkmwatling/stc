@@ -34,9 +34,9 @@ typedef struct {
  * size of size and length of len. If p is NULL, then the contents of the
  * returned slice is left uninitialised.
  *
- * @param[in] p the pointer to the data to copy
+ * @param[in] p    the pointer to the data to copy
  * @param[in] size the size of each element
- * @param[in] len the length of (number of elements in) the data
+ * @param[in] len  the length of (number of elements in) the data
  *
  * @return a pointer to the slice data
  */

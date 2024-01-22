@@ -10,7 +10,7 @@ typedef union {
     u64 u;
 } __stc_f64_u64;
 
-/*** Floating point standard and constant functions ***************************/
+/* --- Floating point standard and constant functions ----------------------- */
 
 f32 f32_inf(void)
 {

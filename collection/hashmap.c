@@ -2,7 +2,7 @@
 
 #include "hashmap.h"
 
-/*** Type definitions *********************************************************/
+/* --- Type definitions ----------------------------------------------------- */
 
 typedef struct stc_hashmap_entry StcHashMapEntry;
 
@@ -22,7 +22,7 @@ struct stc_hashmap {
     stc_hashmap_keycmp_func *keycmp;
 };
 
-/*** Helper function prototypes ***********************************************/
+/* --- Helper function prototypes ------------------------------------------- */
 
 static StcHashMapEntry **stc_hashmap_talloc(size_t tcap);
 static void              stc_hashmap_rehash(StcHashMap *self);
@@ -44,7 +44,7 @@ static unsigned short stc_hashmap_delta[] = {
 
 #define STC_HASHMAP_LOADFACTOR(hm) ((float) (hm)->len / (float) (hm)->cap)
 
-/*** Function definitions *****************************************************/
+/* --- Function definitions ------------------------------------------------- */
 
 StcHashMap *stc_hashmap_new_with_capacity(size_t                   cap,
                                           float                    loadfactor,
@@ -227,13 +227,13 @@ void stc_hashmap_free(StcHashMap                   *self,
     free(self);
 }
 
-/*** Map wrapper **************************************************************/
+/* --- Map wrapper ---------------------------------------------------------- */
 
 #ifndef STC_HASHMAP_DISABLE_MAP
 STC_MAP_CREATE_WRAPPER(stc_hashmap, StcHashMap)
 #endif /* STC_HASHMAP_DISABLE_MAP */
 
-/*** Helper function definitions **********************************************/
+/* --- Helper function definitions ------------------------------------------ */
 
 static StcHashMapEntry **stc_hashmap_talloc(size_t tcap)
 {

@@ -75,10 +75,10 @@ typedef stc_hashset_keyfree_func hashset_keyfree_func;
  * loadfactor using the hash function hash and key comparison function
  * keycmp.
  *
- * @param[in] cap the initial capacity of the hash set
+ * @param[in] cap        the initial capacity of the hash set
  * @param[in] loadfactor the maximum loadfactor of the hash set
- * @param[in] hash the hash function to use
- * @param[in] keycmp the key comparison function to use
+ * @param[in] hash       the hash function to use
+ * @param[in] keycmp     the key comparison function to use
  *
  * @return a pointer to the created hash set if all arguments are valid;
  *         else NULL if loadfactor <= 0.0f, hash is NULL, or keycmp is NULL
@@ -102,7 +102,7 @@ size_t stc_hashset_len(StcHashSet *self);
  * set.
  *
  * @param[in] self the pointer to the hash set
- * @param[in] key the key to insert into the hash set
+ * @param[in] key  the key to insert into the hash set
  *
  * @return 0 if the insert was successful; else non-zero value
  */
@@ -112,7 +112,7 @@ int stc_hashset_insert(StcHashSet *self, void *key);
  * Checks whether the key is contained in the hash set.
  *
  * @param[in] self the pointer to the hash set
- * @param[in] key the key to check for in the hash set
+ * @param[in] key  the key to check for in the hash set
  *
  * @return non-zero value if the key was found; else 0 if it was not found
  */
@@ -121,8 +121,8 @@ int stc_hashset_contains(StcHashSet *self, void *key);
 /**
  * Removes the key from the hash set if the key is contained in the hash set.
  *
- * @param[in] self the pointer to the hash set
- * @param[in] key the key to remove from the hash set
+ * @param[in] self    the pointer to the hash set
+ * @param[in] key     the key to remove from the hash set
  * @param[in] keyfree the function used to free the key in the hash set if found
  */
 void stc_hashset_remove(StcHashSet               *self,
@@ -143,7 +143,7 @@ void **stc_hashset_keys(StcHashSet *self);
  * Frees the memory occupied by the hash set, freeing the memory of each key in
  * the hash set.
  *
- * @param[in] self the pointer to the hash set
+ * @param[in] self    the pointer to the hash set
  * @param[in] keyfree the function used to free each key in the hash set
  */
 void stc_hashset_free(StcHashSet *self, stc_hashset_keyfree_func *keyfree);

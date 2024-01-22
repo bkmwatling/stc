@@ -16,7 +16,7 @@ typedef double f64;
 #define F64_GOLDEN_RATIO_SMALL 0.61803398875
 #define F64_GOLDEN_RATIO_BIG   1.61803398875
 
-/*** Math macros and functions ************************************************/
+/* --- Math macros and functions -------------------------------------------- */
 
 #define lerp(x, a, b)   ((a) + ((b) - (a)) * (x))
 #define unlerp(t, a, b) ((a) != (b) ? ((t) - (a)) / ((b) - (a)) : 0)
