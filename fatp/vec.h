@@ -2,7 +2,6 @@
 #define STC_VEC_H
 
 #include <stddef.h>
-#include <string.h>
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_VEC_ENABLE_SHORT_NAMES)
 #    define VEC_DEFAULT_CAP STC_VEC_DEFAULT_CAP
@@ -25,8 +24,8 @@
 #    define vec_push_back  stc_vec_push_back
 #    define vec_push_front stc_vec_push_front
 #    define vec_pop        stc_vec_pop
-#    define vec_last       stc_vec_last
 #    define vec_first      stc_vec_first
+#    define vec_last       stc_vec_last
 
 #    define vec_insert   stc_vec_insert
 #    define vec_remove   stc_vec_remove
@@ -61,7 +60,6 @@ typedef struct {
 #define stc_vec_default(size)   stc_vec_new(size, STC_VEC_DEFAULT_CAP)
 #define stc_vec_default_init(v) stc_vec_init(v, STC_VEC_DEFAULT_CAP)
 #define stc_vec_clone(v)        _stc_vec_clone((v), sizeof(*(v)))
-#define stc_vec_free(v)         ((v) ? free(stc_vec_header(v)) : (void) 0)
 
 #define stc_vec_len(v)        ((v) ? stc_vec_len_unsafe(v) : 0)
 #define stc_vec_cap(v)        ((v) ? stc_vec_cap_unsafe(v) : 0)
@@ -74,17 +72,16 @@ typedef struct {
     (stc_vec_reserve(v, 1), (v)[stc_vec_len_unsafe(v)++] = (x))
 #define stc_vec_push_front(v, x) stc_vec_insert(v, 0, x)
 #define stc_vec_pop(v)           ((v)[--stc_vec_len_unsafe(v)])
-#define stc_vec_last(v)          ((v)[stc_vec_len_unsafe(v) - 1])
 #define stc_vec_first(v)         ((v)[0])
+#define stc_vec_last(v)          ((v)[stc_vec_len_unsafe(v) - 1])
 
 #define stc_vec_insert(v, i, x) \
     (stc_vec_reserve_index(v, i, 1), stc_vec_len_unsafe(v)++, (v)[i] = (x))
 #define stc_vec_remove(v, i)      stc_vec_drain(v, i, 1)
 #define stc_vec_swap_remove(v, i) ((v) ? ((v)[i] = stc_vec_pop(v), 1) : 0)
-#define stc_vec_drain(v, i, n)                                           \
-    ((v) ? (memmove((v) + (i), (v) + (i) + (n),                          \
-                    sizeof(*(v)) * (stc_vec_len_unsafe(v) - (n) - (i))), \
-            stc_vec_len_unsafe(v) -= (n))                                \
+#define stc_vec_drain(v, i, n)                                 \
+    ((v) ? (_stc_vec_shift((v), (i) + (n), (i), sizeof(*(v))), \
+            stc_vec_len_unsafe(v) -= (n))                      \
          : 0)
 #define stc_vec_truncate(v, len) \
     (len >= 0 && len < stc_vec_len(v) ? stc_vec_len_unsafe(v) = len : 0)
@@ -99,16 +96,21 @@ typedef struct {
 #define stc_vec_reserve(v, n) ((v) = _stc_vec_reserve((v), sizeof(*(v)), (n)))
 #define stc_vec_reserve_exact(v, n) \
     ((v) = _stc_vec_reserve_exact((v), sizeof(*(v)), (n)))
-#define stc_vec_reserve_index(v, i, n)   \
-    (stc_vec_reserve(v, n),              \
-     memmove((v) + (i) + (n), (v) + (i), \
-             sizeof(*(v)) * (stc_vec_len_unsafe(v) - (i))))
+#define stc_vec_reserve_index(v, i, n) \
+    (stc_vec_reserve(v, n), _stc_vec_shift((v), (i), (i) + (n), sizeof(*(v))))
 #define stc_vec_shrink(v, cap) \
     ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap))
 #define stc_vec_shrink_to_fit(v) stc_vec_shrink(v, stc_vec_len(v))
 
 #define stc_vec_as_slice(v) (v)
 #define stc_vec_to_slice(v) stc_slice_from_parts((v), stc_vec_len(v))
+
+/**
+ * Frees the memory allocated for a vector.
+ *
+ * @param[in] vec the pointer to the vector to free
+ */
+void stc_vec_free(void *vec);
 
 /**
  * Clones (creates a copy of) a vector.
@@ -119,6 +121,16 @@ typedef struct {
  * @return a clone of the vector
  */
 void *_stc_vec_clone(const void *vec, size_t size);
+
+/**
+ * Shifts the elements of a vector from one index to another.
+ *
+ * @param[in] vec      the pointer to the vector to shift
+ * @param[in] idx_from the index to shift from in the vector
+ * @param[in] idx_to   the index to shift to in the vector
+ * @param[in] size     the size of each element
+ */
+void _stc_vec_shift(void *vec, size_t idx_from, size_t idx_to, size_t size);
 
 /**
  * Extends the vector with the values from the memory pointed to by p.

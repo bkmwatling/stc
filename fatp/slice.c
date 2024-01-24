@@ -3,7 +3,12 @@
 
 #include "slice.h"
 
-void *_stc_slice_from_parts(void *p, size_t size, size_t len)
+void stc_slice_free(void *slice)
+{
+    if (slice) free(stc_slice_header(slice));
+}
+
+void *_stc_slice_from_parts(const void *p, size_t size, size_t len)
 {
     StcSliceHeader *slice;
 
