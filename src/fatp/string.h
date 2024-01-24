@@ -25,8 +25,8 @@
 #    define string_push_back  stc_string_push_back
 #    define string_push_front stc_string_push_front
 #    define string_pop        stc_string_pop
-#    define string_last       stc_string_last
 #    define string_first      stc_string_first
+#    define string_last       stc_string_last
 
 #    define string_insert   stc_string_insert
 #    define string_remove   stc_string_remove
@@ -71,8 +71,8 @@
 #define stc_string_push_back  stc_vec_push_back
 #define stc_string_push_front stc_vec_push_front
 #define stc_string_pop        stc_vec_pop
-#define stc_string_last       stc_vec_last
 #define stc_string_first      stc_vec_first
+#define stc_string_last       stc_vec_last
 
 #define stc_string_insert   stc_vec_insert
 #define stc_string_remove   stc_vec_remove
@@ -128,10 +128,13 @@ void _stc_string_push_fmt(char **self, const char *fmt, ...);
 #    define str_from_parts stc_str_from_parts
 #    define str_from_cstr  stc_str_from_cstr
 #    define str_from_lit   stc_str_from_lit
+#    define str_clone      stc_str_clone
 #    define str_free       stc_str_free
 
 #    define str_len        stc_str_len
 #    define str_len_unsafe stc_str_len_unsafe
+#    define str_first      stc_str_first
+#    define str_last       stc_str_last
 
 #    define str_from_vfmt stc_str_from_vfmt
 #    define str_from_fmt  stc_str_from_fmt
@@ -142,10 +145,13 @@ void _stc_string_push_fmt(char **self, const char *fmt, ...);
 #define stc_str_from_parts      stc_slice_from_parts
 #define stc_str_from_cstr(cstr) stc_str_from_parts(cstr, strlen((cstr)))
 #define stc_str_from_lit(s)     stc_str_from_parts(s, sizeof(s) - 1)
+#define stc_str_clone           stc_slice_clone
 #define stc_str_free            stc_slice_free
 
 #define stc_str_len        stc_slice_len
 #define stc_str_len_unsafe stc_slice_len_unsafe
+#define stc_str_first      stc_slice_first
+#define stc_str_last       stc_slice_last
 
 /* --- String slice functions ----------------------------------------------- */
 
