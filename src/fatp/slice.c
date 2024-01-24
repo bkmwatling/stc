@@ -15,7 +15,7 @@ void *_stc_slice_from_parts(const void *p, size_t size, size_t len)
     if (size == 0 || len == 0) return NULL;
     slice      = malloc(size * len + sizeof(StcSliceHeader));
     slice->len = len;
-    if (p) memcpy(slice, p, size * len);
+    if (p) memcpy(slice + 1, p, size * len);
 
     return slice + 1;
 }
