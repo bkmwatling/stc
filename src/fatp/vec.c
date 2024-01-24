@@ -3,6 +3,11 @@
 
 #include "vec.h"
 
+void stc_vec_free(void *vec)
+{
+    if (vec) free(stc_vec_header(vec));
+}
+
 static void *_stc_vec_resize(void *vec, size_t size, size_t cap)
 {
     void *w;
@@ -27,6 +32,12 @@ void *_stc_vec_clone(const void *vec, size_t size)
     stc_vec_len_unsafe(clone) = stc_vec_len_unsafe(vec);
 
     return clone;
+}
+
+void _stc_vec_shift(void *vec, size_t idx_from, size_t idx_to, size_t size)
+{
+    memmove((char *) vec + idx_to * size, (char *) vec + idx_from * size,
+            size * (stc_vec_len_unsafe(vec) - idx_from));
 }
 
 void *_stc_vec_extend(void *vec, const void *p, size_t size, size_t len)
