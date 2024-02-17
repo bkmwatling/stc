@@ -32,7 +32,7 @@ static int    stc_arg_memcpy(void          *dst,
                              StcArgType     type);
 static size_t is_prefixed(const char *str, const char *prefix);
 
-/* --- Public API function definitions -------------------------------------- */
+/* --- Public function definitions ------------------------------------------ */
 
 int stc_args_parse(int           argc,
                    const char  **argv,
@@ -43,7 +43,7 @@ int stc_args_parse(int           argc,
     int           i, j, k, idx;
     size_t        len;
     int           npos = 0, nopt = 0, pos_idx = 0;
-    int           arg_end = argc;
+    int           arg_end = argc, done_opts = 0;
     int           exit_code;
     int          *argset, *pos, *opts;
     const char   *found, *opt;
@@ -68,29 +68,33 @@ int stc_args_parse(int           argc,
             exit(EXIT_FAILURE);
         }
 
-        if (STC_ARG_IS_POSITIONAL(args + i)) {
+        if (STC_ARG_IS_POSITIONAL(args + i))
             npos++;
-        } else {
+        else
             nopt++;
-        }
     }
 
     /* populate the positional and optional argument indices arrays */
     pos  = malloc(npos * sizeof(int));
     opts = malloc(nopt * sizeof(int));
-    for (i = j = k = 0; i < args_len; i++) {
-        if (STC_ARG_IS_POSITIONAL(args + i)) {
+    for (i = j = k = 0; i < args_len; i++)
+        if (STC_ARG_IS_POSITIONAL(args + i))
             pos[j++] = i;
-        } else {
+        else
             opts[k++] = i;
-        }
-    }
 
     /* loop through the command-line arguments and check for specified args */
     for (i = 1; i < arg_end; i++) {
         found = argv[i];
 
-        if (found[0] == '-') {
+        fprintf(stderr, "done_opts = %d\n", done_opts);
+        if (found[0] == '-' && !done_opts) {
+            /* check for '--' to indicate done with options */
+            if (strcmp(found, "--") == 0) {
+                done_opts = 1;
+                goto unrecognised; /* not unrecognised, but to keep order */
+            }
+
             /* check for non-positional argument matches */
             for (j = 0; j < nopt; j++) {
                 idx = opts[j];
@@ -100,7 +104,7 @@ int stc_args_parse(int           argc,
                     break;
                 }
             }
-            if (j >= nopt) { goto unrecognised; }
+            if (j >= nopt) goto unrecognised;
         } else {
             /* check if we still have positional arguments to match */
             if (pos_idx >= npos) {
@@ -175,7 +179,7 @@ void stc_args_parse_exact(int           argc,
     int idx = stc_args_parse(argc, argv, args, args_len, usage);
 
     stc_args_check_for_help(argc, argv, idx, args, args_len, usage);
-    if (idx < argc) {
+    if (idx < argc && (strcmp(argv[idx], "--") != 0 || ++idx < argc)) {
         fprintf(stderr, "ERROR: unrecognised argument '%s'\n", argv[idx]);
         if (usage) {
             usage(stderr, argv[0]);
@@ -198,13 +202,11 @@ void stc_args_usage(FILE         *stream,
 
     /* check if there are any options or arguments */
     has_arg = has_opt = 0;
-    for (i = 0; i < args_len && (!has_arg || !has_opt); i++) {
-        if (STC_ARG_IS_POSITIONAL(args + i)) {
+    for (i = 0; i < args_len && (!has_arg || !has_opt); i++)
+        if (STC_ARG_IS_POSITIONAL(args + i))
             has_arg = 1;
-        } else {
+        else
             has_opt = 1;
-        }
-    }
 
     /* print top usage line */
     fprintf(stream, "Usage: %s%s", program, has_opt ? " [OPTIONS]" : "");
@@ -230,11 +232,10 @@ void stc_args_usage(FILE         *stream,
         for (i = 0; i < args_len; i++) {
             arg = args + i;
             if (STC_ARG_IS_POSITIONAL(arg)) {
-                if (len) {
+                if (len)
                     fprintf(stream, "\n");
-                } else {
+                else
                     len = 1;
-                }
                 stc_arg_usage(stream, arg, pos_shortlen);
             }
         }
@@ -247,11 +248,10 @@ void stc_args_usage(FILE         *stream,
         for (i = 0; i < args_len; i++) {
             arg = args + i;
             if (!STC_ARG_IS_POSITIONAL(arg)) {
-                if (len) {
+                if (len)
                     fprintf(stream, "\n");
-                } else {
+                else
                     len = 1;
-                }
                 stc_arg_usage(stream, arg, opt_shortlen);
             }
         }
@@ -267,7 +267,7 @@ void stc_args_check_for_help(int           argc,
 {
     int i;
 
-    for (i = arg_idx; i < argc; i++) {
+    for (i = arg_idx; i < argc && strcmp(argv[i], "--") != 0; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             if (usage) {
                 usage(stdout, argv[0]);

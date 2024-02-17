@@ -23,15 +23,14 @@ StcArgConvertResult convert_to_type(const char *arg, void *out)
 {
     Type *type = out;
 
-    if (strcmp(arg, "string") == 0) {
+    if (strcmp(arg, "string") == 0)
         *type = STR;
-    } else if (strcmp(arg, "bool") == 0) {
+    else if (strcmp(arg, "bool") == 0)
         *type = BOOL;
-    } else if (strcmp(arg, "int") == 0) {
+    else if (strcmp(arg, "int") == 0)
         *type = INT;
-    } else {
+    else
         return STC_ARG_CR_FAILURE;
-    }
 
     return STC_ARG_CR_SUCCESS;
 }
@@ -67,11 +66,11 @@ int main(int argc, const char *argv[])
 
     stc_args_parse_exact(argc, argv, args + 1, ARR_LEN(args) - 1, NULL);
     printf("cmd=%s\n", cmd);
-    // printf("c=%d\n", c);
-    // printf("name=%s\n", name);
-    // printf("set=%s\n", set);
-    // printf("filename=%s\n", filename);
-    // printf("type=%d\n", type);
+    printf("c=%d\n", c);
+    printf("name=%s\n", name);
+    printf("set=%s\n", set);
+    printf("filename=%s\n", filename);
+    printf("type=%d\n", type);
     printf("database=%s\n", database);
 
     return EXIT_SUCCESS;
