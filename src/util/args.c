@@ -87,7 +87,6 @@ int stc_args_parse(int           argc,
     for (i = 1; i < arg_end; i++) {
         found = argv[i];
 
-        fprintf(stderr, "done_opts = %d\n", done_opts);
         if (found[0] == '-' && !done_opts) {
             /* check for '--' to indicate done with options */
             if (strcmp(found, "--") == 0) {
