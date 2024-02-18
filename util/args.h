@@ -23,7 +23,6 @@ typedef enum {
  * since NULL default value means no default. The output pointer will never be
  * NULL and thus does not have to be checked.
  *
- *
  * @param[in]  arg the string argument
  * @param[out] out the memory address where to store the custom converted value
  *

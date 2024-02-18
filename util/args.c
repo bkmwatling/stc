@@ -50,8 +50,7 @@ int stc_args_parse(int           argc,
     const StcArg *arg;
 
     if (args_len <= 0) args_len = stc_args_len(args);
-    argset = malloc(args_len * sizeof(int));
-    memset(argset, 0, args_len * sizeof(int));
+    argset = calloc(args_len, sizeof(*argset));
 
     /* determine the number of positional and optional arguments there are */
     for (i = 0; i < args_len; i++) {
@@ -66,17 +65,24 @@ int stc_args_parse(int           argc,
                     i, arg->shortopt, arg->longopt);
             free(argset);
             exit(EXIT_FAILURE);
+        } else if (STC_ARG_IS_POSITIONAL(arg) && STC_ARG_IS_BOOL(arg->type)) {
+            fprintf(stderr,
+                    "ERROR: positional arguments cannot be Boolean: "
+                    "argument='%s'\n",
+                    arg->shortopt ? arg->shortopt : arg->longopt);
+            free(argset);
+            exit(EXIT_FAILURE);
         }
 
-        if (STC_ARG_IS_POSITIONAL(args + i))
+        if (STC_ARG_IS_POSITIONAL(arg))
             npos++;
         else
             nopt++;
     }
 
     /* populate the positional and optional argument indices arrays */
-    pos  = malloc(npos * sizeof(int));
-    opts = malloc(nopt * sizeof(int));
+    pos  = malloc(npos * sizeof(*pos));
+    opts = malloc(nopt * sizeof(*opts));
     for (i = j = k = 0; i < args_len; i++)
         if (STC_ARG_IS_POSITIONAL(args + i))
             pos[j++] = i;
@@ -123,7 +129,8 @@ int stc_args_parse(int           argc,
         }
 
         /* process the command-line argument against specification */
-        if (*found == '\0' && i + 1 < arg_end) found = argv[i + 1];
+        if (!STC_ARG_IS_POSITIONAL(arg) && *found == '\0')
+            found = i + 1 < arg_end ? argv[i + 1] : NULL;
         if ((exit_code = stc_arg_process(found, arg, opt)) > 0) {
             i++;
         } else if (exit_code < 0) {
@@ -331,11 +338,12 @@ static void stc_arg_usage(FILE *stream, const StcArg *arg, int shortlen)
 static int
 stc_arg_process(const char *found, const StcArg *arg, const char *opt)
 {
-    int has_eq            = *found == '=';
-    int consumed_next_arg = !STC_ARG_IS_POSITIONAL(arg) && !has_eq;
+    int is_positional     = STC_ARG_IS_POSITIONAL(arg);
+    int has_eq            = found && *found == '=' && !is_positional;
+    int consumed_next_arg = !is_positional && !has_eq;
 
     if (has_eq) found++;
-    if (*found == '\0' && !STC_ARG_IS_BOOL(arg->type)) {
+    if (!STC_ARG_IS_BOOL(arg->type) && (!found || (has_eq && *found == '\0'))) {
         fprintf(stderr, "ERROR: missing value for argument '%s'\n", opt);
         return -1;
     }
