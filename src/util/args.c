@@ -4,6 +4,15 @@
 
 #include "args.h"
 
+/* --- Preprocessor directives ---------------------------------------------- */
+
+#define STC_ARG_IS_POSITIONAL(arg)                     \
+    (((arg)->shortopt && (arg)->shortopt[0] != '-') || \
+     ((arg)->longopt && (arg)->longopt[0] != '-'))
+#define STC_ARG_IS_STR(argtype)    ((argtype) == STC_ARG_STR)
+#define STC_ARG_IS_BOOL(argtype)   ((argtype) == STC_ARG_BOOL)
+#define STC_ARG_IS_CUSTOM(argtype) ((argtype) == STC_ARG_CUSTOM)
+
 #define STC_ARG_DESC_PADDING   10
 #define STC_ARG_DESC_MAX_WIDTH 70
 
@@ -16,14 +25,42 @@
     (STC_ARG_SHORTOPT_MATCHES(found, opt, len, arg) || \
      STC_ARG_LONGOPT_MATCHES(found, opt, len, arg))
 
-#define STC_ARGS_USAGE(stream, usage, program, args, args_len) \
-    (usage) ? usage(stream, program)                           \
-            : stc_args_usage(stream, program, args, args_len)
+#define STC_ARGS_USAGE(argparser, stream, program)           \
+    (argparser)->usage ? (argparser)->usage(stream, program) \
+                       : stc_argparser_print_usage(argparser, program, stream)
+
+/* --- Type definitions ----------------------------------------------------- */
+
+typedef struct stc_arg StcArg;
+
+struct stc_arg {
+    StcArgType     type;        /**< type of the argument                     */
+    int            idx;         /**< index into list of argument specifiers   */
+    const char    *shortopt;    /**< short name string (must start with '-' if
+                                     longopt does)                            */
+    const char    *longopt;     /**< long name string (must start with '-' if
+                                     shortopt does)                           */
+    void          *out;         /**< optional pointer to store argument value */
+    const char    *valname;     /**< optional name of value to show in usage  */
+    const char    *description; /**< optional description of the argument     */
+    const void    *def;         /**< optional default value of the argument
+                                     (must be the string of the default value
+                                     for the convert function for custom
+                                     arguments)   */
+    StcArgConvert *convert; /**< optional function to convert custom argument */
+
+    StcArg *prev; /**< previous argument specification in list                */
+    StcArg *next; /**< next argument specification in list                    */
+};
+
+struct stc_argparser {
+    StcArgParserUsage *usage;
+    StcArg            *sentinel;
+};
 
 /* --- Helper function prototypes ------------------------------------------- */
 
-static int  stc_args_len(const StcArg *args);
-static void stc_arg_usage(FILE *stream, const StcArg *arg, int shortlen);
+static void stc_arg_print_usage(FILE *stream, const StcArg *arg, int shortlen);
 static int
 stc_arg_process(const char *found, const StcArg *arg, const char *opt);
 static int    stc_arg_memcpy(void          *dst,
@@ -34,27 +71,71 @@ static size_t is_prefixed(const char *str, const char *prefix);
 
 /* --- Public function definitions ------------------------------------------ */
 
-int stc_args_parse(int           argc,
-                   const char  **argv,
-                   const StcArg *args,
-                   int           args_len,
-                   StcArgsUsage *usage)
+StcArgParser *stc_argparser_new(StcArgParserUsage *usage)
 {
-    int           i, j, k, idx;
-    size_t        len;
-    int           npos = 0, nopt = 0, pos_idx = 0;
-    int           arg_end = argc, done_opts = 0;
-    int           exit_code;
-    int          *argset, *pos, *opts;
-    const char   *found, *opt;
-    const StcArg *arg;
+    StcArgParser *argparser = malloc(sizeof(*argparser));
 
-    if (args_len <= 0) args_len = stc_args_len(args);
-    argset = calloc(args_len, sizeof(*argset));
+    argparser->usage          = usage;
+    argparser->sentinel       = calloc(1, sizeof(*argparser->sentinel));
+    argparser->sentinel->prev = argparser->sentinel->next = argparser->sentinel;
+
+    return argparser;
+}
+
+void stc_argparser_free(StcArgParser *self)
+{
+    StcArg *arg, *next;
+
+    for (arg = self->sentinel->next; arg != self->sentinel; arg = next) {
+        next = arg->next;
+        free(arg);
+    }
+
+    free(self->sentinel);
+    free(self);
+}
+
+void stc_argparser_add_argument(StcArgParser  *self,
+                                StcArgType     argtype,
+                                const char    *shortopt,
+                                const char    *longopt,
+                                void          *out,
+                                const char    *valname,
+                                const char    *description,
+                                const void    *def,
+                                StcArgConvert *convert)
+{
+    StcArg *arg = malloc(sizeof(*arg));
+
+    arg->type        = argtype;
+    arg->idx         = self->sentinel->idx++;
+    arg->shortopt    = shortopt;
+    arg->longopt     = longopt;
+    arg->out         = out;
+    arg->valname     = valname;
+    arg->description = description;
+    arg->def         = def;
+    arg->convert     = convert;
+
+    arg->prev       = self->sentinel->prev;
+    arg->next       = self->sentinel;
+    arg->prev->next = arg->next->prev = arg;
+}
+
+int stc_argparser_parse(const StcArgParser *self, int argc, const char **argv)
+{
+    int            i, j, k;
+    size_t         len;
+    int            npos = 0, nopt = 0, pos_idx = 0;
+    int            arg_end = argc, done_opts = 0;
+    int            exit_code;
+    int           *argset;
+    const StcArg **pos, **opts;
+    const char    *found, *opt;
+    const StcArg  *arg;
 
     /* determine the number of positional and optional arguments there are */
-    for (i = 0; i < args_len; i++) {
-        arg = args + i;
+    for (arg = self->sentinel->next; arg != self->sentinel; arg = arg->next) {
         if (arg->shortopt && arg->longopt &&
             (arg->shortopt[0] == '-') != (arg->longopt[0] == '-')) {
             fprintf(stderr,
@@ -62,15 +143,13 @@ int stc_args_parse(int           argc,
                     "both reflect a non-positional argument (start with '-'), "
                     "or a positional argument (not start with '-'): "
                     "index=%d, short='%s', long='%s'",
-                    i, arg->shortopt, arg->longopt);
-            free(argset);
+                    arg->idx, arg->shortopt, arg->longopt);
             exit(EXIT_FAILURE);
         } else if (STC_ARG_IS_POSITIONAL(arg) && STC_ARG_IS_BOOL(arg->type)) {
             fprintf(stderr,
                     "ERROR: positional arguments cannot be Boolean: "
                     "argument='%s'\n",
                     arg->shortopt ? arg->shortopt : arg->longopt);
-            free(argset);
             exit(EXIT_FAILURE);
         }
 
@@ -81,13 +160,15 @@ int stc_args_parse(int           argc,
     }
 
     /* populate the positional and optional argument indices arrays */
-    pos  = malloc(npos * sizeof(*pos));
-    opts = malloc(nopt * sizeof(*opts));
-    for (i = j = k = 0; i < args_len; i++)
-        if (STC_ARG_IS_POSITIONAL(args + i))
-            pos[j++] = i;
+    argset = calloc(self->sentinel->idx, sizeof(*argset));
+    pos    = malloc(npos * sizeof(*pos));  // NOLINT(bugprone-sizeof-expression)
+    opts   = malloc(nopt * sizeof(*opts)); // NOLINT(bugprone-sizeof-expression)
+    for (arg = self->sentinel->next, i = j = k = 0; arg != self->sentinel;
+         arg = arg->next, i++)
+        if (STC_ARG_IS_POSITIONAL(arg))
+            pos[j++] = arg;
         else
-            opts[k++] = i;
+            opts[k++] = arg;
 
     /* loop through the command-line arguments and check for specified args */
     for (i = 1; i < arg_end; i++) {
@@ -102,8 +183,7 @@ int stc_args_parse(int           argc,
 
             /* check for non-positional argument matches */
             for (j = 0; j < nopt; j++) {
-                idx = opts[j];
-                arg = args + idx;
+                arg = opts[j];
                 if (STC_ARG_OPT_MATCHES(found, opt, len, arg)) {
                     found += len;
                     break;
@@ -123,8 +203,7 @@ int stc_args_parse(int           argc,
                 continue;
             }
 
-            idx = pos[pos_idx++];
-            arg = args + idx;
+            arg = pos[pos_idx++];
             opt = arg->shortopt ? arg->shortopt : arg->longopt;
         }
 
@@ -137,15 +216,15 @@ int stc_args_parse(int           argc,
             exit_code = EXIT_FAILURE;
             goto exit_parsing;
         }
-        argset[idx] = 1;
+        argset[arg->idx] = 1;
     }
 
     /* check if any arguments were not found/set */
-    for (i = 0; i < args_len; i++) {
+    for (arg = self->sentinel->next, i = 0; arg != self->sentinel;
+         arg = arg->next, i++) {
         if (argset[i]) continue;
-        arg = args + i;
         if (arg->def == NULL && !STC_ARG_IS_BOOL(arg->type)) {
-            stc_args_check_for_help(argc, argv, arg_end, args, args_len, usage);
+            stc_argparser_check_for_help(self, argc, argv, arg_end);
             fprintf(stderr, "ERROR: argument '%s' not specified\n",
                     arg->shortopt ? arg->shortopt : arg->longopt);
             exit_code = EXIT_FAILURE;
@@ -153,7 +232,7 @@ int stc_args_parse(int           argc,
         }
         if (arg->out &&
             !stc_arg_memcpy(arg->out, arg->def, arg->convert, arg->type)) {
-            stc_args_check_for_help(argc, argv, arg_end, args, args_len, usage);
+            stc_argparser_check_for_help(self, argc, argv, arg_end);
             fprintf(stderr,
                     "ERROR: failed to set default value for argument '%s'\n",
                     arg->shortopt ? arg->shortopt : arg->longopt);
@@ -171,54 +250,45 @@ exit_parsing:
     free(argset);
     free(pos);
     free(opts);
-    STC_ARGS_USAGE(exit_code == EXIT_SUCCESS ? stdout : stderr, usage, argv[0],
-                   args, args_len);
+    STC_ARGS_USAGE(self, exit_code == EXIT_SUCCESS ? stdout : stderr, argv[0]);
     exit(exit_code);
 }
 
-void stc_args_parse_exact(int           argc,
-                          const char  **argv,
-                          const StcArg *args,
-                          int           args_len,
-                          StcArgsUsage *usage)
+void stc_argparser_parse_exact(const StcArgParser *self,
+                               int                 argc,
+                               const char        **argv)
 {
-    int idx = stc_args_parse(argc, argv, args, args_len, usage);
+    int idx = stc_argparser_parse(self, argc, argv);
 
-    stc_args_check_for_help(argc, argv, idx, args, args_len, usage);
+    stc_argparser_check_for_help(self, argc, argv, idx);
     if (idx < argc && (strcmp(argv[idx], "--") != 0 || ++idx < argc)) {
         fprintf(stderr, "ERROR: unrecognised argument '%s'\n", argv[idx]);
-        if (usage) {
-            usage(stderr, argv[0]);
-        } else {
-            if (args_len <= 0) args_len = stc_args_len(args);
-            stc_args_usage(stderr, argv[0], args, args_len);
-        }
+        STC_ARGS_USAGE(self, stderr, argv[0]);
         exit(EXIT_FAILURE);
     }
 }
 
-void stc_args_usage(FILE         *stream,
-                    const char   *program,
-                    const StcArg *args,
-                    int           args_len)
+void stc_argparser_print_usage(const StcArgParser *self,
+                               const char         *program,
+                               FILE               *stream)
 {
-    int           i, len, has_arg, has_opt, pos_shortlen = 0, opt_shortlen = 0;
+    int           len, has_arg, has_opt, pos_shortlen = 0, opt_shortlen = 0;
     const char   *shortopt;
     const StcArg *arg;
 
     /* check if there are any options or arguments */
     has_arg = has_opt = 0;
-    for (i = 0; i < args_len && (!has_arg || !has_opt); i++)
-        if (STC_ARG_IS_POSITIONAL(args + i))
+    for (arg = self->sentinel->next;
+         arg != self->sentinel && (!has_arg || !has_opt); arg = arg->next)
+        if (STC_ARG_IS_POSITIONAL(arg))
             has_arg = 1;
         else
             has_opt = 1;
 
     /* print top usage line */
     fprintf(stream, "Usage: %s%s", program, has_opt ? " [OPTIONS]" : "");
-    for (i = 0; i < args_len; i++) {
-        arg = args + i;
-        if (STC_ARG_IS_POSITIONAL(args + i)) {
+    for (arg = self->sentinel->next; arg != self->sentinel; arg = arg->next) {
+        if (STC_ARG_IS_POSITIONAL(arg)) {
             shortopt = arg->shortopt ? arg->shortopt : arg->longopt;
             if (shortopt && (len = strlen(shortopt)) > pos_shortlen)
                 pos_shortlen = len;
@@ -235,52 +305,41 @@ void stc_args_usage(FILE         *stream,
     if (has_arg) {
         len = 0; /* use len as flag to indicate whether first argument done */
         fprintf(stream, "\nArguments:\n");
-        for (i = 0; i < args_len; i++) {
-            arg = args + i;
+        for (arg = self->sentinel->next; arg != self->sentinel; arg = arg->next)
             if (STC_ARG_IS_POSITIONAL(arg)) {
                 if (len)
                     fprintf(stream, "\n");
                 else
                     len = 1;
-                stc_arg_usage(stream, arg, pos_shortlen);
+                stc_arg_print_usage(stream, arg, pos_shortlen);
             }
-        }
     }
 
     /* print descriptions of options */
     if (has_opt) {
         len = 0; /* use len as flag to indicate whether first option done */
         fprintf(stream, "\nOptions:\n");
-        for (i = 0; i < args_len; i++) {
-            arg = args + i;
+        for (arg = self->sentinel->next; arg != self->sentinel; arg = arg->next)
             if (!STC_ARG_IS_POSITIONAL(arg)) {
                 if (len)
                     fprintf(stream, "\n");
                 else
                     len = 1;
-                stc_arg_usage(stream, arg, opt_shortlen);
+                stc_arg_print_usage(stream, arg, opt_shortlen);
             }
-        }
     }
 }
 
-void stc_args_check_for_help(int           argc,
-                             const char  **argv,
-                             int           arg_idx,
-                             const StcArg *args,
-                             int           args_len,
-                             StcArgsUsage *usage)
+void stc_argparser_check_for_help(const StcArgParser *self,
+                                  int                 argc,
+                                  const char        **argv,
+                                  int                 arg_idx)
 {
     int i;
 
     for (i = arg_idx; i < argc && strcmp(argv[i], "--") != 0; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-            if (usage) {
-                usage(stdout, argv[0]);
-            } else {
-                if (args_len <= 0) args_len = stc_args_len(args);
-                stc_args_usage(stdout, argv[0], args, args_len);
-            }
+            STC_ARGS_USAGE(self, stdout, argv[0]);
             exit(EXIT_SUCCESS);
         }
     }
@@ -288,18 +347,7 @@ void stc_args_check_for_help(int           argc,
 
 /* --- Helper function definitions ------------------------------------------ */
 
-static int stc_args_len(const StcArg *args)
-{
-    int    args_len = 0;
-    StcArg arg_null = STC_ARG_NULL;
-
-    for (; memcmp(&args[args_len], &arg_null, sizeof(StcArg)); args_len++)
-        ;
-
-    return args_len;
-}
-
-static void stc_arg_usage(FILE *stream, const StcArg *arg, int shortlen)
+static void stc_arg_print_usage(FILE *stream, const StcArg *arg, int shortlen)
 {
     const char   *shortopt, *longopt, *description;
     unsigned long len;
