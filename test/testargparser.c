@@ -66,6 +66,7 @@ int main(int argc, const char *argv[])
                                    &val);
 
     stc_argparser_parse(argparser, argc, argv);
+    stc_argparser_free(argparser);
 
     printf("filename=%s\n", filename);
     if (strcmp(cmd, "create") == 0) {

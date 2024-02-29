@@ -173,8 +173,10 @@ void stc_argparser_free(StcArgParser *self)
                  sap != apl->subcmd->sentinel; sap = sap_next) {
                 sap_next = sap->next;
                 stc_argparser_free(sap->argparser);
+                free(sap);
             }
             free(apl->subcmd->sentinel);
+            free(apl->subcmd);
         }
         free(apl);
     }
@@ -270,17 +272,24 @@ void stc_argparser_parse(const StcArgParser *self, int argc, const char **argv)
 {
     int exit_code, idx = 0;
 
-    if ((exit_code = _stc_argparser_parse(self, argc, argv, &idx, argc)) < 0)
-        exit(EXIT_FAILURE);
-    else if (exit_code > 0)
-        exit(EXIT_SUCCESS);
+    exit_code = _stc_argparser_parse(self, argc, argv, &idx, argc);
 
-    stc_argparser_check_for_help(self, argc, argv, idx);
-    if (idx < argc && (strcmp(argv[idx], "--") != 0 || ++idx < argc)) {
-        fprintf(stderr, "ERROR: unrecognised argument '%s'\n", argv[idx]);
-        STC_ARGS_USAGE(self, stderr, argv[0]);
-        exit(EXIT_FAILURE);
+    if (exit_code == 0) {
+        stc_argparser_check_for_help(self, argc, argv, idx);
+        if (idx < argc && (strcmp(argv[idx], "--") != 0 || ++idx < argc)) {
+            fprintf(stderr, "ERROR: unrecognised argument '%s'\n", argv[idx]);
+            STC_ARGS_USAGE(self, stderr, argv[0]);
+            exit_code = -1;
+        }
     }
+
+    if (exit_code == 0)
+        return;
+    else
+        exit_code = exit_code > 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+
+    stc_argparser_free((StcArgParser *) self);
+    exit(exit_code);
 }
 
 void stc_argparser_print_usage(const StcArgParser *self,
@@ -397,6 +406,7 @@ static void stc_argparser_add_arg(StcArgParser  *self,
 {
     StcArgParseList *apl = malloc(sizeof(*apl));
 
+    apl->is_subcmd       = 0;
     apl->idx             = self->sentinel->idx++;
     apl->arg.type        = argtype;
     apl->arg.shortopt    = shortopt;
