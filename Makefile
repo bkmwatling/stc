@@ -26,7 +26,7 @@ BINDIR         := bin
 # files
 MATH_EXE       := testmath
 VEC_EXE        := testvec
-ARGS_EXE       := testargs
+ARGPARSER_EXE  := testargparser
 
 COMMON_OBJ     := $(SRCDIR)/common.o
 MATH_OBJ       := $(SRCDIR)/math.o
@@ -38,19 +38,19 @@ SV_OBJ         := $(SRCDIR)/fatp/string_view.o
 VEC_OBJ        := $(SRCDIR)/fatp/vec.o
 MEMBASE_OBJ    := $(SRCDIR)/memory/base.o
 MEMLIBC_OBJ    := $(SRCDIR)/memory/libc.o
-ARGS_OBJ       := $(SRCDIR)/util/args.o
+ARGPARSER_OBJ  := $(SRCDIR)/util/argparser.o
 UTF_OBJ        := $(SRCDIR)/util/utf.o
 
-EXE            := $(MATH_EXE) $(VEC_EXE) $(ARGS_EXE)
+EXE            := $(MATH_EXE) $(VEC_EXE) $(ARGPARSER_EXE)
 OBJ            := $(COMMON_OBJ) $(MATH_OBJ) $(HASHMAP_OBJ) $(LINKEDLIST_OBJ) \
                   $(SLICE_OBJ) $(STRING_OBJ) $(SV_OBJ) $(VEC_OBJ) \
-                  $(MEMBASE_OBJ) $(MEMLIBC_OBJ) $(UTF_OBJ) $(ARGS_OBJ)
+                  $(MEMBASE_OBJ) $(MEMLIBC_OBJ) $(ARGPARSER_OBJ) $(UTF_OBJ)
 
 ### RULES ######################################################################
 
 # executables
 
-$(ARGS_EXE): $(TESTDIR)/$(ARGS_EXE).c $(ARGS_OBJ) | $(BINDIR)
+$(ARGPARSER_EXE): $(TESTDIR)/$(ARGPARSER_EXE).c $(ARGPARSER_OBJ) | $(BINDIR)
 	$(COMPILE) -o $(BINDIR)/$@ $^
 
 $(MATH_EXE): $(TESTDIR)/$(MATH_EXE).c $(MATH_OBJ) | $(BINDIR)
