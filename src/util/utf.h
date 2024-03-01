@@ -70,7 +70,7 @@
  * @return the number of bytes the codepoint takes up if it is a valid
  *         codepoint; else zero
  */
-int stc_utf8_nbytes(const char *codepoint);
+unsigned int stc_utf8_nbytes(const char *codepoint);
 
 /**
  * Creates a copy of the UTF-8 codepoint into its own null-terminated string.
@@ -175,7 +175,7 @@ const char *stc_utf8_str_advance(const char **s);
  *         codepoint in the context of a string view (codepoint does not go past
  *         string view bounds); else zero
  */
-int stc_utf8_nbytes_sv(StcStringView codepoint);
+unsigned int stc_utf8_nbytes_sv(StcStringView codepoint);
 
 /**
  * Creates a string view of the UTF-8 codepoint with the correct length.

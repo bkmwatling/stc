@@ -3,45 +3,32 @@
 
 #include "utf.h"
 
-/* --- Helper functions ----------------------------------------------------- */
+/* --- Single UTF-8 codepoint functions ------------------------------------- */
 
-static int _stc_utf8_nbytes(const char *codepoint, size_t min_len)
+unsigned int stc_utf8_nbytes(const char *codepoint)
 {
-    int nbytes = 0;
+    unsigned int nbytes = 0;
 
-    if (min_len >= 1 && STC_UTF8_IS_SINGLE(codepoint)) {
+    if (STC_UTF8_IS_SINGLE(codepoint))
         /* is valid single byte (i.e. 0xxx xxxx) */
         nbytes = 1;
-    } else if (min_len >= 2 && STC_UTF8_IS_DOUBLE(codepoint)) {
+    else if (STC_UTF8_IS_DOUBLE(codepoint))
         /* is valid double byte (i.e. 110x xxxx and 1 continuation byte) */
         nbytes = 2;
-    } else if (min_len >= 3 && STC_UTF8_IS_TRIPLE(codepoint)) {
+    else if (STC_UTF8_IS_TRIPLE(codepoint))
         /* is valid triple byte (i.e. 1110 xxxx and 2 continuation bytes) */
         nbytes = 3;
-    } else if (min_len >= 4 && STC_UTF8_IS_QUADRUPLE(codepoint)) {
+    else if (STC_UTF8_IS_QUADRUPLE(codepoint))
         /* is valid quadruple byte (i.e. 1111 0xxx and 3 continuation bytes) */
         nbytes = 4;
-    }
 
     return nbytes;
 }
 
-/* --- Single UTF-8 codepoint functions ------------------------------------- */
-
-int stc_utf8_nbytes(const char *codepoint)
-{
-    int min_len = 0;
-
-    while (min_len < 4 && codepoint[min_len++])
-        ;
-
-    return _stc_utf8_nbytes(codepoint, min_len);
-}
-
 char *stc_utf8_to_str(const char *codepoint)
 {
-    char  *p;
-    size_t n = stc_utf8_nbytes(codepoint);
+    char        *p;
+    unsigned int n = stc_utf8_nbytes(codepoint);
 
     if (n == 0) return NULL;
 
@@ -57,15 +44,15 @@ char *stc_utf8_to_str(const char *codepoint)
 
 int stc_utf8_cmp(const char *a, const char *b)
 {
-    int alen = stc_utf8_nbytes(a), blen = stc_utf8_nbytes(b);
+    unsigned int alen = stc_utf8_nbytes(a), blen = stc_utf8_nbytes(b);
 
     return STC_UTF8_CMP(a, b, alen, blen);
 }
 
 int stc_utf8_try_cmp(const char *a, const char *b, int *cmp)
 {
-    int result = 0;
-    int alen = stc_utf8_nbytes(a), blen = stc_utf8_nbytes(b);
+    int          result = 0;
+    unsigned int alen = stc_utf8_nbytes(a), blen = stc_utf8_nbytes(b);
 
     if (alen == 0) result++;
     if (blen == 0) result += 2;
@@ -80,8 +67,8 @@ int stc_utf8_try_cmp(const char *a, const char *b, int *cmp)
 
 size_t stc_utf8_str_ncodepoints(const char *s)
 {
-    int    nbytes;
-    size_t ncodepoints = 0;
+    unsigned int nbytes;
+    size_t       ncodepoints = 0;
 
     while (*s) {
         if ((nbytes = stc_utf8_nbytes(s))) {
@@ -97,14 +84,14 @@ size_t stc_utf8_str_ncodepoints(const char *s)
 
 const char *stc_utf8_str_next(const char *s)
 {
-    int n = stc_utf8_nbytes(s);
+    unsigned int n = stc_utf8_nbytes(s);
     return n > 0 ? s + n : NULL;
 }
 
 const char *stc_utf8_str_advance(const char **s)
 {
-    const char *codepoint = NULL;
-    int         n         = s && *s ? stc_utf8_nbytes(*s) : 0;
+    const char  *codepoint = NULL;
+    unsigned int n         = s && *s ? stc_utf8_nbytes(*s) : 0;
 
     if (n > 0) {
         codepoint  = *s;
@@ -120,9 +107,24 @@ const char *stc_utf8_str_advance(const char **s)
 
 /* --- Single UTF-8 codepoint functions for string views -------------------- */
 
-int stc_utf8_nbytes_sv(StcStringView sv)
+unsigned int stc_utf8_nbytes_sv(StcStringView sv)
 {
-    return _stc_utf8_nbytes(sv.str, sv.len);
+    unsigned int nbytes = 0;
+
+    if (sv.len >= 1 && STC_UTF8_IS_SINGLE(sv.str))
+        /* is valid single byte (i.e. 0xxx xxxx) */
+        nbytes = 1;
+    else if (sv.len >= 2 && STC_UTF8_IS_DOUBLE(sv.str))
+        /* is valid double byte (i.e. 110x xxxx and 1 continuation byte) */
+        nbytes = 2;
+    else if (sv.len >= 3 && STC_UTF8_IS_TRIPLE(sv.str))
+        /* is valid triple byte (i.e. 1110 xxxx and 2 continuation bytes) */
+        nbytes = 3;
+    else if (sv.len >= 4 && STC_UTF8_IS_QUADRUPLE(sv.str))
+        /* is valid quadruple byte (i.e. 1111 0xxx and 3 continuation bytes) */
+        nbytes = 4;
+
+    return nbytes;
 }
 
 StcStringView stc_utf8_to_sv(const char *codepoint)
@@ -155,11 +157,11 @@ int stc_utf8_try_cmp_sv(StcStringView a, StcStringView b, int *cmp)
 
 size_t stc_utf8_sv_ncodepoints(StcStringView sv)
 {
-    int    nbytes;
-    size_t ncodepoints = 0;
+    unsigned int nbytes;
+    size_t       ncodepoints = 0;
 
     while (sv.len > 0) {
-        if ((nbytes = stc_utf8_nbytes(sv.str)) && sv.len >= (size_t) nbytes) {
+        if ((nbytes = stc_utf8_nbytes_sv(sv))) {
             sv.str += nbytes;
             sv.len -= nbytes;
             ncodepoints++;
@@ -173,11 +175,11 @@ size_t stc_utf8_sv_ncodepoints(StcStringView sv)
 
 StcStringView stc_utf8_sv_next(StcStringView sv)
 {
-    int n = stc_utf8_nbytes_sv(sv);
+    unsigned int nbytes = stc_utf8_nbytes_sv(sv);
 
-    if (n > 0) {
-        sv.str += n;
-        sv.len -= n;
+    if (nbytes > 0) {
+        sv.str += nbytes;
+        sv.len -= nbytes;
     } else {
         sv.len = 0;
     }
@@ -187,13 +189,13 @@ StcStringView stc_utf8_sv_next(StcStringView sv)
 
 StcStringView stc_utf8_sv_advance(StcStringView *sv)
 {
-    int           n            = sv ? stc_utf8_nbytes_sv(*sv) : 0;
-    StcStringView codepoint_sv = { n, NULL };
+    unsigned int  nbytes       = sv ? stc_utf8_nbytes_sv(*sv) : 0;
+    StcStringView codepoint_sv = { nbytes, NULL };
 
-    if (n > 0) {
+    if (nbytes > 0) {
         codepoint_sv.str  = sv->str;
-        sv->len          -= n;
-        sv->str          += n;
+        sv->len          -= nbytes;
+        sv->str          += nbytes;
     }
 
     return codepoint_sv;
