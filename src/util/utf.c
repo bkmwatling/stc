@@ -3,37 +3,36 @@
 
 #include "utf.h"
 
-/* --- Single UTF-8 codepoint functions ------------------------------------- */
+/* --- Single UTF-8 "character" functions ----------------------------------- */
 
-unsigned int stc_utf8_nbytes(const char *codepoint)
+unsigned int stc_utf8_nbytes(const char *ch)
 {
     unsigned int nbytes = 0;
 
-    if (STC_UTF8_IS_SINGLE(codepoint))
-        /* is valid single byte (i.e. 0xxx xxxx) */
+    if (STC_UTF8_IS_SINGLE(ch)) /* is valid single byte (i.e. 0xxx xxxx) */
         nbytes = 1;
-    else if (STC_UTF8_IS_DOUBLE(codepoint))
+    else if (STC_UTF8_IS_DOUBLE(ch))
         /* is valid double byte (i.e. 110x xxxx and 1 continuation byte) */
         nbytes = 2;
-    else if (STC_UTF8_IS_TRIPLE(codepoint))
+    else if (STC_UTF8_IS_TRIPLE(ch))
         /* is valid triple byte (i.e. 1110 xxxx and 2 continuation bytes) */
         nbytes = 3;
-    else if (STC_UTF8_IS_QUADRUPLE(codepoint))
+    else if (STC_UTF8_IS_QUADRUPLE(ch))
         /* is valid quadruple byte (i.e. 1111 0xxx and 3 continuation bytes) */
         nbytes = 4;
 
     return nbytes;
 }
 
-char *stc_utf8_to_str(const char *codepoint)
+char *stc_utf8_clone(const char *ch)
 {
     char        *p;
-    unsigned int n = stc_utf8_nbytes(codepoint);
+    unsigned int n = stc_utf8_nbytes(ch);
 
     if (n == 0) return NULL;
 
-    p = malloc((n + 1) * sizeof(char));
-    strncpy(p, codepoint, n);
+    p = malloc((n + 1) * sizeof(*p));
+    strncpy(p, ch, n);
     p[n] = '\0';
 
     return p;
@@ -103,9 +102,10 @@ const char *stc_utf8_str_advance(const char **s)
 
 /* --- UTF-8 string view functions ------------------------------------------ */
 
-#ifndef STC_UTF_DISABLE_SV
+#if !defined(STC_DISABLE_FATP) && !defined(STC_DISABLE_SV) && \
+    !defined(STC_UTF_DISABLE_SV)
 
-/* --- Single UTF-8 codepoint functions for string views -------------------- */
+/* --- Single UTF-8 "character" functions for string views ------------------ */
 
 unsigned int stc_utf8_nbytes_sv(StcStringView sv)
 {
@@ -127,9 +127,9 @@ unsigned int stc_utf8_nbytes_sv(StcStringView sv)
     return nbytes;
 }
 
-StcStringView stc_utf8_to_sv(const char *codepoint)
+StcStringView stc_utf8_to_sv(const char *ch)
 {
-    return stc_sv_from_parts(codepoint, stc_utf8_nbytes(codepoint));
+    return stc_sv_from_parts(ch, stc_utf8_nbytes(ch));
 }
 
 int stc_utf8_cmp_sv(StcStringView a, StcStringView b)
