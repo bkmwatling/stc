@@ -55,7 +55,7 @@
 #define STC_UNICODE_ESCAPE_FMT "\\%c%0*x"
 #define STC_UNICODE_ESCAPE_ARG(codepoint)                                      \
   ((codepoint) <= 0xffff ? 'u' : 'U'), ((codepoint) <= 0xffff ? 4 : 8),        \
-      (codepoint)
+      ((unsigned int)(codepoint))
 
 /**
  * Decode a Unicode codepoint from the \uxxxx or \Uxxxxxxxx notation.
