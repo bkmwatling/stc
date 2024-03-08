@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,6 +35,11 @@ size_t stc_unicode_from_escape_seq(const char *esc_seq)
     }
 
     return codepoint;
+}
+
+int stc_unicode_isprint(size_t codepoint)
+{
+    return codepoint > 0x7f || isprint(codepoint);
 }
 
 /* --- Single UTF-8 "character" functions ----------------------------------- */

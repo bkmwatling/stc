@@ -9,17 +9,26 @@
 #endif
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_UTF_ENABLE_SHORT_NAMES)
+#    define UNICODE_ESCAPE_FMT STC_UNICODE_ESCAPE_FMT
+#    define UNICODE_ESCAPE_ARG STC_UNICODE_ESCAPE_ARG
+
+#    define unicode_from_escape_seq stc_unicode_from_escape_seq
+#    define unicode_isprint         stc_unicode_isprint
+
 #    define UTF8_IS_CONTINUATION STC_UTF8_IS_CONTINUATION
 #    define UTF8_IS_SINGLE       STC_UTF8_IS_SINGLE
 #    define UTF8_IS_DOUBLE       STC_UTF8_IS_DOUBLE
 #    define UTF8_IS_TRIPLE       STC_UTF8_IS_TRIPLE
 #    define UTF8_IS_QUADRUPLE    STC_UTF8_IS_QUADRUPLE
 
-#    define utf8_is_valid stc_utf8_is_valid
-#    define utf8_nbytes   stc_utf8_nbytes
-#    define utf8_to_str   stc_utf8_to_str
-#    define utf8_cmp      stc_utf8_cmp
-#    define utf8_try_cmp  stc_utf8_try_cmp
+#    define utf8_is_valid       stc_utf8_is_valid
+#    define utf8_isprint        stc_utf8_isprint
+#    define utf8_nbytes         stc_utf8_nbytes
+#    define utf8_clone          stc_utf8_clone
+#    define utf8_cmp            stc_utf8_cmp
+#    define utf8_try_cmp        stc_utf8_try_cmp
+#    define utf8_to_codepoint   stc_utf8_to_codepoint
+#    define utf8_from_codepoint stc_utf8_from_codepoint
 
 #    define utf8_str_is_valid    stc_utf8_str_is_valid
 #    define utf8_str_ncodepoints stc_utf8_str_ncodepoints
@@ -27,11 +36,12 @@
 #    define utf8_str_advance     stc_utf8_str_advance
 
 #    ifndef STC_UTF_DISABLE_SV
-#        define utf8_is_valid_sv stc_utf8_is_valid_sv
-#        define utf8_nbytes_sv   stc_utf8_nbytes_sv
-#        define utf8_to_sv       stc_utf8_to_sv
-#        define utf8_cmp_sv      stc_utf8_cmp_sv
-#        define utf8_try_cmp_sv  stc_utf8_try_cmp_sv
+#        define utf8_is_valid_sv     stc_utf8_is_valid_sv
+#        define utf8_nbytes_sv       stc_utf8_nbytes_sv
+#        define utf8_to_sv           stc_utf8_to_sv
+#        define utf8_cmp_sv          stc_utf8_cmp_sv
+#        define utf8_try_cmp_sv      stc_utf8_try_cmp_sv
+#        define utf8_to_codepoint_sv stc_utf8_to_codepoint_sv
 
 #        define utf8_sv_is_valid    stc_utf8_sv_is_valid
 #        define utf8_sv_ncodepoints stc_utf8_sv_ncodepoints
@@ -43,7 +53,7 @@
 /* --- Unicode codepoint macros and functions ------------------------------- */
 
 #define STC_UNICODE_ESCAPE_FMT "\\%c%0*x"
-#define STC_UNICODE_ESCAPE_ARGS(codepoint)                                \
+#define STC_UNICODE_ESCAPE_ARG(codepoint)                                 \
     ((codepoint) <= 0xffff ? 'u' : 'U'), ((codepoint) <= 0xffff ? 4 : 8), \
         (codepoint)
 
@@ -56,6 +66,15 @@
  *         SIZE_MAX
  */
 size_t stc_unicode_from_escape_seq(const char *esc_seq);
+
+/**
+ * Determine whether the Unicode codepoint represents a printable character.
+ *
+ * @param[in] codepoint the Unicode codepoint to check
+ *
+ * @return truthy value if the Unicode codepoint is printable; else 0
+ */
+int stc_unicode_isprint(size_t codepoint);
 
 /* --- Single UTF-8 "character" macros and functions ------------------------ */
 
@@ -71,6 +90,8 @@ size_t stc_unicode_from_escape_seq(const char *esc_seq);
      STC_UTF8_IS_CONTINUATION((s)[2]) && STC_UTF8_IS_CONTINUATION((s)[3]))
 
 #define stc_utf8_is_valid(ch) (stc_utf8_nbytes((ch)) > 0)
+
+#define stc_uft8_isprint(ch) stc_unicode_isprint(stc_utf8_to_codepoint(ch))
 
 /**
  * Determines the number of bytes the UTF-8 "character" starting at the
@@ -260,6 +281,17 @@ int stc_utf8_cmp_sv(StcStringView a, StcStringView b);
  *         not valid UTF-8 "character" string views
  */
 int stc_utf8_try_cmp_sv(StcStringView a, StcStringView b, int *cmp);
+
+/**
+ * Convert the UTF-8 "character" string view to the equivalent Unicode
+ * codepoint.
+ *
+ * @param[in] sv the UTF-8 "character" string view to convert
+ *
+ * @return the equivalent Unicode codepoint if the UTF-8 "character" string view
+ *         is valid; else SIZE_MAX
+ */
+size_t stc_utf8_to_codepoint_sv(StcStringView sv);
 
 /* --- UTF-8 encoded strings macros and functions for string views ---------- */
 
