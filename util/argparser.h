@@ -187,15 +187,17 @@ void stc_argparser_add_custom_argument(StcArgParser  *self,
 /**
  * Add a grouping of argument subparsers to the argument parser.
  *
- * @param[in] self        the argument parser to register subparser group to
- * @param[in] name        the name for the subparser group (for usage message)
- * @param[in] out         the optional pointer to store which subparser chosen
+ * @param[in] self   the argument parser to register subparser group to
+ * @param[in] name   the name for the subparser group (for usage message)
+ * @param[in] outcmd the optional pointer to store which subparser chosen
+ * @param[in] outidx the optional pointer to store index of chosen subparser
  *
  * @return the subparser group to be able to add subparsers to
  */
 StcSubArgParsers *stc_argparser_add_subparsers(StcArgParser *self,
                                                const char   *name,
-                                               const char  **out);
+                                               const char  **outcmd,
+                                               size_t       *outidx);
 
 /**
  * Parse the command-line arguments using the given argument parser. This
