@@ -1,7 +1,40 @@
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "utf.h"
+
+/* --- Unicode codepoint functions ------------------------------------------ */
+
+size_t stc_unicode_from_escape_seq(const char *esc_seq)
+{
+    size_t codepoint = 0;
+    int    i, width;
+    char   ch;
+
+    if (*esc_seq++ != '\\') return SIZE_MAX;
+    switch (*esc_seq++) {
+        case 'u': width = 4; break;
+        case 'U': width = 8; break;
+        default: return SIZE_MAX;
+    }
+
+    for (i = 0; i < width; i++) {
+        ch = esc_seq[i];
+        if ('0' <= ch && ch <= '9')
+            codepoint |= ch - '0';
+        else if ('a' <= ch && ch <= 'f')
+            codepoint |= (ch - 'a' + 1) * 10;
+        else if ('A' <= ch && ch <= 'F')
+            codepoint |= (ch - 'A' + 1) * 10;
+        else
+            return SIZE_MAX;
+
+        codepoint <<= 4;
+    }
+
+    return codepoint;
+}
 
 /* --- Single UTF-8 "character" functions ----------------------------------- */
 
@@ -9,7 +42,10 @@ unsigned int stc_utf8_nbytes(const char *ch)
 {
     unsigned int nbytes = 0;
 
-    if (STC_UTF8_IS_SINGLE(ch)) /* is valid single byte (i.e. 0xxx xxxx) */
+    if (ch == NULL) return 0;
+
+    if (STC_UTF8_IS_SINGLE(ch))
+        /* is valid single byte (i.e. 0xxx xxxx and 0 continuation bytes) */
         nbytes = 1;
     else if (STC_UTF8_IS_DOUBLE(ch))
         /* is valid double byte (i.e. 110x xxxx and 1 continuation byte) */
@@ -61,6 +97,65 @@ int stc_utf8_try_cmp(const char *a, const char *b, int *cmp)
 }
 
 #undef STC_UTF8_CMP
+
+size_t stc_utf8_to_codepoint(const char *ch)
+{
+    size_t       codepoint;
+    unsigned int nbytes = stc_utf8_nbytes(ch);
+
+    switch (nbytes) {
+        case 1: codepoint = *ch; break;
+
+        case 2:
+            codepoint  = (ch[0] & 0x1f) << 6;
+            codepoint |= ch[1] & 0x3f;
+            break;
+
+        case 3:
+            codepoint  = (ch[0] & 0x0f) << 12;
+            codepoint |= (ch[1] & 0x3f) << 6;
+            codepoint |= (ch[2] & 0x3f);
+            break;
+
+        case 4:
+            codepoint  = (ch[0] & 0x08) << 18;
+            codepoint |= (ch[1] & 0x3f) << 12;
+            codepoint |= (ch[2] & 0x3f) << 6;
+            codepoint |= (ch[3] & 0x3f);
+            break;
+
+        default: codepoint = SIZE_MAX; break;
+    }
+
+    return codepoint;
+}
+
+char *stc_utf8_from_codepoint(size_t codepoint)
+{
+    char *ch = NULL;
+
+    if (codepoint <= 0x7f) {
+        ch    = calloc(2, sizeof(*ch));
+        ch[0] = codepoint; /* 0xxx xxxx */
+    } else if (codepoint <= 0x7ff) {
+        ch    = calloc(3, sizeof(*ch));
+        ch[0] = 0xc0 | (codepoint >> 6);   /* 110x xxxx */
+        ch[1] = 0x80 | (codepoint & 0x3f); /* 10xx xxxx */
+    } else if (codepoint <= 0xffff) {
+        ch    = calloc(4, sizeof(*ch));
+        ch[0] = 0xe0 | (codepoint >> 12);         /* 1110 xxxx */
+        ch[1] = 0x80 | ((codepoint >> 6) & 0x3f); /* 10xx xxxx */
+        ch[2] = 0x80 | (codepoint & 0x3f);        /* 10xx xxxx */
+    } else if (codepoint <= 0x10ffff) {
+        ch    = calloc(5, sizeof(*ch));
+        ch[0] = 0xf0 | (codepoint >> 18);          /* 1111 0xxx */
+        ch[1] = 0x80 | ((codepoint >> 12) & 0x3f); /* 10xx xxxx */
+        ch[2] = 0x80 | ((codepoint >> 6) & 0x3f);  /* 10xx xxxx */
+        ch[3] = 0x80 | (codepoint & 0x3f);         /* 10xx xxxx */
+    }
+
+    return ch;
+}
 
 /* --- UTF-8 encoded strings functions -------------------------------------- */
 

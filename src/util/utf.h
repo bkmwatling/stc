@@ -40,6 +40,23 @@
 #    endif /* STC_UTF_DISABLE_SV */
 #endif     /* STC_UTF_ENABLE_SHORT_NAMES */
 
+/* --- Unicode codepoint macros and functions ------------------------------- */
+
+#define STC_UNICODE_ESCAPE_FMT "\\%c%0*x"
+#define STC_UNICODE_ESCAPE_ARGS(codepoint)                                \
+    ((codepoint) <= 0xffff ? 'u' : 'U'), ((codepoint) <= 0xffff ? 4 : 8), \
+        (codepoint)
+
+/**
+ * Decode a Unicode codepoint from the \uxxxx or \Uxxxxxxxx notation.
+ *
+ * @param[in] esc_seq the escaped Unicode sequence
+ *
+ * @return the decoded Unicode codepoint if the escape sequence is valid; else
+ *         SIZE_MAX
+ */
+size_t stc_unicode_from_escape_seq(const char *esc_seq);
+
 /* --- Single UTF-8 "character" macros and functions ------------------------ */
 
 #define STC_UTF8_IS_CONTINUATION(c) (((c) & 0xc0) == 0x80)
@@ -107,6 +124,29 @@ int stc_utf8_cmp(const char *a, const char *b);
  *         "characters"
  */
 int stc_utf8_try_cmp(const char *a, const char *b, int *cmp);
+
+/**
+ * Convert the UTF-8 "character" to the equivalent Unicode codepoint.
+ *
+ * @param[in] ch the UTF-8 "character" to convert
+ *
+ * @return the equivalent Unicode codepoint if the UTF-8 "character" is valid;
+ *         else SIZE_MAX
+ */
+size_t stc_utf8_to_codepoint(const char *ch);
+
+/**
+ * Convert the Unicode codepoint to the equivalent UTF-8 "character".
+ *
+ * NOTE: the returned UTF-8 "character" is allocated with malloc (if not NULL)
+ *       and thus needs to be freed once done with.
+ *
+ * @param[in] codepoint the Unicode codepoint to convert
+ *
+ * @return the equivalent NULL terminated UTF-8 "character" if the Unicode
+ *         codepoint is valid (is less than 0x10ffff); else NULL
+ */
+char *stc_utf8_from_codepoint(size_t codepoint);
 
 /* --- UTF-8 encoded strings macros and functions --------------------------- */
 
