@@ -87,8 +87,9 @@ struct stc_subargparser {
 };
 
 struct stc_subargparsers {
-    const char  *name; /**< name of subcommand to show in usage               */
-    const char **out;  /**< optional pointer to store subcommand value        */
+    const char  *name;   /**< name of subcommand to show in usage             */
+    const char **outcmd; /**< optional pointer to store subcommand value      */
+    size_t      *outidx; /**< optional pointer to store subcommand index      */
 
     StcSubArgParser *sentinel; /**< circly linked list of subparsers          */
 };
@@ -248,7 +249,8 @@ void stc_argparser_add_custom_argument(StcArgParser  *self,
 
 StcSubArgParsers *stc_argparser_add_subparsers(StcArgParser *self,
                                                const char   *name,
-                                               const char  **out)
+                                               const char  **outcmd,
+                                               size_t       *outidx)
 {
     StcArgParseList *apl = malloc(sizeof(*apl));
 
@@ -256,7 +258,8 @@ StcSubArgParsers *stc_argparser_add_subparsers(StcArgParser *self,
     apl->idx                    = self->sentinel->idx++;
     apl->subcmd                 = malloc(sizeof(*apl->subcmd));
     apl->subcmd->name           = name;
-    apl->subcmd->out            = out;
+    apl->subcmd->outcmd         = outcmd;
+    apl->subcmd->outidx         = outidx;
     apl->subcmd->sentinel       = malloc(sizeof(*apl->subcmd->sentinel));
     apl->subcmd->sentinel->prev = apl->subcmd->sentinel->next =
         apl->subcmd->sentinel;
@@ -563,15 +566,18 @@ static int stc_subargparsers_parse(const StcSubArgParsers *self,
                                    int                    *idx,
                                    int                     end)
 {
+    size_t                 i;
     int                    exit_code = -1;
     const char            *subcmd    = argv[*idx];
     const StcSubArgParser *sap;
 
-    for (sap = self->sentinel->next; sap != self->sentinel; sap = sap->next) {
+    for (sap = self->sentinel->next, i = 0; sap != self->sentinel;
+         sap = sap->next, i++) {
         if (strcmp(subcmd, sap->cmd) == 0) {
             exit_code =
                 _stc_argparser_parse(sap->argparser, argc, argv, idx, end);
-            if (self->out) *self->out = sap->cmd;
+            if (self->outcmd) *self->outcmd = sap->cmd;
+            if (self->outidx) *self->outidx = i;
             break;
         }
     }
