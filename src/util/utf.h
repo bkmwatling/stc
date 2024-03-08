@@ -91,7 +91,7 @@ int stc_unicode_isprint(size_t codepoint);
 
 #define stc_utf8_is_valid(ch) (stc_utf8_nbytes((ch)) > 0)
 
-#define stc_uft8_isprint(ch) stc_unicode_isprint(stc_utf8_to_codepoint(ch))
+#define stc_utf8_isprint(ch) stc_unicode_isprint(stc_utf8_to_codepoint(ch))
 
 /**
  * Determines the number of bytes the UTF-8 "character" starting at the
