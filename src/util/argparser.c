@@ -63,6 +63,12 @@
 typedef struct stc_subargparser  StcSubArgParser;
 typedef struct stc_argparse_list StcArgParseList;
 
+typedef enum {
+    STC_ARG_STR,    /**< string argument                                      */
+    STC_ARG_BOOL,   /**< boolean argument                                     */
+    STC_ARG_CUSTOM, /**< custom argument to be paired with convert function   */
+} StcArgType;
+
 typedef struct {
     StcArgType     type;        /**< type of the argument                     */
     const char    *shortopt;    /**< short name string (must start with '-')  */
@@ -518,6 +524,7 @@ static int _stc_argparser_parse(const StcArgParser *self,
             if (!STC_ARG_IS_POSITIONAL(apl->arg) && *found == '\0')
                 found = *idx + 1 < end ? argv[*idx + 1] : NULL;
             if ((exit_code = stc_arg_process(found, &apl->arg, opt)) > 0) {
+                exit_code = 0;
                 ++*idx;
             } else if (exit_code < 0) {
                 STC_ARGS_USAGE(self, stderr, program);
