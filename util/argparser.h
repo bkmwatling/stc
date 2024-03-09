@@ -34,14 +34,7 @@ typedef enum {
  */
 typedef StcArgConvertResult StcArgConvert(const char *arg, void *out);
 
-typedef enum {
-    STC_ARG_STR,    /**< string argument                                      */
-    STC_ARG_BOOL,   /**< boolean argument                                     */
-    STC_ARG_CUSTOM, /**< custom argument to be paired with convert function   */
-} StcArgType;
-
-typedef struct stc_argparser StcArgParser;
-
+typedef struct stc_argparser     StcArgParser;
 typedef struct stc_subargparsers StcSubArgParsers;
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_ARGS_ENABLE_SHORT_NAMES)
