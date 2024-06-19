@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_VEC_ENABLE_SHORT_NAMES)
+#    define Vec             StcVec
 #    define VEC_DEFAULT_CAP STC_VEC_DEFAULT_CAP
 #    define vec_header      stc_vec_header
 
@@ -50,6 +51,9 @@ typedef struct {
     size_t cap;
     size_t len;
 } StcVecHeader;
+
+/** Simple macro to show intention of using vector type. */
+#define StcVec(T) T
 
 #define STC_VEC_DEFAULT_CAP 4
 
