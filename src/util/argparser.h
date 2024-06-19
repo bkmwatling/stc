@@ -37,7 +37,7 @@ typedef StcArgConvertResult StcArgConvert(const char *arg, void *out);
 typedef struct stc_argparser     StcArgParser;
 typedef struct stc_subargparsers StcSubArgParsers;
 
-#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_ARGS_ENABLE_SHORT_NAMES)
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_ARGPARSER_ENABLE_SHORT_NAMES)
 typedef StcArgParserUsage   ArgParserUsage;
 typedef StcArgConvertResult ArgConvertResult;
 typedef StcArgConvert       ArgConvert;
@@ -64,7 +64,7 @@ typedef StcSubArgParsers    SubArgParsers;
 #    define argparser_check_for_help stc_argparser_check_for_help
 
 #    define subargparsers_add_argparser stc_subargparsers_add_argparser
-#endif /* STC_ARGS_ENABLE_SHORT_NAMES */
+#endif /* STC_ARGPARSER_ENABLE_SHORT_NAMES */
 
 /**
  * Construct an argument parser with optional non-default usage print function.

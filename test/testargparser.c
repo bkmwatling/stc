@@ -43,7 +43,7 @@ int main(int argc, const char *argv[])
     StcSubArgParsers *saps;
     StcArgParser     *create, *set;
 
-    saps = stc_argparser_add_subparsers(argparser, "<subcmd>", &cmd);
+    saps = stc_argparser_add_subparsers(argparser, "<subcmd>", &cmd, NULL);
     stc_argparser_add_str_option(argparser, "-o", "--output-file", "filename",
                                  "The name of the file to save the values to",
                                  &filename, "out.json");
