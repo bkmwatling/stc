@@ -7,6 +7,8 @@
 #include "vec.h"
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_STRING_ENABLE_SHORT_NAMES)
+typedef StcString String;
+
 #    define STRING_DEFAULT_CAP STC_STRING_DEFAULT_CAP
 #    define string_header      stc_string_header
 
@@ -52,6 +54,9 @@
 #endif /* STC_STRING_ENABLE_SHORT_NAMES */
 
 /* --- Resizable string definitions (aliases to vec) ------------------------ */
+
+/** Simple type definition to show intention of using resizable string type. */
+typedef StcVec(char) StcString;
 
 #define STC_STRING_DEFAULT_CAP 32
 #define stc_string_header      stc_vec_header
@@ -123,6 +128,8 @@ void _stc_string_push_fmt(char **self, const char *fmt, ...);
 /* --- String slice definitions (aliases to slice) -------------------------- */
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_STR_ENABLE_SHORT_NAMES)
+typedef StcStr Str;
+
 #    define str_header     stc_str_header
 #    define str_new        stc_str_new
 #    define str_from_parts stc_str_from_parts
@@ -139,6 +146,9 @@ void _stc_string_push_fmt(char **self, const char *fmt, ...);
 #    define str_from_vfmt stc_str_from_vfmt
 #    define str_from_fmt  stc_str_from_fmt
 #endif /* STC_STR_ENABLE_SHORT_NAMES */
+
+/** Simple type definition to show intention of using string slice type. */
+typedef StcSlice(char) StcStr;
 
 #define stc_str_header          stc_slice_header
 #define stc_str_new(len)        stc_slice_new(sizeof(char), (len))
