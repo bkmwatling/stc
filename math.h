@@ -18,8 +18,8 @@ typedef double f64;
 
 /* --- Math macros and functions -------------------------------------------- */
 
-#define lerp(x, a, b)   ((a) + ((b) - (a)) * (x))
-#define unlerp(t, a, b) ((a) != (b) ? ((t) - (a)) / ((b) - (a)) : 0)
+#define LERP(x, a, b)   ((a) + ((b) - (a)) * (x))
+#define UNLERP(t, a, b) ((a) != (b) ? ((t) - (a)) / ((b) - (a)) : 0)
 
 /**
  * Calculates the absolute value of a 32-bit floating point number.

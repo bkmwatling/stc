@@ -53,8 +53,8 @@
 #endif /* STC_DISABLE_MEM */
 
 #ifndef STC_DISABLE_UTIL
-#    ifndef STC_DISABLE_ARGS
-#        include "util/args.h"
+#    ifndef STC_DISABLE_ARGPARSER
+#        include "util/argparser.h"
 #    endif
 #    ifndef STC_DISABLE_UTF
 #        include "util/utf.h"

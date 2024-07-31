@@ -21,9 +21,11 @@ typedef stc_linkedlist_free_func linkedlist_free_func;
         STC_LINKEDLIST_INSERT_TARGET_NOT_FOUND
 #    define LINKEDLIST_SUCCESS STC_LINKEDLIST_SUCCESS
 
-#    define linkedlist_new      stc_linkedlist_new
-#    define linkedlist_len      stc_linkedlist_len
-#    define linkedlist_is_empty stc_linkedlist_is_empty
+#    define linkedlist_new          stc_linkedlist_new
+#    define linkedlist_new_with_cmp stc_linkedlist_new_with_cmp
+#    define linkedlist_free         stc_linkedlist_free
+#    define linkedlist_len          stc_linkedlist_len
+#    define linkedlist_is_empty     stc_linkedlist_is_empty
 
 #    define linkedlist_push stc_linkedlist_push
 #    define linkedlist_pop  stc_linkedlist_pop
@@ -43,7 +45,6 @@ typedef stc_linkedlist_free_func linkedlist_free_func;
 #    define linkedlist_remove stc_linkedlist_remove
 
 #    define linkedlist_contains stc_linkedlist_contains
-#    define linkedlist_free     stc_linkedlist_free
 #endif /* STC_LINKEDLIST_ENABLE_SHORT_NAMES */
 
 #define STC_LINKEDLIST_INSERT_INDEX_OUT_OF_BOUNDS -2
@@ -58,6 +59,16 @@ typedef stc_linkedlist_free_func linkedlist_free_func;
  * @return a pointer to the created linked list
  */
 StcLinkedList *stc_linkedlist_new_with_cmp(stc_linkedlist_cmp_func *cmp);
+
+/**
+ * Frees the memory occupied by the linked list, freeing the memory of each item
+ * in the linked list.
+ *
+ * @param[in] self     the pointer to the linked list
+ * @param[in] itemfree the function used to free each item in the linked list
+ */
+void stc_linkedlist_free(StcLinkedList            *self,
+                         stc_linkedlist_free_func *itemfree);
 
 /**
  * Gets the length of (number of items in) the linked list.
@@ -225,15 +236,5 @@ void *stc_linkedlist_remove(StcLinkedList *self, size_t idx);
  * @return non-zero if the item was found; else 0 if it was not found
  */
 int stc_linkedlist_contains(StcLinkedList *self, void *item);
-
-/**
- * Frees the memory occupied by the linked list, freeing the memory of each item
- * in the linked list.
- *
- * @param[in] self     the pointer to the linked list
- * @param[in] itemfree the function used to free each item in the linked list
- */
-void stc_linkedlist_free(StcLinkedList            *self,
-                         stc_linkedlist_free_func *itemfree);
 
 #endif /* STC_LINKEDLIST_H */

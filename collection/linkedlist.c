@@ -14,7 +14,7 @@ struct stc_linkedlist_node {
 
 struct stc_linkedlist {
     size_t                   len;
-    StcLinkedListNode       *sentinal;
+    StcLinkedListNode       *sentinel;
     stc_linkedlist_cmp_func *cmp;
 };
 
@@ -34,55 +34,71 @@ static void              *stc_linkedlist_remove_node(StcLinkedList     *self,
 
 StcLinkedList *stc_linkedlist_new_with_cmp(stc_linkedlist_cmp_func *cmp)
 {
-    StcLinkedList *linkedlist = malloc(sizeof(StcLinkedList));
+    StcLinkedList *linkedlist = malloc(sizeof(*linkedlist));
 
     linkedlist->len            = 0;
-    linkedlist->sentinal       = malloc(sizeof(StcLinkedListNode));
-    linkedlist->sentinal->item = NULL;
-    linkedlist->sentinal->prev = linkedlist->sentinal->next =
-        linkedlist->sentinal;
+    linkedlist->sentinel       = malloc(sizeof(*linkedlist->sentinel));
+    linkedlist->sentinel->item = NULL;
+    linkedlist->sentinel->prev = linkedlist->sentinel->next =
+        linkedlist->sentinel;
     linkedlist->cmp = cmp;
 
     return linkedlist;
+}
+
+void stc_linkedlist_free(StcLinkedList            *self,
+                         stc_linkedlist_free_func *itemfree)
+{
+    StcLinkedListNode *p, *q;
+
+    if (!(self && itemfree)) return;
+
+    for (p = self->sentinel->next; p != self->sentinel; p = q) {
+        q = p->next;
+        itemfree(p->item);
+        free(p);
+    }
+    free(self->sentinel);
+    free(self);
 }
 
 size_t stc_linkedlist_len(StcLinkedList *self) { return self ? self->len : 0; }
 
 int stc_linkedlist_is_empty(StcLinkedList *self)
 {
-    return self->sentinal->next == self->sentinal;
+    return self->sentinel->next == self->sentinel;
 }
 
 int stc_linkedlist_push(StcLinkedList *self, void *item)
 {
-    return stc_linkedlist_add_after(self, item, self->sentinal);
+    return stc_linkedlist_add_after(self, item, self->sentinel);
 }
 
 void *stc_linkedlist_pop(StcLinkedList *self)
 {
     if (stc_linkedlist_is_empty(self)) return NULL;
-    return stc_linkedlist_remove_node(self, self->sentinal->next);
+    return stc_linkedlist_remove_node(self, self->sentinel->next);
 }
 
 int stc_linkedlist_enqueue(StcLinkedList *self, void *item)
 {
-    return stc_linkedlist_add_after(self, item, self->sentinal->prev);
+    return stc_linkedlist_add_after(self, item, self->sentinel->prev);
 }
 
 void *stc_linkedlist_dequeue(StcLinkedList *self)
 {
     if (stc_linkedlist_is_empty(self)) return NULL;
-    return stc_linkedlist_remove_node(self, self->sentinal->prev);
+    return stc_linkedlist_remove_node(self, self->sentinel->prev);
 }
 
 void *stc_linkedlist_first(StcLinkedList *self)
 {
-    return self->sentinal->next->item;
+    return self->sentinel->next->item;
 }
 
 void *stc_linkedlist_last(StcLinkedList *self)
 {
-    return self->sentinal->prev->item;
+    return self->sentinel->prev->item;
 }
 
 int stc_linkedlist_insert_after(StcLinkedList *self, void *item, void *target)
@@ -135,21 +151,6 @@ int stc_linkedlist_contains(StcLinkedList *self, void *item)
     return stc_linkedlist_find(self, item) != NULL;
 }
 
-void stc_linkedlist_free(StcLinkedList            *self,
-                         stc_linkedlist_free_func *itemfree)
-{
-    StcLinkedListNode *p, *q;
-
-    if (!(self && itemfree)) return;
-
-    for (p = self->sentinal->next; p != self->sentinal; p = q) {
-        q = p->next;
-        itemfree(p->item);
-        free(p);
-    }
-    free(self);
-}
-
 /* --- Helper function definitions ------------------------------------------ */
 
 static StcLinkedListNode *stc_linkedlist_find(StcLinkedList *self, void *target)
@@ -158,10 +159,8 @@ static StcLinkedListNode *stc_linkedlist_find(StcLinkedList *self, void *target)
 
     if (!(self && self->cmp && target)) return NULL;
 
-    for (node = self->sentinal->next; node != self->sentinal;
-         node = node->next) {
+    for (node = self->sentinel->next; node != self->sentinel; node = node->next)
         if (self->cmp(target, node->item) == 0) return node;
-    }
 
     return NULL;
 }
@@ -174,15 +173,14 @@ static StcLinkedListNode *stc_linkedlist_find_at(StcLinkedList *self,
 
     if (idx >= self->len) return NULL;
 
-    if (idx < self->len / 2) {
-        for (i = 0, node = self->sentinal->next; i < idx;
+    if (idx < self->len / 2)
+        for (i = 0, node = self->sentinel->next; i < idx;
              i++, node   = node->next)
             ;
-    } else {
-        for (i = self->len - 1, node = self->sentinal->prev; i > idx;
+    else
+        for (i = self->len - 1, node = self->sentinel->prev; i > idx;
              i--, node               = node->prev)
             ;
-    }
 
     return node;
 }
@@ -195,7 +193,7 @@ static int stc_linkedlist_add_after(StcLinkedList     *self,
 
     if (target == NULL) return STC_LINKEDLIST_INSERT_TARGET_NOT_FOUND;
 
-    node             = malloc(sizeof(StcLinkedListNode));
+    node             = malloc(sizeof(*node));
     node->item       = item;
     node->prev       = target;
     node->next       = target->next;

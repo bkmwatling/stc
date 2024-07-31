@@ -209,7 +209,7 @@
 #define STC_INT_FROM_PTR(p) ((unsigned long long) ((char *) (p) - (char *) 0))
 #define STC_PTR_FROM_INT(n) ((void *) ((char *) 0 + (n)))
 #define STC_PTR_TO_INT      STC_INT_FROM_PTR
-#define STC_INT_TO_PTR      STC_PTR_TO_INT
+#define STC_INT_TO_PTR      STC_PTR_FROM_INT
 
 #define STC_MEMBER(T, m)        (((T *) 0)->m)
 #define STC_MEMBER_OFFSET(T, m) STC_INT_FROM_PTR(&STC_MEMBER(T, m))
