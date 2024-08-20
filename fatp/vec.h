@@ -103,7 +103,7 @@ typedef struct {
 #define stc_vec_reserve_index(v, i, n) \
     (stc_vec_reserve(v, n), _stc_vec_shift((v), (i), (i) + (n), sizeof(*(v))))
 #define stc_vec_shrink(v, cap) \
-    ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap))
+    ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap)))
 #define stc_vec_shrink_to_fit(v) stc_vec_shrink(v, stc_vec_len(v))
 
 #define stc_vec_as_slice(v) (v)
