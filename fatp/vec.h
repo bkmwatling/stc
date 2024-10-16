@@ -65,7 +65,7 @@ typedef struct {
 
 /**
  * Initialize the vector `v` with the default capacity.
- * 
+ *
  * @param[in,out] v the vector to initialize
  */
 #define stc_vec_default_init(v) stc_vec_init(v, STC_VEC_DEFAULT_CAP)
@@ -73,7 +73,7 @@ typedef struct {
 
 /**
  * Get the number of items contained in the vector `v`.
- * 
+ *
  * @param[in] v the vector
  *
  * @return the length of the vector
@@ -87,7 +87,7 @@ typedef struct {
 
 /**
  * Add the new element `x` to the tail of the vector `v`
- * 
+ *
  * @param [in,out] v the vector to add the element to
  * @param [in]     x the element to add
  */
@@ -99,9 +99,9 @@ typedef struct {
 
 /**
  * Get the last element of the vector `v`.
- * 
+ *
  * @param[in] v the vector
- * 
+ *
  * @return the last element of the vector
  */
 #define stc_vec_last(v)          ((v)[stc_vec_len_unsafe(v) - 1])
@@ -129,7 +129,8 @@ typedef struct {
     ((v) = _stc_vec_reserve_exact((v), sizeof(*(v)), (n)))
 #define stc_vec_reserve_index(v, i, n) \
     (stc_vec_reserve(v, n), _stc_vec_shift((v), (i), (i) + (n), sizeof(*(v))))
-#define stc_vec_shrink(v, cap)   ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap)))
+#define stc_vec_shrink(v, cap) \
+    ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap)))
 #define stc_vec_shrink_to_fit(v) stc_vec_shrink(v, stc_vec_len(v))
 
 #define stc_vec_as_slice(v) (v)
