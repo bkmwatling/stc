@@ -62,9 +62,22 @@ typedef struct {
 #define stc_vec_new(size, cap)  _stc_vec_reserve_exact(NULL, (size), (cap))
 #define stc_vec_init(v, cap)    ((v) = stc_vec_new(sizeof(*(v)), cap))
 #define stc_vec_default(size)   stc_vec_new(size, STC_VEC_DEFAULT_CAP)
+
+/**
+ * Initialize the vector `v` with the default capacity.
+ *
+ * @param[in,out] v the vector to initialize
+ */
 #define stc_vec_default_init(v) stc_vec_init(v, STC_VEC_DEFAULT_CAP)
 #define stc_vec_clone(v)        _stc_vec_clone((v), sizeof(*(v)))
 
+/**
+ * Get the number of items contained in the vector `v`.
+ *
+ * @param[in] v the vector
+ *
+ * @return the length of the vector
+ */
 #define stc_vec_len(v)        ((v) ? stc_vec_len_unsafe(v) : 0)
 #define stc_vec_cap(v)        ((v) ? stc_vec_cap_unsafe(v) : 0)
 #define stc_vec_len_unsafe(v) (stc_vec_header(v)->len)
@@ -72,11 +85,25 @@ typedef struct {
 #define stc_vec_is_empty(v)   (stc_vec_len(v) == 0)
 #define stc_vec_clear(v)      ((v) ? stc_vec_len_unsafe(v) = 0 : 0)
 
+/**
+ * Add the new element `x` to the tail of the vector `v`
+ *
+ * @param [in,out] v the vector to add the element to
+ * @param [in]     x the element to add
+ */
 #define stc_vec_push_back(v, x) \
     (stc_vec_reserve(v, 1), (v)[stc_vec_len_unsafe(v)++] = (x))
 #define stc_vec_push_front(v, x) stc_vec_insert(v, 0, x)
 #define stc_vec_pop(v)           ((v)[--stc_vec_len_unsafe(v)])
 #define stc_vec_first(v)         ((v)[0])
+
+/**
+ * Get the last element of the vector `v`.
+ *
+ * @param[in] v the vector
+ *
+ * @return the last element of the vector
+ */
 #define stc_vec_last(v)          ((v)[stc_vec_len_unsafe(v) - 1])
 
 #define stc_vec_insert(v, i, x) \
@@ -103,7 +130,7 @@ typedef struct {
 #define stc_vec_reserve_index(v, i, n) \
     (stc_vec_reserve(v, n), _stc_vec_shift((v), (i), (i) + (n), sizeof(*(v))))
 #define stc_vec_shrink(v, cap) \
-    ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap))
+    ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap)))
 #define stc_vec_shrink_to_fit(v) stc_vec_shrink(v, stc_vec_len(v))
 
 #define stc_vec_as_slice(v) (v)
