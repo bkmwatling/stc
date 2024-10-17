@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "vec.h"
+#include <stc/fatp/vec.h>
 
 void stc_vec_free(void *vec)
 {
@@ -25,7 +25,7 @@ void *_stc_vec_clone(const void *vec, size_t size)
 {
     void *clone;
 
-    if (vec == NULL) return NULL;
+    if (stc_vec_len(vec) == 0) return NULL;
 
     clone = stc_vec_new(size, stc_vec_len_unsafe(vec));
     memcpy(clone, vec, size * stc_vec_len_unsafe(vec));

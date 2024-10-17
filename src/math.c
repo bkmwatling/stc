@@ -1,4 +1,4 @@
-#include "math.h"
+#include <stc/math.h>
 
 f32 f32_abs(f32 x)
 {
@@ -50,7 +50,7 @@ f64 f64_tan(f64 x) { return tan(x); }
 f64 f64_log(f64 x) { return log(x); }
 
 #else
-#    include "common.h"
+#    include <stc/common.h>
 
 f32 f32_sqrt(f32 x)
 {

@@ -53,15 +53,15 @@ typedef struct {
 } StcVecHeader;
 
 /** Simple macro to show intention of using vector type. */
-#define StcVec(T) T
+#define StcVec(T) T *
 
 #define STC_VEC_DEFAULT_CAP 4
 
 #define stc_vec_header(v) (((StcVecHeader *) (v)) - 1)
 
-#define stc_vec_new(size, cap)  _stc_vec_reserve_exact(NULL, (size), (cap))
-#define stc_vec_init(v, cap)    ((v) = stc_vec_new(sizeof(*(v)), cap))
-#define stc_vec_default(size)   stc_vec_new(size, STC_VEC_DEFAULT_CAP)
+#define stc_vec_new(size, cap) _stc_vec_reserve_exact(NULL, (size), (cap))
+#define stc_vec_init(v, cap)   ((v) = stc_vec_new(sizeof(*(v)), cap))
+#define stc_vec_default(size)  stc_vec_new(size, STC_VEC_DEFAULT_CAP)
 
 /**
  * Initialize the vector `v` with the default capacity.
@@ -104,7 +104,7 @@ typedef struct {
  *
  * @return the last element of the vector
  */
-#define stc_vec_last(v)          ((v)[stc_vec_len_unsafe(v) - 1])
+#define stc_vec_last(v) ((v)[stc_vec_len_unsafe(v) - 1])
 
 #define stc_vec_insert(v, i, x) \
     (stc_vec_reserve_index(v, i, 1), stc_vec_len_unsafe(v)++, (v)[i] = (x))
@@ -129,8 +129,9 @@ typedef struct {
     ((v) = _stc_vec_reserve_exact((v), sizeof(*(v)), (n)))
 #define stc_vec_reserve_index(v, i, n) \
     (stc_vec_reserve(v, n), _stc_vec_shift((v), (i), (i) + (n), sizeof(*(v))))
-#define stc_vec_shrink(v, cap) \
-    ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap)))
+
+#define stc_vec_shrink(v, cap) ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap)))
+
 #define stc_vec_shrink_to_fit(v) stc_vec_shrink(v, stc_vec_len(v))
 
 #define stc_vec_as_slice(v) (v)

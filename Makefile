@@ -2,26 +2,28 @@
 # Data structures and algorithms in C
 #
 # @author Brendan Watling
-# @version 0.1
+# @version 0.2
 
 # compiler flags
 DEBUG          := -ggdb -gdwarf-4
 OPTIMISE       := -O2
-WARNINGS       := -Wall -Wextra -Wno-variadic-macros -Wno-overlength-strings \
+WARNING        := -Wall -Wextra -Wno-variadic-macros -Wno-overlength-strings \
                   -pedantic
-STCOPTS        := -DSTC_DISABLE_STD_MATH_H #-DSTC_ENABLE_DEBUG
-CFLAGS         := $(DEBUG) $(OPTIMISE) $(WARNINGS) $(STCOPTS)
+INCLUDE         = $(addprefix -I, $(INCLUDEDIR))
+STCOPT         := -DSTC_DISABLE_STD_MATH_H #-DSTC_ENABLE_DEBUG
+CFLAGS          = $(DEBUG) $(OPTIMISE) $(WARNING) $(INCLUDE) $(STCOPT)
 DFLAGS         := #-DDEBUG
 
 # commands
 CC             := clang
 RM             := rm -f
-COMPILE        := $(CC) $(CFLAGS) $(DFLAGS)
+COMPILE         = $(CC) $(CFLAGS) $(DFLAGS)
 
 # directories
 SRCDIR         := src
 TESTDIR        := test
 BINDIR         := bin
+INCLUDEDIR     := ./include
 
 # files
 MATH_EXE       := testmath
@@ -30,7 +32,8 @@ ARGPARSER_EXE  := testargparser
 
 COMMON_OBJ     := $(SRCDIR)/common.o
 MATH_OBJ       := $(SRCDIR)/math.o
-HASHMAP_OBJ    := $(SRCDIR)/collection/hashmap.o
+HASHMAP_OBJ    := #$(SRCDIR)/collection/hashmap.o
+HASHSET_OBJ    := #$(SRCDIR)/collection/hashset.o
 LINKEDLIST_OBJ := $(SRCDIR)/collection/linkedlist.o
 SLICE_OBJ      := $(SRCDIR)/fatp/slice.o
 STRING_OBJ     := $(SRCDIR)/fatp/string.o
@@ -42,9 +45,10 @@ ARGPARSER_OBJ  := $(SRCDIR)/util/argparser.o
 UTF_OBJ        := $(SRCDIR)/util/utf.o
 
 EXE            := $(MATH_EXE) $(VEC_EXE) $(ARGPARSER_EXE)
-OBJ            := $(COMMON_OBJ) $(MATH_OBJ) $(HASHMAP_OBJ) $(LINKEDLIST_OBJ) \
-                  $(SLICE_OBJ) $(STRING_OBJ) $(SV_OBJ) $(VEC_OBJ) \
-                  $(MEMBASE_OBJ) $(MEMLIBC_OBJ) $(ARGPARSER_OBJ) $(UTF_OBJ)
+OBJ            := $(COMMON_OBJ) $(MATH_OBJ) $(HASHMAP_OBJ) $(HASHSET_OBJ) \
+				  $(LINKEDLIST_OBJ) $(SLICE_OBJ) $(STRING_OBJ) $(SV_OBJ) \
+				  $(VEC_OBJ) $(MEMBASE_OBJ) $(MEMLIBC_OBJ) $(ARGPARSER_OBJ) \
+				  $(UTF_OBJ)
 
 ### RULES ######################################################################
 

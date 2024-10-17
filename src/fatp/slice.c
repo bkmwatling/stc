@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "slice.h"
+#include <stc/fatp/slice.h>
 
 void stc_slice_free(void *slice)
 {

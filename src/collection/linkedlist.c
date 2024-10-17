@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "linkedlist.h"
+#include <stc/collection/linkedlist.h>
 
 /* --- Type definitions ----------------------------------------------------- */
 
@@ -175,12 +175,10 @@ static StcLinkedListNode *stc_linkedlist_find_at(StcLinkedList *self,
 
     if (idx < self->len / 2)
         for (i = 0, node = self->sentinel->next; i < idx;
-             i++, node   = node->next)
-            ;
+             i++, node   = node->next);
     else
         for (i = self->len - 1, node = self->sentinel->prev; i > idx;
-             i--, node               = node->prev)
-            ;
+             i--, node               = node->prev);
 
     return node;
 }

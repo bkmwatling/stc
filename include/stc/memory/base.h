@@ -164,7 +164,8 @@ void stc_mem_arena_pop_to(StcMemArena *self, size_t pos);
 
 /**
  * Aligns the memory arena position to a given power of 2.
- * Note: this function should not be used directly, but rather through the use
+ *
+ * NOTE: this function should not be used directly, but rather through the use
  * of the defined macros stc_mem_arena_align and stc_mem_arena_align_zero.
  *
  * @param[in] self       the pointer to the memory arena
@@ -173,6 +174,6 @@ void stc_mem_arena_pop_to(StcMemArena *self, size_t pos);
  */
 void _stc_mem_arena_align(StcMemArena *self,
                           size_t       pow2_align,
-                          void        *(*arena_push)(StcMemArena *, size_t));
+                          void *(*arena_push)(StcMemArena *, size_t));
 
 #endif /* STC_MEMORY_BASE_H */

@@ -1,29 +1,23 @@
 #include <ctype.h>
 #include <stdio.h>
-#include <stdlib.h>
 
-#include "string_view.h"
+#include <stc/fatp/string_view.h>
 
 StcStringView stc_sv_from_parts(STC_SV_CONST char *str, size_t len)
 {
-    StcStringView sv;
-    sv.str = str;
-    sv.len = len;
-    return sv;
+    return (StcStringView){ len, str };
 }
 
 StcStringView stc_sv_trim_left(StcStringView self)
 {
-    for (; self.len > 0 && isspace(*self.str); self.str++, self.len--)
-        ;
+    for (; self.len > 0 && isspace(*self.str); self.str++, self.len--);
 
     return self;
 }
 
 StcStringView stc_sv_trim_right(StcStringView self)
 {
-    for (; self.len > 0 && isspace(self.str[self.len - 1]); self.len--)
-        ;
+    for (; self.len > 0 && isspace(self.str[self.len - 1]); self.len--);
 
     return self;
 }
@@ -32,8 +26,7 @@ StcStringView stc_sv_take_left_while(StcStringView self, int (*predicate)(char))
 {
     size_t i;
 
-    for (i = 0; i < self.len && predicate(self.str[i]); i++)
-        ;
+    for (i = 0; i < self.len && predicate(self.str[i]); i++);
 
     return stc_sv_from_parts(self.str, i);
 }
@@ -43,8 +36,7 @@ StcStringView stc_sv_chop_left_while(StcStringView *self,
 {
     size_t i;
 
-    for (i = 0; i < self->len && predicate(self->str[i]); i++)
-        ;
+    for (i = 0; i < self->len && predicate(self->str[i]); i++);
 
     return stc_sv_chop_left(self, i);
 }
@@ -53,8 +45,7 @@ StcStringView stc_sv_chop_by_delim(StcStringView *self, char delim)
 {
     size_t        i;
     StcStringView left;
-    for (i = 0; i < self->len && self->str[i] != delim; i++)
-        ;
+    for (i = 0; i < self->len && self->str[i] != delim; i++);
 
     left = stc_sv_from_parts(self->str, i);
     if (i < self->len) i++;
@@ -69,8 +60,7 @@ StcStringView stc_sv_chop_by_sv(StcStringView *self, StcStringView delim)
     size_t        i;
     StcStringView left, window = stc_sv_from_parts(self->str, delim.len);
     for (i = delim.len; i <= self->len && !stc_sv_eq(window, delim);
-         i++, window.str++)
-        ;
+         i++, window.str++);
 
     left = stc_sv_from_parts(self->str, i - delim.len);
     if (i > self->len) {
@@ -91,8 +81,7 @@ int stc_sv_try_chop_by_delim(StcStringView *self,
                              StcStringView *left)
 {
     size_t i;
-    for (i = 0; i < self->len && self->str[i] != delim; i++)
-        ;
+    for (i = 0; i < self->len && self->str[i] != delim; i++);
 
     if (i < self->len) {
         if (left) *left = stc_sv_from_parts(self->str, i);
@@ -132,8 +121,7 @@ StcStringView stc_sv_chop_right(StcStringView *self, size_t n)
 int stc_sv_index_of(StcStringView self, char c, size_t *idx)
 {
     size_t i;
-    for (i = 0; i < self.len && self.str[i] != c; i++)
-        ;
+    for (i = 0; i < self.len && self.str[i] != c; i++);
 
     if (i < self.len) {
         if (idx) *idx = i;
@@ -147,8 +135,7 @@ int stc_sv_cmp(StcStringView a, StcStringView b)
 {
     size_t i, min_len = a.len < b.len ? a.len : b.len;
 
-    for (i = 0; i < min_len && a.str[i] == b.str[i]; i++)
-        ;
+    for (i = 0; i < min_len && a.str[i] == b.str[i]; i++);
 
     if (i < min_len) return a.str[i] - b.str[i];
 
@@ -157,11 +144,10 @@ int stc_sv_cmp(StcStringView a, StcStringView b)
 
 int stc_sv_eq(StcStringView a, StcStringView b)
 {
-    if (a.len != b.len) {
+    if (a.len != b.len)
         return 0;
-    } else {
+    else
         return memcmp(a.str, b.str, a.len) == 0;
-    }
 }
 
 int stc_sv_eq_ignorecase(StcStringView a, StcStringView b)

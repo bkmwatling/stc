@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "string.h"
+#include <stc/fatp/string.h>
 
 /* --- Resizable string functions ------------------------------------------- */
 

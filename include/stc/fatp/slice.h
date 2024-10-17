@@ -24,7 +24,7 @@ typedef struct {
 } StcSliceHeader;
 
 /** Simple macro to show intention of using slice type. */
-#define StcSlice(T)         T
+#define StcSlice(T)         T *
 #define stc_slice_header(s) (((StcSliceHeader *) s) - 1)
 
 #define stc_slice_new(size, len) _stc_slice_from_parts(NULL, (size), (len))

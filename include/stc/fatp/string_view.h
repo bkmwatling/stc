@@ -46,12 +46,14 @@ typedef StcStringView StringView;
 #    define sv_chop_int          stc_sv_chop_int
 #endif /* STC_SV_ENABLE_SHORT_NAMES */
 
-/* printf macros for StcStringView */
+/*
+ * printf macros for StcStringView
+ * USAGE:
+ *   StcStringView name = ...;
+ *   printf("Name: " STC_SV_FMT "\n", STC_SV_ARG(name));
+ */
 #define STC_SV_FMT     "%.*s"
 #define STC_SV_ARG(sv) (int) (sv).len, (sv).str
-/* USAGE:
- *   StcStringView name = ...;
- *   printf("Name: "STC_SV_FMT"\n", STC_SV_ARG(name)); */
 
 #define stc_sv_from_range(start, end) \
     stc_sv_from_parts((start), (end) - (start))
@@ -103,7 +105,7 @@ StcStringView stc_sv_trim_right(StcStringView self);
  *         matching the predicate
  */
 StcStringView stc_sv_take_left_while(StcStringView self,
-                                     int           (*predicate)(char));
+                                     int (*predicate)(char));
 
 /**
  * Chops the string view self from the left and returns the left side (prefix)
@@ -123,7 +125,7 @@ StcStringView stc_sv_take_left_while(StcStringView self,
  *         matching the predicate
  */
 StcStringView stc_sv_chop_left_while(StcStringView *self,
-                                     int            (*predicate)(char));
+                                     int (*predicate)(char));
 
 /**
  * Chops the string view self at the delimeter and returns a string view of the
