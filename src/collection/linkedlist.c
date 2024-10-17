@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "linkedlist.h"
+#include <stc/collection/linkedlist.h>
 
 /* --- Type definitions ----------------------------------------------------- */
 

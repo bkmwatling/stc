@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "libc.h"
+#include <stc/memory/libc.h>
 
 void *stc_mem_libc_alloc(void *ctx, size_t size)
 {

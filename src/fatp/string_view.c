@@ -1,7 +1,7 @@
 #include <ctype.h>
 #include <stdio.h>
 
-#include "string_view.h"
+#include <stc/fatp/string_view.h>
 
 StcStringView stc_sv_from_parts(STC_SV_CONST char *str, size_t len)
 {

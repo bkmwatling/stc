@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "argparser.h"
+#include <stc/util/argparser.h>
 
 /* --- Preprocessor directives ---------------------------------------------- */
 
@@ -26,7 +26,8 @@
                 "ERROR: shortopt does not start with '-': shortopt='%s'\n",    \
                 (shortopt));                                                   \
             exit(EXIT_FAILURE);                                                \
-        } else if ((longopt) && (longopt)[0] != '-' || (longopt)[1] != '-') {  \
+        } else if (((longopt) && (longopt)[0] != '-') ||                       \
+                   (longopt)[1] != '-') {                                      \
             fprintf(stderr,                                                    \
                     "ERROR: longopt does not start with '--': longopt='%s'\n", \
                     (longopt));                                                \
@@ -701,6 +702,7 @@ stc_arg_process(const char *found, const StcArg *arg, const char *opt)
                     fprintf(stderr,
                             "ERROR: invalid value '%s' for argument '%s'\n",
                             found, opt);
+                    /* fallthrough */
                 case STC_ARG_CR_FAILURE_HANDLED: return -1;
             }
             break;

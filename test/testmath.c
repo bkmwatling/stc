@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../src/common.h"
-#include "../src/math.h"
+#include <stc/common.h>
+#include <stc/math.h>
 
 int main(void)
 {

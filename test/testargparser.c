@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../src/util/argparser.h"
+#include <stc/util/argparser.h>
 
 #define ARR_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
 

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "utf.h"
+#include <stc/util/utf.h>
 
 /* --- Unicode codepoint functions ------------------------------------------ */
 
@@ -85,15 +85,15 @@ char *stc_utf8_clone(const char *ch)
 
 int stc_utf8_cmp(const char *a, const char *b)
 {
-    unsigned int alen = stc_utf8_nbytes(a), blen = stc_utf8_nbytes(b);
+    int alen = stc_utf8_nbytes(a), blen = stc_utf8_nbytes(b);
 
     return STC_UTF8_CMP(a, b, alen, blen);
 }
 
 int stc_utf8_try_cmp(const char *a, const char *b, int *cmp)
 {
-    int          result = 0;
-    unsigned int alen = stc_utf8_nbytes(a), blen = stc_utf8_nbytes(b);
+    int result = 0;
+    int alen = stc_utf8_nbytes(a), blen = stc_utf8_nbytes(b);
 
     if (alen == 0) result++;
     if (blen == 0) result += 2;

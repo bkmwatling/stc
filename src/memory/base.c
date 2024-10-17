@@ -1,4 +1,4 @@
-#include "base.h"
+#include <stc/memory/base.h>
 
 /* redefine these macros from common.h to avoid need of inclusion */
 #define STC_MEM_ALIGN_UP_POW2(x, pow2) (((x) + (pow2) - 1) & ~((pow2) - 1))
@@ -13,18 +13,19 @@ void stc_mem_modify_noop(void *ctx, void *p, size_t size)
 
 StcMemArena stc_mem_arena_new(StcMemManager *man, size_t size)
 {
-    StcMemArena arena       = { 0 };
+    StcMemArena arena = { 0 };
+
     arena.man               = man;
     arena.mem               = man->alloc(man->ctx, size);
     arena.cap               = size;
     arena.commit_block_size = STC_MEM_DEFAULT_COMMIT_BLOCK_SIZE;
+
     return arena;
 }
 
 void stc_mem_arena_free(StcMemArena *self)
 {
-    StcMemManager *man = self->man;
-    man->free(man->ctx, self->mem, self->cap);
+    self->man->free(self->man->ctx, self->mem, self->cap);
 }
 
 void *stc_mem_arena_push(StcMemArena *self, size_t size)
