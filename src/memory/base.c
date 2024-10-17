@@ -1,7 +1,7 @@
 #include "base.h"
 
 /* redefine these macros from common.h to avoid need of inclusion */
-#define STC_MEM_ALIGN_UP_POW2(x, pow2) (((x) + (pow2) -1) & ~((pow2) -1))
+#define STC_MEM_ALIGN_UP_POW2(x, pow2) (((x) + (pow2) - 1) & ~((pow2) - 1))
 #define STC_MEM_CLAMP_TOP(x, y)        ((x) < (y) ? (x) : (y))
 
 void stc_mem_modify_noop(void *ctx, void *p, size_t size)

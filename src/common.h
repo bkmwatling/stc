@@ -153,9 +153,9 @@
 #define STC_FWARN(stream, ...)  STC_FPRINTF(stream, "[WARN] " __VA_ARGS__)
 #define STC_ERROR(...)          STC_EPRINTF("[ERROR] " __VA_ARGS__)
 #define STC_FERROR(stream, ...) STC_FPRINTF(stream, "[ERROR] " __VA_ARGS__)
-#define STC_FATAL(...)          STC_STATMENTS(STC_ERROR(__VA_ARGS__); abort())
+#define STC_FATAL(...)          STC_STATMENTS(STC_ERROR(__VA_ARGS__); abort();)
 #define STC_FFATAL(stream, ...) \
-    STC_STATMENTS(STC_FERROR(stream, __VA_ARGS__); abort())
+    STC_STATMENTS(STC_FERROR(stream, __VA_ARGS__); abort();)
 
 #ifdef STC_ENABLE_DEBUG
 #    define STC_DEBUG(...)          STC_EPRINTF("[DEBUG] " __VA_ARGS__)
@@ -206,22 +206,22 @@
 
 #define STC_ARRAY_COUNT(a) (sizeof(a) / sizeof(*(a)))
 
-#define STC_INT_FROM_PTR(p) ((unsigned long long) ((char *) (p) - (char *) 0))
-#define STC_PTR_FROM_INT(n) ((void *) ((char *) 0 + (n)))
-#define STC_PTR_TO_INT      STC_INT_FROM_PTR
-#define STC_INT_TO_PTR      STC_PTR_FROM_INT
+#define STC_NUM_FROM_PTR(p) ((unsigned long long) ((char *) (p) - (char *) 0))
+#define STC_PTR_FROM_NUM(n) ((void *) ((char *) 0 + (n)))
+#define STC_PTR_TO_NUM      STC_NUM_FROM_PTR
+#define STC_NUM_TO_PTR      STC_PTR_FROM_NUM
 
 #define STC_MEMBER(T, m)        (((T *) 0)->m)
-#define STC_MEMBER_OFFSET(T, m) STC_INT_FROM_PTR(&STC_MEMBER(T, m))
+#define STC_MEMBER_OFFSET(T, m) STC_NUM_FROM_PTR(&STC_MEMBER(T, m))
 
-#define STC_MIN(x, y)       ((x) < (y) ? (x) : (y))
-#define STC_MAX(x, y)       ((x) > (y) ? (x) : (y))
-#define STC_CLAMP(x, a, b)  STC_CLAMP_TOP(STC_CLAMP_BOT((x), (a)), (b))
-#define STC_CLAMP_TOP(x, y) STC_MIN((x), (y))
-#define STC_CLAMP_BOT(x, y) STC_MAX((x), (y))
+#define STC_MIN(x, y)      ((x) < (y) ? (x) : (y))
+#define STC_MAX(x, y)      ((x) > (y) ? (x) : (y))
+#define STC_CLAMP_TOP      STC_MIN
+#define STC_CLAMP_BOT      STC_MAX
+#define STC_CLAMP(x, a, b) STC_CLAMP_TOP(STC_CLAMP_BOT(x, a), b)
 
-#define STC_ALIGN_UP_POW2(x, pow2)   (((x) + (pow2) -1) & ~((pow2) -1))
-#define STC_ALIGN_DOWN_POW2(x, pow2) ((x) & ~((pow2) -1))
+#define STC_ALIGN_UP_POW2(x, pow2)   (((x) + (pow2) - 1) & ~((pow2) - 1))
+#define STC_ALIGN_DOWN_POW2(x, pow2) ((x) & ~((pow2) - 1))
 
 #define STC_GLOBAL static
 #define STC_LOCAL  static

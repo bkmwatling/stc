@@ -13,12 +13,6 @@
 #    ifndef STC_DISABLE_BTREE
 #        include "collection/btree.h"
 #    endif
-#    ifndef STC_DISABLE_HASHMAP
-#        include "collection/hashmap.h"
-#    endif
-#    ifndef STC_DISABLE_HASHSET
-#        include "collection/hashset.h"
-#    endif
 #    ifndef STC_DISABLE_LINKEDLIST
 #        include "collection/linkedlist.h"
 #    endif
