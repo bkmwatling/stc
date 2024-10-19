@@ -7,8 +7,7 @@
 # compiler flags
 DEBUG          := -ggdb -gdwarf-4
 OPTIMISE       := -O2
-WARNING        := -Wall -Wextra -Wno-variadic-macros -Wno-overlength-strings \
-                  -pedantic
+WARNING        := -Wall -Wextra -Werror -Wpedantic
 INCLUDE         = $(addprefix -I, $(INCLUDEDIR))
 STCOPT         := -DSTC_DISABLE_STD_MATH_H #-DSTC_ENABLE_DEBUG
 CFLAGS          = $(DEBUG) $(OPTIMISE) $(WARNING) $(INCLUDE) $(STCOPT)

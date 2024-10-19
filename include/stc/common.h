@@ -6,10 +6,8 @@
 /* --- Enable short names for macros and functions -------------------------- */
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_COMMON_ENABLE_SHORT_NAMES)
-#    ifndef STC_DISABLE_ASSERT
-#        define assert     stc_assert
-#        define assert_msg stc_assert_msg
-#    endif
+#    define PREPEND_COMMA STC_PREPEND_COMMA
+#    define APPEND_COMMA  STC_APPEND_COMMA
 
 #    define EPRINTF STC_EPRINTF
 #    define INFO    STC_INFO
@@ -23,6 +21,9 @@
 #    define DEBUG   STC_DEBUG
 #    define FDEBUG  STC_FDEBUG
 
+#    define ASSERT     STC_ASSERT
+#    define ASSERT_MSG STC_ASSERT_MSG
+
 #    define STRINGIFY STC_STRINGIFY
 #    define GLUE      STC_GLUE
 
@@ -33,18 +34,18 @@
 #    define TODO_MSG          STC_TODO_MSG
 
 #    define ARRAY_COUNT   STC_ARRAY_COUNT
-#    define INT_FROM_PTR  STC_INT_FROM_PTR
-#    define PTR_FROM_INT  STC_PTR_FROM_INT
-#    define PTR_TO_INT    STC_PTR_TO_INT
-#    define INT_TO_PTR    STC_INT_TO_PTR
+#    define NUM_FROM_PTR  STC_NUM_FROM_PTR
+#    define PTR_FROM_NUM  STC_PTR_FROM_NUM
+#    define PTR_TO_NUM    STC_PTR_TO_NUM
+#    define NUM_TO_PTR    STC_NUM_TO_PTR
 #    define MEMBER        STC_MEMBER
 #    define MEMBER_OFFSET STC_MEMBER_OFFSET
 
 #    define MIN             STC_MIN
 #    define MAX             STC_MAX
-#    define CLAMP           STC_CLAMP
 #    define CLAMP_TOP       STC_CLAMP_TOP
 #    define CLAMP_BOT       STC_CLAMP_BOT
+#    define CLAMP           STC_CLAMP
 #    define ALIGN_UP_POW2   STC_ALIGN_UP_POW2
 #    define ALIGN_DOWN_POW2 STC_ALIGN_DOWN_POW2
 
@@ -127,69 +128,99 @@
 
 #else
 #    error "unable to detect compiler"
-#endif /* defined(__clang__) */
+#endif /* compiler checks */
 
 /* --- Helper macros -------------------------------------------------------- */
 
-#define STC_STATMENTS(stmts) \
-    do {                     \
-        stmts                \
-    } while (0)
+/**
+ * Take __VA_ARGS__ and prepend a comma if it is not empty; else blank.
+ * USAGE: #define PRINTF(fmt, ...) printf(fmt STC_PREPEND_COMMA(__VA_ARGS__))
+ */
+#define STC_PREPEND_COMMA(...) \
+    _STC_PREPEND_COMMA_IF_NOT_EMPTY(_STC_ISEMPTY(__VA_ARGS__), __VA_ARGS__)
 
-#ifndef STC_DISABLE_STDIO
+/**
+ * Take __VA_ARGS__ and append a comma if it is not empty; else blank.
+ * USAGE: #define NULL_TERMINATE(...) func(STC_APPEND_COMMA(__VA_ARGS__) NULL)
+ */
+#define STC_APPEND_COMMA(...) \
+    _STC_APPEND_COMMA_IF_NOT_EMPTY(_STC_ISEMPTY(__VA_ARGS__), __VA_ARGS__)
+
+#ifdef STC_FPRINTF
+#    define STC_PRINTF(/* fmt, */...) \
+        STC_FPRINTF(stdout, /* fmt, */ __VA_ARGS__)
+#elif !defined(STC_DISABLE_STDIO)
 #    include <stdio.h>
 
-#    define STC_PRINTF               printf
-#    define STC_FPRINTF(stream, ...) fprintf(stream, __VA_ARGS__)
+#    define STC_PRINTF(/* fmt, */...) printf(/* fmt, */ __VA_ARGS__)
+#    define STC_FPRINTF(stream, /* fmt, */...) \
+        fprintf(stream, /* fmt, */ __VA_ARGS__)
 #else
-#    define STC_PRINTF(...)
-#    define STC_FPRINTF(stream, ...)
-#endif /* STC_DISABLE_STDIO */
+#    define STC_PRINTF(/* fmt, */...)
+#    define STC_FPRINTF(stream, /* fmt, */...)
+#endif /* STC_FPRINTF */
 
-#define STC_EPRINTF(...)        STC_FPRINTF(stderr, __VA_ARGS__)
-#define STC_INFO(...)           STC_PRINTF("[INFO] " __VA_ARGS__)
-#define STC_FINFO(stream, ...)  STC_FPRINTF(stream, "[INFO] " __VA_ARGS__)
-#define STC_WARN(...)           STC_EPRINTF("[WARN] " __VA_ARGS__)
-#define STC_FWARN(stream, ...)  STC_FPRINTF(stream, "[WARN] " __VA_ARGS__)
-#define STC_ERROR(...)          STC_EPRINTF("[ERROR] " __VA_ARGS__)
-#define STC_FERROR(stream, ...) STC_FPRINTF(stream, "[ERROR] " __VA_ARGS__)
-#define STC_FATAL(...)          STC_STATMENTS(STC_ERROR(__VA_ARGS__); abort();)
-#define STC_FFATAL(stream, ...) \
-    STC_STATMENTS(STC_FERROR(stream, __VA_ARGS__); abort();)
+#define STC_EPRINTF(/* fmt, */...) STC_FPRINTF(stderr, /* fmt, */ __VA_ARGS__)
+#define STC_INFO(/* fmt, */...)    STC_PRINTF("[INFO] " /* fmt, */ __VA_ARGS__)
+#define STC_FINFO(stream, /* fmt, */...) \
+    STC_FPRINTF(stream, "[INFO] " /* fmt, */ __VA_ARGS__)
+#define STC_WARN(/* fmt, */...) STC_EPRINTF("[WARN] " /* fmt, */ __VA_ARGS__)
+#define STC_FWARN(stream, /* fmt, */...) \
+    STC_FPRINTF(stream, "[WARN] " /* fmt, */ __VA_ARGS__)
+#define STC_ERROR(/* fmt, */...) STC_EPRINTF("[ERROR] " /* fmt, */ __VA_ARGS__)
+#define STC_FERROR(stream, /* fmt, */...) \
+    STC_FPRINTF(stream, "[ERROR] " /* fmt, */ __VA_ARGS__)
+#define STC_FATAL(/* fmt, */...)           \
+    do {                                   \
+        STC_ERROR(/* fmt, */ __VA_ARGS__); \
+        abort();                           \
+    } while (0)
+#define STC_FFATAL(stream, /* fmt, */...)           \
+    do {                                            \
+        STC_FERROR(stream, /* fmt, */ __VA_ARGS__); \
+        abort();                                    \
+    } while (0)
 
 #ifdef STC_ENABLE_DEBUG
-#    define STC_DEBUG(...)          STC_EPRINTF("[DEBUG] " __VA_ARGS__)
-#    define STC_FDEBUG(stream, ...) STC_FPRINTF(stream, "[DEBUG] " __VA_ARGS__)
+#    define STC_DEBUG(/* fmt, */...) \
+        STC_EPRINTF("[DEBUG] " /* fmt, */ __VA_ARGS__)
+#    define STC_FDEBUG(stream, /* fmt, */...) \
+        STC_FPRINTF(stream, "[DEBUG] " /* fmt, */ __VA_ARGS__)
 #else
-#    define STC_DEBUG(...)
-#    define STC_FDEBUG(stream, ...)
+#    define STC_DEBUG(/* fmt, */...)
+#    define STC_FDEBUG(stream, /* fmt, */...)
 #endif /* STC_DEBUG */
 
-#ifdef STC_USE_STD_ASSERT
-#    ifdef assert
-#        undef assert
-#    endif
+#ifdef STC_DISABLE_ASSERT
+#    define STC_ASSERT(cond)
+#    define STC_ASSERT_MSG(cond, msg)
+#elif defined(STC_USE_STD_ASSERT)
 #    include <assert.h>
-#    define stc_assert(cond)          assert(cond)
-#    define stc_assert_msg(cond, msg) assert((cond) && (msg))
-#elif defined(STC_DISABLE_ASSERT)
-#    define stc_assert(cond)
-#    define stc_assert_msg(cond, msg)
+#    define STC_ASSERT(cond)          assert(cond)
+#    define STC_ASSERT_MSG(cond, msg) assert((cond) && (msg))
 #else
 #    ifndef STC_ASSERT_BREAK
-#        define STC_ASSERT_MSG(msg) \
+#        define _STC_ASSERT_MSG(msg) \
             __FILE__ ":%d: Assertion failed: " msg "\n", __LINE__
-#        define STC_ASSERT_BREAK(cond) \
-            STC_STATMENTS(STC_EPRINTF(STC_ASSERT_MSG(#cond)); abort();)
+#        define STC_ASSERT_BREAK(cond)               \
+            do {                                     \
+                STC_EPRINTF(_STC_ASSERT_MSG(#cond)); \
+                abort();                             \
+            } while (0)
 #    endif
 
-#    define stc_assert(cond) STC_STATMENTS(if (!(cond)) STC_ASSERT_BREAK(cond);)
-#    define stc_assert_msg(cond, msg) \
-        STC_STATMENTS(if (!(cond)) {  \
-            STC_EPRINTF(msg "\n");    \
-            STC_ASSERT_BREAK(cond);   \
-        })
-#endif /* STC_USE_STD_ASSERT */
+#    define STC_ASSERT(cond)                         \
+        do {                                         \
+            if (!(cond)) { STC_ASSERT_BREAK(cond); } \
+        } while (0)
+#    define STC_ASSERT_MSG(cond, msg)   \
+        do {                            \
+            if (!(cond)) {              \
+                STC_EPRINTF(msg "\n");  \
+                STC_ASSERT_BREAK(cond); \
+            }                           \
+        } while (0)
+#endif /* STC_DISABLE_ASSERT */
 
 /* NOTE: Macro indirection recommended due to #s and a##b */
 #define __STC_STRINGIFY(s) #s
@@ -197,12 +228,11 @@
 #define __STC_GLUE(a, b)   a##b
 #define STC_GLUE(a, b)     __STC_GLUE(a, b)
 
-/* NOTE: "better" but doesn't work - ((void) (1 ? 0 : ((x), void(), 0))) */
 #define STC_UNUSED(x)              ((void) &(x))
-#define STC_UNIMPLEMENTED          stc_assert_msg(0, "Unimplemented")
-#define STC_UNIMPLEMENTED_MSG(msg) stc_assert_msg(0, "Unimplemented: " msg)
-#define STC_TODO                   stc_assert_msg(0, "TODO")
-#define STC_TODO_MSG(msg)          stc_assert_msg(0, "TODO: " msg)
+#define STC_UNIMPLEMENTED          STC_ASSERT_MSG(0, "Unimplemented")
+#define STC_UNIMPLEMENTED_MSG(msg) STC_ASSERT_MSG(0, "Unimplemented: " msg)
+#define STC_TODO                   STC_ASSERT_MSG(0, "TODO")
+#define STC_TODO_MSG(msg)          STC_ASSERT_MSG(0, "TODO: " msg)
 
 #define STC_ARRAY_COUNT(a) (sizeof(a) / sizeof(*(a)))
 
@@ -231,7 +261,7 @@
 
 #ifndef STC_DISABLE_BASIC_TYPES
 
-#    ifdef STC_C99
+#    if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 #        include <stdint.h>
 typedef int8_t    i8;
 typedef int16_t   i16;
@@ -254,7 +284,7 @@ typedef unsigned short     u16;
 typedef unsigned int       u32;
 typedef unsigned long      u64;
 typedef unsigned long long usize;
-#    endif /* STC_C99 */
+#    endif /* defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L */
 
 typedef u8     byte;
 typedef float  f32;
@@ -315,5 +345,77 @@ f64 f64_neg_inf(void);
 #    endif /* STC_DISABLE_FUNCTIONS */
 
 #endif /* STC_DISABLE_BASIC_TYPES */
+
+/* --- Macro magic for dealing with __VA_ARGS__ potentially being empty ----- */
+
+/* taken from
+ * t6847kimo.github.io/blog/2019/02/04/Remove-comma-in-variadic-macro.html
+ */
+
+/**
+ * Used to detect comma by relying on shifted argmuents if there is one (see
+ * HAS_COMMA macro), but must invoked in only one specific way (again see
+ * HAS_COMMA macro) where you have STC_ARGn(_0, _1, _2, up to _n, ...) _n where
+ * n is the maximum number of variadic arguments to support. The invokation is
+ * then STC_ARGn(__VA_ARGS__, 1, 1, 1, repeated (n - 1) times total, 0).
+ */
+#define _STC_ARG50(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, \
+                   _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, \
+                   _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, \
+                   _38, _39, _40, _41, _42, _43, _44, _45, _46, _47, _48, _49, \
+                   _50, ...)                                                   \
+    _50
+
+/* detects if the arguments contains a comma (not nested in parentheses) by
+ * replacing with either 0 (no comma) or 1 (has comma) */
+#define _STC_HAS_COMMA(...)                                                    \
+    _STC_ARG50(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, \
+               1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  \
+               1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+/* used to "turn" empty __VA_ARGS__ into a comma for use with _STC_HAS_COMMA */
+#define _STC_TRIGGER_PARENTHESIS_(...) ,
+
+/* check if variadic arguments is empty by checking main case (last one) and
+ * three other corner cases */
+#define _STC_ISEMPTY(...)                                      \
+    __STC_ISEMPTY(                                             \
+        _STC_HAS_COMMA(__VA_ARGS__),                           \
+        _STC_HAS_COMMA(_STC_TRIGGER_PARENTHESIS_ __VA_ARGS__), \
+        _STC_HAS_COMMA(__VA_ARGS__(/* empty */)),              \
+        _STC_HAS_COMMA(_STC_TRIGGER_PARENTHESIS_ __VA_ARGS__(/* empty */)))
+/* simple macro to concatenate arguments */
+#define _STC_PASTES(_0, _1, _2, _3, _4) _0##_1##_2##_3##_4
+/* use above macro to convert four cases into output for HAS_COMMA */
+#define __STC_ISEMPTY(_0, _1, _2, _3) \
+    _STC_HAS_COMMA(_STC_PASTES(_STC_IS_EMPTY_CASE_, _0, _1, _2, _3))
+/* place comma in correct case from above to trigger HAS_COMMA to output 1, and
+ * with other cases not defined they will be replaced with nothing making
+ * HAS_COMMA output 0 */
+#define _STC_IS_EMPTY_CASE_0001 ,
+
+/* use a layer of macro indirection to ensure _STC_ISEMPTY is evaluated */
+#define _STC_PREPEND_COMMA_IF_NOT_EMPTY(is_empty, ...) \
+    _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, __VA_ARGS__)
+
+/* append result of _STC_ISEMPTY check to choose correct macro depending on
+ * whether __VA_ARGS__ is empty or not */
+#define _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, ...) \
+    _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_##is_empty(__VA_ARGS__)
+#define _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_0(...) , __VA_ARGS__
+#define _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_1(...)
+
+/* use a layer of macro indirection to ensure _STC_ISEMPTY is evaluated */
+#define _STC_APPEND_COMMA_IF_NOT_EMPTY(is_empty, ...) \
+    _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, __VA_ARGS__)
+
+/* append result of _STC_ISEMPTY check to choose correct macro depending on
+ * whether __VA_ARGS__ is empty or not */
+#define _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, ...) \
+    _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_##is_empty(__VA_ARGS__)
+#define _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_0(...) __VA_ARGS__,
+#define _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_1(...)
+
+/* --- End of __VA_ARGS__ macro magic --------------------------------------- */
 
 #endif /* STC_COMMON_H */
