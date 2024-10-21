@@ -23,7 +23,11 @@ typedef struct {
     size_t len;
 } StcSliceHeader;
 
-/** Simple macro to show intention of using slice type. */
+/**
+ * Simple macro to show intention of using slice type.
+ *
+ * NOTE: StcSlice(void) can be used to indicate a slice of unknown/any type.
+ */
 #define StcSlice(T)         T *
 #define stc_slice_header(s) (((StcSliceHeader *) s) - 1)
 
@@ -39,16 +43,17 @@ typedef struct {
 #define stc_slice_last(s)       ((s)[stc_slice_len_unsafe(v) - 1])
 
 /**
- * Frees the memory allocated for a slice.
+ * Free the memory allocated for a slice.
  *
  * @param[in] slice the pointer to the slice to free
  */
-void stc_slice_free(void *slice);
+void stc_slice_free(StcSlice(void) slice);
 
 /**
- * Creates a new slice by copying the data that pointer p points to with element
- * size of size and length of len. If p is NULL, then the contents of the
- * returned slice is left uninitialised.
+ * Create a new slice by copying the data that pointer p points to with element
+ * size of size and length of len.
+ *
+ * If p is NULL, then the contents of the returned slice is left uninitialised.
  *
  * @param[in] p    the pointer to the data to copy
  * @param[in] size the size of each element
@@ -56,6 +61,6 @@ void stc_slice_free(void *slice);
  *
  * @return a pointer to the slice data
  */
-void *_stc_slice_from_parts(const void *p, size_t size, size_t len);
+StcSlice(void) _stc_slice_from_parts(const void *p, size_t size, size_t len);
 
 #endif /* STC_SLICE_H */

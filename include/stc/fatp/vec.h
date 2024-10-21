@@ -52,7 +52,11 @@ typedef struct {
     size_t len;
 } StcVecHeader;
 
-/** Simple macro to show intention of using vector type. */
+/**
+ * Simple macro to show intention of using vector type.
+ *
+ * NOTE: StcVec(void) can be used to indicate a vector of unknown/any type.
+ */
 #define StcVec(T) T *
 
 #define STC_VEC_DEFAULT_CAP 4
@@ -138,46 +142,50 @@ typedef struct {
 #define stc_vec_to_slice(v) stc_slice_from_parts((v), stc_vec_len(v))
 
 /**
- * Frees the memory allocated for a vector.
+ * Free the memory allocated for a vector.
  *
  * @param[in] vec the pointer to the vector to free
  */
-void stc_vec_free(void *vec);
+void stc_vec_free(StcVec(void) vec);
 
 /**
- * Clones (creates a copy of) a vector.
+ * Clone (create a copy of) a vector.
  *
  * @param[in] vec  the vector to clone
  * @param[in] size the size of each element
  *
  * @return a clone of the vector
  */
-void *_stc_vec_clone(const void *vec, size_t size);
+StcVec(void) _stc_vec_clone(const StcVec(void) vec, size_t size);
 
 /**
- * Shifts the elements of a vector from one index to another.
+ * Shift the elements of a vector from one index to another.
  *
  * @param[in] vec      the pointer to the vector to shift
  * @param[in] idx_from the index to shift from in the vector
  * @param[in] idx_to   the index to shift to in the vector
  * @param[in] size     the size of each element
  */
-void _stc_vec_shift(void *vec, size_t idx_from, size_t idx_to, size_t size);
+void _stc_vec_shift(StcVec(void) vec,
+                    size_t       idx_from,
+                    size_t       idx_to,
+                    size_t       size);
 
 /**
- * Extends the vector with the values from the memory pointed to by p.
+ * Extend the vector with the values from the memory pointed to by p.
  *
  * @param[in] vec  the pointer to the vector to extend
  * @param[in] p    the memory address of the data to extend from
  * @param[in] size the size of each element
  * @param[in] len  the length of (number of elements in) the data
  *
- * @return a pointer to the vector after extended with memory of p
+ * @return a pointer to the vector after extension with memory of p
  */
-void *_stc_vec_extend(void *vec, const void *p, size_t size, size_t len);
+StcVec(void)
+_stc_vec_extend(StcVec(void) vec, const void *p, size_t size, size_t len);
 
 /**
- * Reserves enough space in the vector for at least n more elements.
+ * Reserve enough space in the vector for at least n more elements.
  *
  * @param[in] vec  the pointer to the vector to reserve space for
  * @param[in] size the size of each element
@@ -185,10 +193,10 @@ void *_stc_vec_extend(void *vec, const void *p, size_t size, size_t len);
  *
  * @return a pointer to the vector after reserving the space
  */
-void *_stc_vec_reserve(void *vec, size_t size, size_t n);
+StcVec(void) _stc_vec_reserve(StcVec(void) vec, size_t size, size_t n);
 
 /**
- * Reserves exactly enough space in the vector for n more elements.
+ * Reserve exactly enough space in the vector for n more elements.
  *
  * @param[in] vec  the pointer to the vector to reserve space for
  * @param[in] size the size of each element
@@ -196,10 +204,10 @@ void *_stc_vec_reserve(void *vec, size_t size, size_t n);
  *
  * @return a pointer to the vector after reserving the space
  */
-void *_stc_vec_reserve_exact(void *vec, size_t size, size_t n);
+StcVec(void) _stc_vec_reserve_exact(StcVec(void) vec, size_t size, size_t n);
 
 /**
- * Shrinks the vector to have a capacity of exactly max(stc_vec_len(vec), cap)
+ * Shrink the vector to have a capacity of exactly max(stc_vec_len(vec), cap)
  * if cap is less than the capacity of the vector.
  *
  * @param[in] vec  the pointer to the vector to shrink
@@ -208,6 +216,6 @@ void *_stc_vec_reserve_exact(void *vec, size_t size, size_t n);
  *
  * @return a pointer to the vector after shrinking
  */
-void *_stc_vec_shrink(void *vec, size_t size, size_t cap);
+StcVec(void) _stc_vec_shrink(StcVec(void) vec, size_t size, size_t cap);
 
 #endif /* STC_VEC_H */

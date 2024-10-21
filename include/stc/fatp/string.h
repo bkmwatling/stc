@@ -106,24 +106,24 @@ typedef StcVec(char) StcString;
 /* --- Resizable string functions ------------------------------------------- */
 
 /**
- * Pushes a string onto the resizable string created from the format specifier
- * and variable argument list.
+ * Push a string onto the resizable string created from the format specifier and
+ * variable argument list.
  *
  * @param[in] self the pointer to the resizable string
  * @param[in] fmt  the format specifier
  * @param[in] ap   the variable argument list to parse with the format specifier
  */
-void _stc_string_push_vfmt(char **self, const char *fmt, va_list ap);
+void _stc_string_push_vfmt(StcString *self, const char *fmt, va_list ap);
 
 /**
- * Pushes a string onto the resizable string created from the format specifier
- * and variable arguments.
+ * Push a string onto the resizable string created from the format specifier and
+ * variable arguments.
  *
  * @param[in] self the pointer to the resizable string
  * @param[in] fmt  the format specifier
  * @param[in] ...  the variable arguments to parse with the format specifier
  */
-void _stc_string_push_fmt(char **self, const char *fmt, ...);
+void _stc_string_push_fmt(StcString *self, const char *fmt, ...);
 
 /* --- String slice definitions (aliases to slice) -------------------------- */
 
@@ -166,7 +166,7 @@ typedef StcSlice(char) StcStr;
 /* --- String slice functions ----------------------------------------------- */
 
 /**
- * Creates a string slice from the format specifier and variable argument list.
+ * Create a string slice from the format specifier and variable argument list.
  *
  * @param[in] fmt the format specifier
  * @param[in] ap  the variable argument list to parse with the format specifier
@@ -174,10 +174,10 @@ typedef StcSlice(char) StcStr;
  * @return a string slice constructed from the format specifier and variable
  *         argument list
  */
-char *stc_str_from_vfmt(const char *fmt, va_list ap);
+StcStr stc_str_from_vfmt(const char *fmt, va_list ap);
 
 /**
- * Creates a string slice from the format specifier and variable arguments.
+ * Create a string slice from the format specifier and variable arguments.
  *
  * @param[in] fmt the format specifier
  * @param[in] ... the variable arguments to parse with the format specifier
@@ -185,6 +185,6 @@ char *stc_str_from_vfmt(const char *fmt, va_list ap);
  * @return a string slice constructed from the format specifier and variable
  *         arguments
  */
-char *stc_str_from_fmt(const char *fmt, ...);
+StcStr stc_str_from_fmt(const char *fmt, ...);
 
 #endif /* STC_STRING_H */

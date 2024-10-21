@@ -77,7 +77,7 @@ typedef struct {
 /* --- Helper functions --- */
 
 /**
- * Performs no operation, which is all that is necessary for some memory
+ * Perform no operation, which is all that is necessary for some memory
  * management implementations, e.g. LibC.
  *
  * @param[in] ctx  the context for the memory
@@ -118,7 +118,7 @@ typedef struct {
     _stc_mem_arena_align((arena), (size), stc_mem_arena_push_zero)
 
 /**
- * Creates a new memory arena from a memory manager, allocating space of size.
+ * Create a new memory arena from a memory manager, allocating space of size.
  *
  * @param[in] man  the pointer to the memory manager
  * @param[in] size the size of the space to allocate
@@ -128,7 +128,7 @@ typedef struct {
 StcMemArena stc_mem_arena_new(StcMemManager *man, size_t size);
 
 /**
- * Frees the memory of the memory arena using its memory manager.
+ * Free the memory of the memory arena using its memory manager.
  *
  * @param[in] self the memory arena to free
  */
@@ -163,7 +163,7 @@ void *stc_mem_arena_push_zero(StcMemArena *self, size_t size);
 void stc_mem_arena_pop_to(StcMemArena *self, size_t pos);
 
 /**
- * Aligns the memory arena position to a given power of 2.
+ * Align the memory arena position to a given power of 2.
  *
  * NOTE: this function should not be used directly, but rather through the use
  * of the defined macros stc_mem_arena_align and stc_mem_arena_align_zero.
@@ -174,6 +174,6 @@ void stc_mem_arena_pop_to(StcMemArena *self, size_t pos);
  */
 void _stc_mem_arena_align(StcMemArena *self,
                           size_t       pow2_align,
-                          void *(*arena_push)(StcMemArena *, size_t));
+                          void *(*arena_push)(StcMemArena *, size_t) );
 
 #endif /* STC_MEMORY_BASE_H */

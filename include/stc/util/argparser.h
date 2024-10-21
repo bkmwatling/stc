@@ -18,10 +18,11 @@ typedef enum {
 } StcArgConvertResult;
 
 /**
- * Prototype for conversion function of an argument to a custom type. Note that
- * the string argument will never be NULL and thus does not have to be handled
- * since NULL default value means no default. The output pointer will never be
- * NULL and thus does not have to be checked.
+ * Prototype for conversion function of an argument to a custom type.
+ *
+ * NOTE: the string argument will never be NULL and thus does not have to be
+ * handled since NULL default value means no default. The output pointer will
+ * never be NULL and thus does not have to be checked.
  *
  * @param[in]  arg the string argument
  * @param[out] out the memory address where to store the custom converted value

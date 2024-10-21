@@ -22,12 +22,11 @@ typedef double f64;
 #define UNLERP(t, a, b) ((a) != (b) ? ((t) - (a)) / ((b) - (a)) : 0)
 
 /**
- * Calculates the absolute value of a 32-bit floating point number.
+ * Calculate the absolute value of a 32-bit floating point number.
  *
  * If x is a NaN, a NaN is returned.
  * If x is -0, +0 is returned.
- * If x is negative infinity or positive infinity, positive infinity is
- * returned.
+ * If x is negative or positive infinity, positive infinity is returned.
  *
  * @param[in] x the 32-bit floating point number
  *
@@ -36,7 +35,7 @@ typedef double f64;
 f32 f32_abs(f32 x);
 
 /**
- * Calculates the square root value of a 32-bit floating point number.
+ * Calculate the square root value of a 32-bit floating point number.
  *
  * @param[in] x the 32-bit floating point number
  *
@@ -45,7 +44,7 @@ f32 f32_abs(f32 x);
 f32 f32_sqrt(f32 x);
 
 /**
- * Calculates the sine value of a 32-bit floating point number.
+ * Calculate the sine value of a 32-bit floating point number.
  *
  * @param[in] x the 32-bit floating point number
  *
@@ -54,7 +53,7 @@ f32 f32_sqrt(f32 x);
 f32 f32_sin(f32 x);
 
 /**
- * Calculates the cosine value of a 32-bit floating point number.
+ * Calculate the cosine value of a 32-bit floating point number.
  *
  * @param[in] x the 32-bit floating point number
  *
@@ -63,7 +62,7 @@ f32 f32_sin(f32 x);
 f32 f32_cos(f32 x);
 
 /**
- * Calculates the tangent value of a 32-bit floating point number.
+ * Calculate the tangent value of a 32-bit floating point number.
  *
  * @param[in] x the 32-bit floating point number
  *
@@ -72,7 +71,7 @@ f32 f32_cos(f32 x);
 f32 f32_tan(f32 x);
 
 /**
- * Calculates the natural logarithm value of a 32-bit floating point number.
+ * Calculate the natural logarithm value of a 32-bit floating point number.
  *
  * @param[in] x the 32-bit floating point number
  *
@@ -81,12 +80,11 @@ f32 f32_tan(f32 x);
 f32 f32_log(f32 x);
 
 /**
- * Calculates the absolute value of a 64-bit floating point number.
+ * Calculate the absolute value of a 64-bit floating point number.
  *
  * If x is a NaN, a NaN is returned.
  * If x is -0, +0 is returned.
- * If x is negative infinity or positive infinity, positive infinity is
- * returned.
+ * If x is negative or positive infinity, positive infinity is returned.
  *
  * @param[in] x the 64-bit floating point number
  *
@@ -95,7 +93,7 @@ f32 f32_log(f32 x);
 f64 f64_abs(f64 x);
 
 /**
- * Calculates the square root value of a 64-bit floating point number.
+ * Calculate the square root value of a 64-bit floating point number.
  *
  * @param[in] x the 64-bit floating point number
  *
@@ -104,7 +102,7 @@ f64 f64_abs(f64 x);
 f64 f64_sqrt(f64 x);
 
 /**
- * Calculates the sine value of a 64-bit floating point number.
+ * Calculate the sine value of a 64-bit floating point number.
  *
  * @param[in] x the 64-bit floating point number
  *
@@ -113,7 +111,7 @@ f64 f64_sqrt(f64 x);
 f64 f64_sin(f64 x);
 
 /**
- * Calculates the cosine value of a 64-bit floating point number.
+ * Calculate the cosine value of a 64-bit floating point number.
  *
  * @param[in] x the 64-bit floating point number
  *
@@ -122,7 +120,7 @@ f64 f64_sin(f64 x);
 f64 f64_cos(f64 x);
 
 /**
- * Calculates the tangent value of a 64-bit floating point number.
+ * Calculate the tangent value of a 64-bit floating point number.
  *
  * @param[in] x the 64-bit floating point number
  *
@@ -131,7 +129,7 @@ f64 f64_cos(f64 x);
 f64 f64_tan(f64 x);
 
 /**
- * Calculates the natural logarithm value of a 64-bit floating point number.
+ * Calculate the natural logarithm value of a 64-bit floating point number.
  *
  * @param[in] x the 64-bit floating point number
  *
