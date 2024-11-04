@@ -1,13 +1,15 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define list_def(T)            \
-    struct __list_##T {        \
-        T     *__list_data;    \
-        size_t len, cap, size; \
-    }
+#define List(T) __list_##T
 
-#define List(T) struct __list_##T
+#define list_def_with_qualifier(T, qualifier) \
+    typedef struct {                          \
+        T     *__list_data;                   \
+        size_t len, cap, size;                \
+    } List(qualifier)
+
+#define list_def(T) list_def_with_qualifier(T, T)
 
 #define _LIST_TO_VOID_LIST(list) ((List(void) *) &(list)->__list_data)
 
@@ -24,8 +26,45 @@
 #define list_at(list, idx) ((list)->__list_data[idx])
 
 list_def(void);
+list_def_with_qualifier(void *, void_ptr);
+
+list_def_with_qualifier(signed char, signed_char);
+list_def_with_qualifier(unsigned char, unsigned_char);
 list_def(char);
-list_def(int);
+
+list_def_with_qualifier(signed short int, signed_short_int);
+list_def_with_qualifier(unsigned short int, unsigned_short_int);
+typedef List(signed_short_int) List(signed_short);
+typedef List(unsigned_short_int) List(unsigned_short);
+typedef List(signed_short_int) List(short_int);
+typedef List(signed_short) List(short);
+
+list_def_with_qualifier(signed int, signed_int);
+list_def_with_qualifier(unsigned int, unsigned_int);
+typedef List(signed_int) List(signed);
+typedef List(unsigned_int) List(unsigned);
+typedef List(signed_int) List(int);
+
+list_def_with_qualifier(signed long int, signed_long_int);
+list_def_with_qualifier(unsigned long int, unsigned_long_int);
+typedef List(signed_long_int) List(signed_long);
+typedef List(unsigned_long_int) List(unsigned_long);
+typedef List(signed_long_int) List(long_int);
+typedef List(signed_long) List(long);
+
+list_def_with_qualifier(signed long long int, signed_long_long_int);
+list_def_with_qualifier(unsigned long long int, unsigned_long_long_int);
+typedef List(signed_long_long_int) List(signed_long_long);
+typedef List(unsigned_long_long_int) List(unsigned_long_long);
+typedef List(signed_long_long_int) List(long_long_int);
+typedef List(signed_long_long) List(long_long);
+
+list_def(size_t);
+
+list_def(float);
+list_def(double);
+list_def_with_qualifier(long double, long_double);
+typedef List(long_double) List(double_long);
 
 List(void) * _list_new(size_t size, size_t cap)
 {
