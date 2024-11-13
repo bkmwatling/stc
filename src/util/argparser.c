@@ -280,6 +280,15 @@ StcSubArgParsers *stc_argparser_add_subparsers(StcArgParser *self,
 
 void stc_argparser_parse(const StcArgParser *self, int argc, const char **argv)
 {
+    // clang-format off
+    #ifdef DEBUG
+        printf("# `argv` provided to %s: ", __func__);
+        printf("[ ");
+        for (int i = 0; i < argc; i++)
+            printf("\"%s\"%s ", argv[i], i < argc - 1 ? "," : "");
+        printf("]\n");
+    #endif
+    // clang-format on
     int exit_code, idx = 0;
 
     exit_code = _stc_argparser_parse(self, argc, argv, &idx, argc);
