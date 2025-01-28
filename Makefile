@@ -7,10 +7,12 @@
 # compiler flags
 DEBUG          := -ggdb -gdwarf-4
 OPTIMISE       := -O2
-WARNING        := -Wall -Wextra -Werror -Wpedantic
+WARNING        := -Wall -Wextra -Werror -Wpedantic \
+                  -Wno-gnu-statement-expression -Wno-gnu-auto-type
+EXTRA          := -std=c11
 INCLUDE         = $(addprefix -I, $(INCLUDEDIR))
 STCOPT         := -DSTC_DISABLE_STD_MATH_H #-DSTC_ENABLE_DEBUG
-CFLAGS          = $(DEBUG) $(OPTIMISE) $(WARNING) $(INCLUDE) $(STCOPT)
+CFLAGS          = $(DEBUG) $(OPTIMISE) $(WARNING) $(EXTRA) $(INCLUDE) $(STCOPT)
 DFLAGS         := #-DDEBUG
 
 # commands

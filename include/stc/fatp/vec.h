@@ -3,10 +3,13 @@
 
 #include <stddef.h>
 
+#include <stc/fatp/util.h>
+#include <stc/util/macro.h>
+
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_VEC_ENABLE_SHORT_NAMES)
 #    define Vec             StcVec
+#    define vec_define_for  stc_vec_define_for
 #    define VEC_DEFAULT_CAP STC_VEC_DEFAULT_CAP
-#    define vec_header      stc_vec_header
 
 #    define vec_new          stc_vec_new
 #    define vec_init         stc_vec_init
@@ -24,7 +27,9 @@
 
 #    define vec_push_back  stc_vec_push_back
 #    define vec_push_front stc_vec_push_front
-#    define vec_pop        stc_vec_pop
+#    define vec_pop_back   stc_vec_pop_back
+#    define vec_pop_front  stc_vec_pop_front
+#    define vec_at         stc_vec_at
 #    define vec_first      stc_vec_first
 #    define vec_last       stc_vec_last
 
@@ -47,47 +52,49 @@
 #    define vec_to_slice stc_vec_to_slice
 #endif /* STC_VEC_ENABLE_SHORT_NAMES */
 
-typedef struct {
-    size_t cap;
-    size_t len;
-} StcVecHeader;
+#define StcVec(T) STC_CONCAT(__stc_vec_, _STC_FATP_MAGIC_WORD_MACRO(T))
 
-/**
- * Simple macro to show intention of using vector type.
- *
- * NOTE: StcVec(void) can be used to indicate a vector of unknown/any type.
- */
-#define StcVec(T) T *
+// TODO: add allocator field once allocator type is defined
+#define stc_vec_define_for(T)                           \
+    typedef struct {                                    \
+        _STC_FATP_MAGIC_TYPE_MACRO(T) * __stc_vec_data; \
+        size_t len, cap;                                \
+    } StcVec(T)
+
+/* NOTE: this is purely to indicate **any** type, and is an example of how to
+ * define new types for StcVec. The definition allows the use of StcVec(void)
+ * which means the elements of the vector are of type 'void' (which is obviously
+ * useless, but serves well for casting to mean any type of elements).
+ * See the bottom of this file for definitions of builtin types for StcVec. */
+stc_vec_define_for(void);
+
+#define _STC_VEC_ANY(v)     (*(StcVec(void) *) &(v))
+#define _STC_VEC_PTR_ANY(v) ((StcVec(void) *) (v))
 
 #define STC_VEC_DEFAULT_CAP 4
 
-#define stc_vec_header(v) (((StcVecHeader *) (v)) - 1)
-
-#define stc_vec_new(size, cap) _stc_vec_reserve_exact(NULL, (size), (cap))
-#define stc_vec_init(v, cap)   ((v) = stc_vec_new(sizeof(*(v)), cap))
-#define stc_vec_default(size)  stc_vec_new(size, STC_VEC_DEFAULT_CAP)
+// TODO: use allocator instead of malloc and free
+#define stc_vec_new(T, cap) \
+    (StcVec(T)) { malloc(sizeof(_STC_FATP_MAGIC_TYPE_MACRO(T)) * cap), 0, cap }
+#define stc_vec_init(v, cap) \
+    _stc_vec_init(_STC_VEC_PTR_ANY(v), sizeof(*(v)->__stc_vec_data), (cap))
+#define stc_vec_default(T) stc_vec_new(T, STC_VEC_DEFAULT_CAP)
 
 /**
- * Initialize the vector `v` with the default capacity.
+ * Initialise the vector `v` with the default capacity.
  *
  * @param[in,out] v the vector to initialize
  */
 #define stc_vec_default_init(v) stc_vec_init(v, STC_VEC_DEFAULT_CAP)
-#define stc_vec_clone(v)        _stc_vec_clone((v), sizeof(*(v)))
+#define stc_vec_clone(v)              \
+    (*_STC_FATP_AUTO_CAST_PTR_TO_PTR( \
+        StcVec, StcVec, v,            \
+        _stc_vec_clone(_STC_VEC_ANY(v), sizeof((v).__stc_vec_data))))
+// *(StcVec(T) *) _stc_vec_clone(_STC_VEC_ANY(v), sizeof((v).__stc_vec_dta));
+#define stc_vec_free(v) free((v).__stc_vec_data)
 
-/**
- * Get the number of items contained in the vector `v`.
- *
- * @param[in] v the vector
- *
- * @return the length of the vector
- */
-#define stc_vec_len(v)        ((v) ? stc_vec_len_unsafe(v) : 0)
-#define stc_vec_cap(v)        ((v) ? stc_vec_cap_unsafe(v) : 0)
-#define stc_vec_len_unsafe(v) (stc_vec_header(v)->len)
-#define stc_vec_cap_unsafe(v) (stc_vec_header(v)->cap)
-#define stc_vec_is_empty(v)   (stc_vec_len(v) == 0)
-#define stc_vec_clear(v)      ((v) ? stc_vec_len_unsafe(v) = 0 : 0)
+#define stc_vec_is_empty(v) ((v).len == 0)
+#define stc_vec_clear(v)    ((v)->len = 0)
 
 /**
  * Add the new element `x` to the tail of the vector `v`
@@ -95,11 +102,23 @@ typedef struct {
  * @param [in,out] v the vector to add the element to
  * @param [in]     x the element to add
  */
-#define stc_vec_push_back(v, x) \
-    (stc_vec_reserve(v, 1), (v)[stc_vec_len_unsafe(v)++] = (x))
+#define stc_vec_push_back(v, x)           \
+    ({                                    \
+        stc_vec_reserve(v, 1);            \
+        stc_vec_at(*v, (v)->len++) = (x); \
+    })
 #define stc_vec_push_front(v, x) stc_vec_insert(v, 0, x)
-#define stc_vec_pop(v)           ((v)[--stc_vec_len_unsafe(v)])
-#define stc_vec_first(v)         ((v)[0])
+#define stc_vec_pop_back(v)      stc_vec_at(*v, --(v)->len)
+#define stc_vec_pop_front(v)                          \
+    ({                                                \
+        __auto_type _a = stc_vec_at(*v, 0);           \
+        _stc_vec_shift(_STC_VEC_PTR_ANY(v), 1, 0,     \
+                       sizeof(*(v)->__stc_vec_data)); \
+        (v)->len--;                                   \
+        _a;                                           \
+    })
+#define stc_vec_at(v, i) ((v).__stc_vec_data[i])
+#define stc_vec_first(v) stc_vec_at(v, 0)
 
 /**
  * Get the last element of the vector `v`.
@@ -108,45 +127,57 @@ typedef struct {
  *
  * @return the last element of the vector
  */
-#define stc_vec_last(v) ((v)[stc_vec_len_unsafe(v) - 1])
+#define stc_vec_last(v) stc_vec_at(v, (v).len - 1)
 
 #define stc_vec_insert(v, i, x) \
-    (stc_vec_reserve_index(v, i, 1), stc_vec_len_unsafe(v)++, (v)[i] = (x))
+    (stc_vec_reserve_index(v, i, 1), (v)->len++, stc_vec_at(*v, i) = (x))
 #define stc_vec_remove(v, i)      stc_vec_drain(v, i, 1)
-#define stc_vec_swap_remove(v, i) ((v) ? ((v)[i] = stc_vec_pop(v), 1) : 0)
-#define stc_vec_drain(v, i, n)                                 \
-    ((v) ? (_stc_vec_shift((v), (i) + (n), (i), sizeof(*(v))), \
-            stc_vec_len_unsafe(v) -= (n))                      \
-         : 0)
+#define stc_vec_swap_remove(v, i) (stc_vec_at(*v, i) = stc_vec_pop_back(v))
+#define stc_vec_drain(v, i, n)                           \
+    (_stc_vec_shift(_STC_VEC_PTR_ANY(v), (i) + (n), (i), \
+                    sizeof(*(v)->__stc_vec_data)),       \
+     (v)->len -= (n))
 #define stc_vec_truncate(v, len) \
-    (len >= 0 && len < stc_vec_len(v) ? stc_vec_len_unsafe(v) = len : 0)
+    (0 <= (len) && (len) < (v)->len ? ((v)->len = (len), 1) : 0)
 
-#define stc_vec_append(v, w) \
-    (stc_vec_extend(v, w, stc_vec_len(w)), stc_vec_clear(w))
-#define stc_vec_extend(v, p, len)          \
-    (assert(sizeof(*(v)) == sizeof(*(p))), \
-     (v) = _stc_vec_extend((v), (p), sizeof(*(p)), (len)))
-#define stc_vec_extend_from_slice(v, s) stc_vec_extend(v, s, stc_slice_len(s))
+#define stc_vec_append(v, w) (stc_vec_extend(v, w, (w)->len), stc_vec_clear(w))
+#define stc_vec_extend(v, p, len)                          \
+    (assert(sizeof(*(v)->__stc_vec_data) == sizeof(*(p))), \
+     _stc_vec_extend(_STC_VEC_PTR_ANY(v), (p), sizeof(*(p)), (len)))
+#define stc_vec_extend_from_slice(v, s) \
+    stc_vec_extend(v, (s).__stc_slice_data, (s).len)
 
-#define stc_vec_reserve(v, n) ((v) = _stc_vec_reserve((v), sizeof(*(v)), (n)))
-#define stc_vec_reserve_exact(v, n) \
-    ((v) = _stc_vec_reserve_exact((v), sizeof(*(v)), (n)))
-#define stc_vec_reserve_index(v, i, n) \
-    (stc_vec_reserve(v, n), _stc_vec_shift((v), (i), (i) + (n), sizeof(*(v))))
+#define stc_vec_reserve(v, n) \
+    (_stc_vec_reserve(_STC_VEC_PTR_ANY(v), sizeof(*(v)->__stc_vec_data), (n)))
+#define stc_vec_reserve_exact(v, n)                                            \
+    (_stc_vec_reserve_exact(_STC_VEC_PTR_ANY(v), sizeof(*(v)->__stc_vec_data), \
+                            (n)))
+#define stc_vec_reserve_index(v, i, n)                   \
+    (stc_vec_reserve(v, n),                              \
+     _stc_vec_shift(_STC_VEC_PTR_ANY(v), (i), (i) + (n), \
+                    sizeof(*(v)->__stc_vec_data)))
 
-#define stc_vec_shrink(v, cap) ((v) = _stc_vec_shrink((v), sizeof(*(v)), (cap)))
+#define stc_vec_shrink(v, cap)                                                \
+    ((v) = _stc_vec_shrink(_STC_VEC_PTR_ANY(v), sizeof(*(v)->__stc_vec_data), \
+                           (cap)))
 
-#define stc_vec_shrink_to_fit(v) stc_vec_shrink(v, stc_vec_len(v))
+#define stc_vec_shrink_to_fit(v) stc_vec_shrink(v, (v)->len)
 
-#define stc_vec_as_slice(v) (v)
-#define stc_vec_to_slice(v) stc_slice_from_parts((v), stc_vec_len(v))
+// TODO: figure out types
+#define stc_vec_as_slice(v)          \
+    _STC_FATP_AUTO_CAST_INITIALISER( \
+        StcVec, StcSlice, v,         \
+        { .__stc_slice_data = (v).__stc_vec_data, .len = (v).len })
+#define stc_vec_to_slice(v) stc_slice_from_parts((v).__stc_vec_data, (v).len)
 
 /**
- * Free the memory allocated for a vector.
+ * Initialise a vector with a given capacity and allocator.
  *
- * @param[in] vec the pointer to the vector to free
+ * @param[in,out] vec       the vector to initialise
+ * @param[in]     size      the size of a single element in the vector
+ * @param[in]     cap       the capacity to the initialise the vector with
  */
-void stc_vec_free(StcVec(void) vec);
+void _stc_vec_init(StcVec(void) *vec, size_t size, size_t cap);
 
 /**
  * Clone (create a copy of) a vector.
@@ -156,7 +187,7 @@ void stc_vec_free(StcVec(void) vec);
  *
  * @return a clone of the vector
  */
-StcVec(void) _stc_vec_clone(const StcVec(void) vec, size_t size);
+StcVec(void) *_stc_vec_clone(StcVec(void) vec, size_t size);
 
 /**
  * Shift the elements of a vector from one index to another.
@@ -166,10 +197,10 @@ StcVec(void) _stc_vec_clone(const StcVec(void) vec, size_t size);
  * @param[in] idx_to   the index to shift to in the vector
  * @param[in] size     the size of each element
  */
-void _stc_vec_shift(StcVec(void) vec,
-                    size_t       idx_from,
-                    size_t       idx_to,
-                    size_t       size);
+void _stc_vec_shift(StcVec(void) *vec,
+                    size_t        idx_from,
+                    size_t        idx_to,
+                    size_t        size);
 
 /**
  * Extend the vector with the values from the memory pointed to by p.
@@ -178,11 +209,8 @@ void _stc_vec_shift(StcVec(void) vec,
  * @param[in] p    the memory address of the data to extend from
  * @param[in] size the size of each element
  * @param[in] len  the length of (number of elements in) the data
- *
- * @return a pointer to the vector after extension with memory of p
  */
-StcVec(void)
-_stc_vec_extend(StcVec(void) vec, const void *p, size_t size, size_t len);
+void _stc_vec_extend(StcVec(void) *vec, const void *p, size_t size, size_t len);
 
 /**
  * Reserve enough space in the vector for at least n more elements.
@@ -190,10 +218,8 @@ _stc_vec_extend(StcVec(void) vec, const void *p, size_t size, size_t len);
  * @param[in] vec  the pointer to the vector to reserve space for
  * @param[in] size the size of each element
  * @param[in] n    the number of elements to ensure space for
- *
- * @return a pointer to the vector after reserving the space
  */
-StcVec(void) _stc_vec_reserve(StcVec(void) vec, size_t size, size_t n);
+void _stc_vec_reserve(StcVec(void) *vec, size_t size, size_t n);
 
 /**
  * Reserve exactly enough space in the vector for n more elements.
@@ -201,21 +227,36 @@ StcVec(void) _stc_vec_reserve(StcVec(void) vec, size_t size, size_t n);
  * @param[in] vec  the pointer to the vector to reserve space for
  * @param[in] size the size of each element
  * @param[in] n    the number of elements to ensure space for
- *
- * @return a pointer to the vector after reserving the space
  */
-StcVec(void) _stc_vec_reserve_exact(StcVec(void) vec, size_t size, size_t n);
+void _stc_vec_reserve_exact(StcVec(void) *vec, size_t size, size_t n);
 
 /**
- * Shrink the vector to have a capacity of exactly max(stc_vec_len(vec), cap)
+ * Shrink the vector to have a capacity of exactly max(vec->len, cap)
  * if cap is less than the capacity of the vector.
  *
  * @param[in] vec  the pointer to the vector to shrink
  * @param[in] size the size of each element
  * @param[in] cap  the capacity to shrink to
- *
- * @return a pointer to the vector after shrinking
  */
-StcVec(void) _stc_vec_shrink(StcVec(void) vec, size_t size, size_t cap);
+void _stc_vec_shrink(StcVec(void) *vec, size_t size, size_t cap);
+
+/* --- Define StcVec for builtin types -------------------------------------- */
+
+_STC_FATP_DEFINE_FOR_BUILTIN_TYPES(StcVec, stc_vec_define_for);
+
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#    include <stdint.h>
+_STC_FATP_DEFINE_FOR_STDC99_TYPES(StcVec, stc_vec_define_for);
+#endif /* defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L */
+
+#if defined(STC_COMMON_H) && !defined(STC_DISABLE_BASIC_TYPES)
+#    if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+_STC_FATP_ALIAS_TYPES_COMMON_FROM_STDC99(StcVec);
+#    else
+_STC_FATP_ALIAS_TYPES_COMMON_FROM_BUILTIN(StcVec);
+#    endif /* defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L */
+#endif     /* defined(STC_COMMON_H) && !defined(STC_DISABLE_BASIC_TYPES) */
+
+/* --- End definition of StcVec for builtin types --------------------------- */
 
 #endif /* STC_VEC_H */
