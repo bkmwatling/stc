@@ -2,29 +2,13 @@
 #define STC_MACRO_H
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_MACRO_ENABLE_SHORT_NAMES)
-#    define PREPEND_COMMA STC_PREPEND_COMMA
-#    define APPEND_COMMA  STC_APPEND_COMMA
-
 #    define STRINGIFY STC_STRINGIFY
 #    define CONCAT    STC_CONCAT
 
+#    define WITH      STC_WITH
 #    define DEFER     STC_DEFER
 #    define TYPECHECK STC_TYPECHECK
 #endif /* STC_MACRO_ENABLE_SHORT_NAMES */
-
-/**
- * Take __VA_ARGS__ and prepend a comma if it is not empty; else blank.
- * USAGE: #define PRINTF(fmt, ...) printf(fmt STC_PREPEND_COMMA(__VA_ARGS__))
- */
-#define STC_PREPEND_COMMA(...) \
-    _STC_PREPEND_COMMA_IF_NOT_EMPTY(_STC_ISEMPTY(__VA_ARGS__), __VA_ARGS__)
-
-/**
- * Take __VA_ARGS__ and append a comma if it is not empty; else blank.
- * USAGE: #define NULL_TERMINATE(...) func(STC_APPEND_COMMA(__VA_ARGS__) NULL)
- */
-#define STC_APPEND_COMMA(...) \
-    _STC_APPEND_COMMA_IF_NOT_EMPTY(_STC_ISEMPTY(__VA_ARGS__), __VA_ARGS__)
 
 /* NOTE: Macro indirection recommended due to #s and a##b */
 #define __STC_STRINGIFY(s) #s
@@ -34,8 +18,12 @@
 
 #define _STC_MACRO_VAR(x) STC_CONCAT(x, __LINE__)
 
-#define STC_DEFER(begin, end)                                        \
+#define STC_WITH(begin, end)                                         \
     for (int _STC_MACRO_VAR(_i_) = (begin, 0); !_STC_MACRO_VAR(_i_); \
+         _STC_MACRO_VAR(_i_)++, end)
+
+#define STC_DEFER(end)                                      \
+    for (int _STC_MACRO_VAR(_i_) = 0; !_STC_MACRO_VAR(_i_); \
          _STC_MACRO_VAR(_i_)++, end)
 
 #define STC_TYPECHECK(T, x)                                    \
@@ -122,27 +110,41 @@
  * t6847kimo.github.io/blog/2019/02/04/Remove-comma-in-variadic-macro.html
  */
 
+/**
+ * Take __VA_ARGS__ and prepend a comma if it is not empty; else blank.
+ * USAGE: #define PRINTF(fmt, ...) printf(fmt _STC_PREPEND_COMMA(__VA_ARGS__))
+ */
+#define _STC_PREPEND_COMMA(...) \
+    __STC_PREPEND_COMMA_IF_NOT_EMPTY(_STC_ISEMPTY(__VA_ARGS__), __VA_ARGS__)
+
+/**
+ * Take __VA_ARGS__ and append a comma if it is not empty; else blank.
+ * USAGE: #define NULL_TERMINATE(...) func(_STC_APPEND_COMMA(__VA_ARGS__) NULL)
+ */
+#define _STC_APPEND_COMMA(...) \
+    __STC_APPEND_COMMA_IF_NOT_EMPTY(_STC_ISEMPTY(__VA_ARGS__), __VA_ARGS__)
+
 /* use a layer of macro indirection to ensure _STC_ISEMPTY is evaluated */
-#define _STC_PREPEND_COMMA_IF_NOT_EMPTY(is_empty, ...) \
-    _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, __VA_ARGS__)
+#define __STC_PREPEND_COMMA_IF_NOT_EMPTY(is_empty, ...) \
+    __STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, __VA_ARGS__)
 
 /* append result of _STC_ISEMPTY check to choose correct macro depending on
  * whether __VA_ARGS__ is empty or not */
-#define _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, ...) \
-    _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_##is_empty(__VA_ARGS__)
-#define _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_0(...) , __VA_ARGS__
-#define _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_1(...)
+#define __STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, ...) \
+    __STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_##is_empty(__VA_ARGS__)
+#define __STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_0(...) , __VA_ARGS__
+#define __STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_1(...)
 
 /* use a layer of macro indirection to ensure _STC_ISEMPTY is evaluated */
-#define _STC_APPEND_COMMA_IF_NOT_EMPTY(is_empty, ...) \
-    _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, __VA_ARGS__)
+#define __STC_APPEND_COMMA_IF_NOT_EMPTY(is_empty, ...) \
+    __STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, __VA_ARGS__)
 
 /* append result of _STC_ISEMPTY check to choose correct macro depending on
  * whether __VA_ARGS__ is empty or not */
-#define _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, ...) \
-    _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_##is_empty(__VA_ARGS__)
-#define _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_0(...) __VA_ARGS__,
-#define _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_1(...)
+#define __STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, ...) \
+    __STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_##is_empty(__VA_ARGS__)
+#define __STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_0(...) __VA_ARGS__,
+#define __STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_1(...)
 
 /* --- End of __VA_ARGS__ macro magic --------------------------------------- */
 
