@@ -1,7 +1,9 @@
 #ifndef STC_VEC_H
 #define STC_VEC_H
 
-#include <stddef.h>
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <stc/fatp/util.h>
 #include <stc/util/macro.h>
@@ -18,12 +20,8 @@
 #    define vec_clone        stc_vec_clone
 #    define vec_free         stc_vec_free
 
-#    define vec_len        stc_vec_len
-#    define vec_cap        stc_vec_cap
-#    define vec_len_unsafe stc_vec_len_unsafe
-#    define vec_cap_unsafe stc_vec_cap_unsafe
-#    define vec_is_empty   stc_vec_is_empty
-#    define vec_clear      stc_vec_clear
+#    define vec_is_empty stc_vec_is_empty
+#    define vec_clear    stc_vec_clear
 
 #    define vec_push_back  stc_vec_push_back
 #    define vec_push_front stc_vec_push_front
@@ -86,11 +84,24 @@ stc_vec_define_for(void);
  * @param[in,out] v the vector to initialize
  */
 #define stc_vec_default_init(v) stc_vec_init(v, STC_VEC_DEFAULT_CAP)
-#define stc_vec_clone(v)              \
-    (*_STC_FATP_AUTO_CAST_PTR_TO_PTR( \
-        StcVec, StcVec, v,            \
-        _stc_vec_clone(_STC_VEC_ANY(v), sizeof((v).__stc_vec_data))))
-// *(StcVec(T) *) _stc_vec_clone(_STC_VEC_ANY(v), sizeof((v).__stc_vec_dta));
+
+/**
+ * Clone (create a copy of) a vector.
+ *
+ * @param[in] v the vector to clone
+ *
+ * @return a clone of the vector
+ */
+#define stc_vec_clone(v)                                                    \
+    ({                                                                      \
+        __typeof__(v) _STC_MACRO_VAR(_v_) = {                               \
+            malloc(sizeof(*(v).__stc_vec_data) * (v).len), (v).len, (v).len \
+        };                                                                  \
+        if ((v).len)                                                        \
+            memcpy(_STC_MACRO_VAR(_v_).__stc_vec_data, (v).__stc_vec_data,  \
+                   sizeof(*(v).__stc_vec_data) * (v).len);                  \
+        _STC_MACRO_VAR(_v_);                                                \
+    })
 #define stc_vec_free(v) free((v).__stc_vec_data)
 
 #define stc_vec_is_empty(v) ((v).len == 0)
@@ -109,13 +120,13 @@ stc_vec_define_for(void);
     })
 #define stc_vec_push_front(v, x) stc_vec_insert(v, 0, x)
 #define stc_vec_pop_back(v)      stc_vec_at(*v, --(v)->len)
-#define stc_vec_pop_front(v)                          \
-    ({                                                \
-        __auto_type _a = stc_vec_at(*v, 0);           \
-        _stc_vec_shift(_STC_VEC_PTR_ANY(v), 1, 0,     \
-                       sizeof(*(v)->__stc_vec_data)); \
-        (v)->len--;                                   \
-        _a;                                           \
+#define stc_vec_pop_front(v)                                                   \
+    ({                                                                         \
+        __typeof__(stc_vec_at(*v, 0)) _STC_MACRO_VAR(_a_) = stc_vec_at(*v, 0); \
+        _stc_vec_shift(_STC_VEC_PTR_ANY(v), 1, 0,                              \
+                       sizeof(*(v)->__stc_vec_data));                          \
+        (v)->len--;                                                            \
+        _STC_MACRO_VAR(_a_);                                                   \
     })
 #define stc_vec_at(v, i) ((v).__stc_vec_data[i])
 #define stc_vec_first(v) stc_vec_at(v, 0)
@@ -140,10 +151,14 @@ stc_vec_define_for(void);
 #define stc_vec_truncate(v, len) \
     (0 <= (len) && (len) < (v)->len ? ((v)->len = (len), 1) : 0)
 
-#define stc_vec_append(v, w) (stc_vec_extend(v, w, (w)->len), stc_vec_clear(w))
-#define stc_vec_extend(v, p, len)                          \
-    (assert(sizeof(*(v)->__stc_vec_data) == sizeof(*(p))), \
-     _stc_vec_extend(_STC_VEC_PTR_ANY(v), (p), sizeof(*(p)), (len)))
+#define stc_vec_append(v, w) \
+    (stc_vec_extend(v, (w)->__stc_vec_data, (w)->len), stc_vec_clear(w))
+#define stc_vec_extend(v, p, len)                                       \
+    ({                                                                  \
+        static_assert(sizeof(*(v)->__stc_vec_data) == sizeof(*(p)),     \
+                      "invalid size of elements to for StcVec");        \
+        _stc_vec_extend(_STC_VEC_PTR_ANY(v), (p), sizeof(*(p)), (len)); \
+    })
 #define stc_vec_extend_from_slice(v, s) \
     stc_vec_extend(v, (s).__stc_slice_data, (s).len)
 
@@ -157,37 +172,36 @@ stc_vec_define_for(void);
      _stc_vec_shift(_STC_VEC_PTR_ANY(v), (i), (i) + (n), \
                     sizeof(*(v)->__stc_vec_data)))
 
-#define stc_vec_shrink(v, cap)                                                \
-    ((v) = _stc_vec_shrink(_STC_VEC_PTR_ANY(v), sizeof(*(v)->__stc_vec_data), \
-                           (cap)))
+#define stc_vec_shrink(v, cap) \
+    (_stc_vec_shrink(_STC_VEC_PTR_ANY(v), sizeof(*(v)->__stc_vec_data), (cap)))
 
 #define stc_vec_shrink_to_fit(v) stc_vec_shrink(v, (v)->len)
 
-// TODO: figure out types
-#define stc_vec_as_slice(v)          \
-    _STC_FATP_AUTO_CAST_INITIALISER( \
-        StcVec, StcSlice, v,         \
-        { .__stc_slice_data = (v).__stc_vec_data, .len = (v).len })
-#define stc_vec_to_slice(v) stc_slice_from_parts((v).__stc_vec_data, (v).len)
+#define stc_vec_as_slice(v)                                                   \
+    ({                                                                        \
+        StcSlice(void) _STC_MACRO_VAR(_s_) = { (v).__stc_vec_data, (v).len }; \
+        _STC_FATP_AUTO_CAST_VAL_TO_VAL(StcVec, StcSlice, v,                   \
+                                       _STC_MACRO_VAR(_s_));                  \
+    })
+#define stc_vec_to_slice(v)                                                    \
+    ({                                                                         \
+        StcSlice(void) _STC_MACRO_VAR(                                         \
+            _s_) = { malloc(sizeof(*(v).__stc_vec_data) * (v).len), (v).len }; \
+        if ((v).len)                                                           \
+            memcpy(_STC_MACRO_VAR(_s_).__stc_slice_data, (v).__stc_vec_data,   \
+                   sizeof(*(v).__stc_vec_data) * (v).len);                     \
+        _STC_FATP_AUTO_CAST_VAL_TO_VAL(StcVec, StcSlice, v,                    \
+                                       _STC_MACRO_VAR(_s_));                   \
+    })
 
 /**
  * Initialise a vector with a given capacity and allocator.
  *
- * @param[in,out] vec       the vector to initialise
- * @param[in]     size      the size of a single element in the vector
- * @param[in]     cap       the capacity to the initialise the vector with
+ * @param[in,out] vec  the vector to initialise
+ * @param[in]     size the size of a single element in the vector
+ * @param[in]     cap  the capacity to the initialise the vector with
  */
 void _stc_vec_init(StcVec(void) *vec, size_t size, size_t cap);
-
-/**
- * Clone (create a copy of) a vector.
- *
- * @param[in] vec  the vector to clone
- * @param[in] size the size of each element
- *
- * @return a clone of the vector
- */
-StcVec(void) *_stc_vec_clone(StcVec(void) vec, size_t size);
 
 /**
  * Shift the elements of a vector from one index to another.

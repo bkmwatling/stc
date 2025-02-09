@@ -109,13 +109,17 @@
 
 #define _STC_FATP_AUTO_CAST_CUSTOM_TYPES(...)
 
-#define _STC_FATP_AUTO_CAST_INITIALISER(from_transform, to_transform, data, \
-                                        expr)                               \
-    __STC_FATP_AUTO_CAST(from_transform, to_transform, data, expr, , )
+#define _STC_FATP_AUTO_CAST_VAL_TO_VAL(from_transform, to_transform, data, \
+                                       expr)                               \
+    *_STC_FATP_AUTO_CAST_VAL_TO_PTR(from_transform, to_transform, data, expr)
 
 #define _STC_FATP_AUTO_CAST_VAL_TO_PTR(from_transform, to_transform, data, \
                                        expr)                               \
     __STC_FATP_AUTO_CAST(from_transform, to_transform, data, expr, *, &)
+
+#define _STC_FATP_AUTO_CAST_PTR_TO_VAL(from_transform, to_transform, data, \
+                                       expr)                               \
+    *_STC_FATP_AUTO_CAST_PTR_TO_PTR(from_transform, to_transform, data, expr)
 
 #define _STC_FATP_AUTO_CAST_PTR_TO_PTR(from_transform, to_transform, data, \
                                        expr)                               \

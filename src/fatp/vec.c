@@ -17,22 +17,6 @@ void _stc_vec_init(StcVec(void) *vec, size_t size, size_t cap)
     vec->cap            = cap;
 }
 
-StcVec(void) *_stc_vec_clone(StcVec(void) vec, size_t size)
-{
-    size_t              cap = stc_vec_is_empty(vec) ? vec.cap : vec.len;
-    static StcVec(void) clone;
-    clone = (StcVec(void)) { .__stc_vec_data = malloc(size * cap),
-                             .len            = 0,
-                             .cap            = cap };
-
-    if (vec.len > 0) {
-        memcpy(clone.__stc_vec_data, vec.__stc_vec_data, size * vec.len);
-        clone.len = vec.len;
-    }
-
-    return &clone;
-}
-
 void _stc_vec_shift(StcVec(void) *vec,
                     size_t        idx_from,
                     size_t        idx_to,

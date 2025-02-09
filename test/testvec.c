@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
 
+#define STC_SLICE_ENABLE_SHORT_NAMES
+#include <stc/fatp/slice.h>
 #define STC_VEC_ENABLE_SHORT_NAMES
 #include <stc/fatp/vec.h>
 
@@ -21,7 +22,7 @@ int main(int argc, char *argv[])
 
     printf("\nw:");
     for (j = 0; j < w.len; j++) printf(" '%s'", vec_at(w, j));
-    printf("\nstuff\n");
+    printf("\n\n");
 
     vec_push_back(&v, vsa);
     vec_push_back(&w, wsa);
@@ -33,8 +34,22 @@ int main(int argc, char *argv[])
     for (j = 0; j < w.len; j++) printf(" '%s'", vec_at(w, j));
     printf("\n");
 
+    printf("\nAppending v to w.\n");
+    vec_append(&w, &v);
+    printf("v:");
+    for (j = 0; j < v.len; j++) printf(" '%s'", vec_at(v, j));
+    printf("\nw:");
+    for (j = 0; j < w.len; j++) printf(" '%s'", vec_at(w, j));
+    printf("\n");
+
+    Slice(char ptr) s = vec_to_slice(w);
+    printf("\ns:");
+    for (j = 0; j < s.len; j++) printf(" '%s'", slice_at(s, j));
+    printf("\n");
+
     vec_free(v);
     vec_free(w);
+    slice_free(s);
 
     return EXIT_SUCCESS;
 }
