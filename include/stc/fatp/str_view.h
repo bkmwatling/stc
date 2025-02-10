@@ -1,22 +1,15 @@
-#ifndef STC_STRING_VIEW_H
-#define STC_STRING_VIEW_H
+#ifndef STC_STR_VIEW_H
+#define STC_STR_VIEW_H
 
 #include <stddef.h>
 #include <string.h>
 
-#ifdef STC_SV_DISABLE_CONST
-#    define STC_SV_CONST
-#else
-#    define STC_SV_CONST const
-#endif
+#include <stc/fatp/slice.h>
 
-typedef struct {
-    size_t             len;
-    STC_SV_CONST char *str;
-} StcStringView;
+typedef StcSlice(const char) StcStrView;
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_SV_ENABLE_SHORT_NAMES)
-typedef StcStringView StringView;
+typedef StcStrView StrView;
 
 #    define SV_FMT STC_SV_FMT
 #    define SV_ARG STC_SV_ARG
@@ -24,7 +17,7 @@ typedef StcStringView StringView;
 #    define sv_from_parts stc_sv_from_parts
 #    define sv_from_range stc_sv_from_range
 #    define sv_from_cstr  stc_sv_from_cstr
-#    define sv_from_lit   stc_sv_from_lit
+#    define sv            stc_sv
 
 #    define sv_trim              stc_sv_trim
 #    define sv_trim_left         stc_sv_trim_left
@@ -47,29 +40,32 @@ typedef StcStringView StringView;
 #endif /* STC_SV_ENABLE_SHORT_NAMES */
 
 /**
- * printf macros for StcStringView
+ * printf macros for StcStrView
  * USAGE:
- *   StcStringView name = ...;
+ *   StcStrView name = ...;
  *   printf("Name: " STC_SV_FMT "\n", STC_SV_ARG(name));
  */
 #define STC_SV_FMT     "%.*s"
-#define STC_SV_ARG(sv) (int) (sv).len, (sv).str
-
-#define stc_sv_from_range(start, end) \
-    stc_sv_from_parts((start), (end) - (start))
-#define stc_sv_from_cstr(cstr) stc_sv_from_parts((cstr), strlen((cstr)))
-#define stc_sv_from_lit(s)     stc_sv_from_parts((s), sizeof(s) - 1)
-#define stc_sv_trim(sv)        stc_sv_trim_right(stc_sv_trim_left(sv))
+#define STC_SV_ARG(sv) (int) (sv).len, (sv).__stc_slice_data
 
 /**
- * Create a string view from a character pointer (string) and length.
+ * Create a string view from a character pointer and length.
  *
- * @param[in] str the string address to view
+ * @param[in] s   the string address to view
  * @param[in] len the length of the string view
  *
  * @return a string view of the given string over length of len
  */
-StcStringView stc_sv_from_parts(STC_SV_CONST char *str, size_t len);
+#define stc_sv_from_parts(s, len)     ((StcStrView) { (s), (len) })
+#define stc_sv_from_range(start, end) stc_sv_from_parts(start, (end) - (start))
+#define stc_sv_from_cstr(cstr)        stc_sv_from_parts(cstr, strlen((cstr)))
+#define stc_sv(s)                     stc_sv_from_parts(s, sizeof(s) - 1)
+#define stc_sv_from_str(str) \
+    stc_sv_from_parts((str).__stc_slice_data, (str).len)
+
+#define stc_sv_at stc_slice_at
+
+#define stc_sv_trim(sv) stc_sv_trim_left(stc_sv_trim_right((sv)))
 
 /**
  * Trim the string view from the left (skipping over spaces), and return the
@@ -79,7 +75,7 @@ StcStringView stc_sv_from_parts(STC_SV_CONST char *str, size_t len);
  *
  * @return the trimmed string view
  */
-StcStringView stc_sv_trim_left(StcStringView self);
+StcStrView stc_sv_trim_left(StcStrView self);
 
 /**
  * Trim the string view from the right (skipping over spaces), and return the
@@ -89,7 +85,7 @@ StcStringView stc_sv_trim_left(StcStringView self);
  *
  * @return the trimmed string view
  */
-StcStringView stc_sv_trim_right(StcStringView self);
+StcStrView stc_sv_trim_right(StcStrView self);
 
 /**
  * Take the left side (prefix) of the string view such that the returned string
@@ -105,8 +101,7 @@ StcStringView stc_sv_trim_right(StcStringView self);
  * @return a string view of the maximal prefix of self with all characters
  *         matching the predicate
  */
-StcStringView stc_sv_take_left_while(StcStringView self,
-                                     int (*predicate)(char));
+StcStrView stc_sv_take_left_while(StcStrView self, int (*predicate)(char));
 
 /**
  * Chop the string view self from the left and return the left side (prefix) of
@@ -126,8 +121,7 @@ StcStringView stc_sv_take_left_while(StcStringView self,
  * @return a string view of the maximal prefix of self with all characters
  *         matching the predicate
  */
-StcStringView stc_sv_chop_left_while(StcStringView *self,
-                                     int (*predicate)(char));
+StcStrView stc_sv_chop_left_while(StcStrView *self, int (*predicate)(char));
 
 /**
  * Chop the string view self at the delimeter and return a string view of the
@@ -143,7 +137,7 @@ StcStringView stc_sv_chop_left_while(StcStringView *self,
  *
  * @return a string view of the string to the left of the delimeter
  */
-StcStringView stc_sv_chop_by_delim(StcStringView *self, char delim);
+StcStrView stc_sv_chop_by_delim(StcStrView *self, char delim);
 
 /**
  * Chop the string view self at the delimeter and return a string view of the
@@ -159,7 +153,7 @@ StcStringView stc_sv_chop_by_delim(StcStringView *self, char delim);
  *
  * @return a string view of the string to the left of the delimeter
  */
-StcStringView stc_sv_chop_by_sv(StcStringView *self, StcStringView delim);
+StcStrView stc_sv_chop_by_sv(StcStrView *self, StcStrView delim);
 
 /**
  * Try to chop the string view self at the delimeter and return whether or not
@@ -183,9 +177,7 @@ StcStringView stc_sv_chop_by_sv(StcStringView *self, StcStringView delim);
  * @return whether the delimeter was found and thus if the string views where
  *         modified
  */
-int stc_sv_try_chop_by_delim(StcStringView *self,
-                             char           delim,
-                             StcStringView *left);
+int stc_sv_try_chop_by_delim(StcStrView *self, char delim, StcStrView *left);
 
 /**
  * Chop off the first n characters from the string view and return a string view
@@ -197,7 +189,7 @@ int stc_sv_try_chop_by_delim(StcStringView *self,
  *
  * @return a string view to the characters that were chopped off
  */
-StcStringView stc_sv_chop_left(StcStringView *self, size_t n);
+StcStrView stc_sv_chop_left(StcStrView *self, size_t n);
 
 /**
  * Chop off the last n characters from the string view and return a string view
@@ -209,7 +201,7 @@ StcStringView stc_sv_chop_left(StcStringView *self, size_t n);
  *
  * @return a string view to the characters that were chopped off
  */
-StcStringView stc_sv_chop_right(StcStringView *self, size_t n);
+StcStrView stc_sv_chop_right(StcStrView *self, size_t n);
 
 /**
  * Find the index of the character c in the string view if it is contained in
@@ -221,7 +213,7 @@ StcStringView stc_sv_chop_right(StcStringView *self, size_t n);
  *
  * @return whether the character was found in the string view
  */
-int stc_sv_index_of(StcStringView self, char c, size_t *idx);
+int stc_sv_index_of(StcStrView self, char c, size_t *idx);
 
 /**
  * Compare two string views.
@@ -232,7 +224,7 @@ int stc_sv_index_of(StcStringView self, char c, size_t *idx);
  * @return a value less than 0 if a < b, else a value greater than 0 if a > b,
  *         otherwise 0 meaning a == b
  */
-int stc_sv_cmp(StcStringView a, StcStringView b);
+int stc_sv_cmp(StcStrView a, StcStrView b);
 
 /**
  * Determine if two string views are equal.
@@ -242,7 +234,7 @@ int stc_sv_cmp(StcStringView a, StcStringView b);
  *
  * @return a non-zero value if a and b are equal; else 0 if they are not equal
  */
-int stc_sv_eq(StcStringView a, StcStringView b);
+int stc_sv_eq(StcStrView a, StcStrView b);
 
 /**
  * Determine if two string views are equal in a case-insesitive manner.
@@ -253,7 +245,7 @@ int stc_sv_eq(StcStringView a, StcStringView b);
  * @return a non-zero value if a and b are equal whilst ignoring case; else 0 if
  *         they are not equal whilst ignoring case
  */
-int stc_sv_eq_ignorecase(StcStringView a, StcStringView b);
+int stc_sv_eq_ignorecase(StcStrView a, StcStrView b);
 
 /**
  * Check if a string view is a prefix of the other string view.
@@ -264,7 +256,7 @@ int stc_sv_eq_ignorecase(StcStringView a, StcStringView b);
  * @return a non-zero value of the prefix string view is a prefix of self;
  *         else 0 if it is not
  */
-int stc_sv_starts_with(StcStringView self, StcStringView prefix);
+int stc_sv_starts_with(StcStrView self, StcStrView prefix);
 
 /**
  * Check if a string view is a suffix of the other string view.
@@ -275,7 +267,7 @@ int stc_sv_starts_with(StcStringView self, StcStringView prefix);
  * @return a non-zero value of the suffix string view is a suffix of self;
  *         else 0 if it is not
  */
-int stc_sv_ends_with(StcStringView self, StcStringView suffix);
+int stc_sv_ends_with(StcStrView self, StcStrView suffix);
 
 /**
  * Convert the string view into an unsigned integer, ignoring any junk after the
@@ -287,7 +279,7 @@ int stc_sv_ends_with(StcStringView self, StcStringView suffix);
  *
  * @return the unsigned integer parsed from the string view
  */
-size_t stc_sv_to_int(StcStringView self);
+size_t stc_sv_to_int(StcStrView self);
 
 /**
  * Convert the string view into an unsigned integer, ignoring any junk after
@@ -304,6 +296,6 @@ size_t stc_sv_to_int(StcStringView self);
  *
  * @return the unsigned integer parsed from the string view
  */
-size_t stc_sv_chop_int(StcStringView *self);
+size_t stc_sv_chop_int(StcStrView *self);
 
-#endif /* STC_STRING_VIEW_H */
+#endif /* STC_STR_VIEW_H */

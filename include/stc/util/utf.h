@@ -5,7 +5,7 @@
 
 #if !defined(STC_DISABLE_FATP) && !defined(STC_DISABLE_SV) && \
     !defined(STC_UTF_DISABLE_SV)
-#    include "../fatp/string_view.h"
+#    include <stc/fatp/str_view.h>
 #endif
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_UTF_ENABLE_SHORT_NAMES)
@@ -246,7 +246,7 @@ const char *stc_utf8_str_advance(const char **s);
  *         encoded UTF-8 "character" in the context of a string view (codepoint
  *         does not go past string view bounds); else zero
  */
-unsigned int stc_utf8_nbytes_sv(StcStringView sv);
+unsigned int stc_utf8_nbytes_sv(StcStrView sv);
 
 /**
  * Create a string view of the UTF-8 "character" with the correct length.
@@ -258,7 +258,7 @@ unsigned int stc_utf8_nbytes_sv(StcStringView sv);
  *
  * @return a string view of the UTF-8 "character"
  */
-StcStringView stc_utf8_to_sv(const char *ch);
+StcStrView stc_utf8_to_sv(const char *ch);
 
 /**
  * Compare two UTF-8 "characters" in the context of string views.
@@ -271,7 +271,7 @@ StcStringView stc_utf8_to_sv(const char *ch);
  * @return a value less than 0 if a < b, else a value greater than 0 if a > b,
  *         otherwise 0 meaning a == b
  */
-int stc_utf8_cmp_sv(StcStringView a, StcStringView b);
+int stc_utf8_cmp_sv(StcStrView a, StcStrView b);
 
 /**
  * Try to compare two UTF-8 "characters" in the context of string views.
@@ -293,7 +293,7 @@ int stc_utf8_cmp_sv(StcStringView a, StcStringView b);
  *         valid UTF-8 "character" string view, otherwise 3 if both a and b are
  *         not valid UTF-8 "character" string views
  */
-int stc_utf8_try_cmp_sv(StcStringView a, StcStringView b, int *cmp);
+int stc_utf8_try_cmp_sv(StcStrView a, StcStrView b, int *cmp);
 
 /**
  * Convert the UTF-8 "character" string view to the equivalent Unicode
@@ -304,7 +304,7 @@ int stc_utf8_try_cmp_sv(StcStringView a, StcStringView b, int *cmp);
  * @return the equivalent Unicode codepoint if the UTF-8 "character" string view
  *         is valid; else SIZE_MAX
  */
-size_t stc_utf8_to_codepoint_sv(StcStringView sv);
+size_t stc_utf8_to_codepoint_sv(StcStrView sv);
 
 /* --- UTF-8 encoded strings macros and functions for string views ---------- */
 
@@ -322,7 +322,7 @@ size_t stc_utf8_to_codepoint_sv(StcStringView sv);
  * @return the number of Unicode codepoints in the string view if it is of a
  *         valid UTF-8 encoded string; else 0 if it is invalid
  */
-size_t stc_utf8_sv_ncodepoints(StcStringView sv);
+size_t stc_utf8_sv_ncodepoints(StcStrView sv);
 
 /**
  * Retrieve the next UTF-8 "character" in the string view if the starting
@@ -337,7 +337,7 @@ size_t stc_utf8_sv_ncodepoints(StcStringView sv);
  *         string view if the current character of the string view is the start
  *         of a valid UTF-8 "character"; else a string view of length 0
  */
-StcStringView stc_utf8_sv_next(StcStringView sv);
+StcStrView stc_utf8_sv_next(StcStrView sv);
 
 /**
  * Advance the UTF-8 string view pointed to by sv to the next UTF-8 "character"
@@ -354,7 +354,7 @@ StcStringView stc_utf8_sv_next(StcStringView sv);
  *         string view if the current character of the string view is the start
  *         of a valid UTF-8 "character"; else a string view of length 0
  */
-StcStringView stc_utf8_sv_advance(StcStringView *sv);
+StcStrView stc_utf8_sv_advance(StcStrView *sv);
 
 #endif /* STC_UTF_DISABLE_SV */
 

@@ -8,7 +8,7 @@
 #endif
 
 #ifndef STC_BTREE_DISABLE_MAP
-#    include "map.h"
+#    include <stc/collection/map.h>
 #endif
 
 typedef struct stc_btree StcBTree;

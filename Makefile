@@ -35,9 +35,8 @@ MATH_OBJ       := $(SRCDIR)/math.o
 HASHMAP_OBJ    := #$(SRCDIR)/collection/hashmap.o
 HASHSET_OBJ    := #$(SRCDIR)/collection/hashset.o
 LINKEDLIST_OBJ := $(SRCDIR)/collection/linkedlist.o
-SLICE_OBJ      := $(SRCDIR)/fatp/slice.o
 STRING_OBJ     := $(SRCDIR)/fatp/string.o
-SV_OBJ         := $(SRCDIR)/fatp/string_view.o
+SV_OBJ         := $(SRCDIR)/fatp/str_view.o
 VEC_OBJ        := $(SRCDIR)/fatp/vec.o
 MEMBASE_OBJ    := $(SRCDIR)/memory/base.o
 MEMLIBC_OBJ    := $(SRCDIR)/memory/libc.o
@@ -46,9 +45,8 @@ UTF_OBJ        := $(SRCDIR)/util/utf.o
 
 EXE            := $(MATH_EXE) $(VEC_EXE) $(ARGPARSER_EXE)
 OBJ            := $(COMMON_OBJ) $(MATH_OBJ) $(HASHMAP_OBJ) $(HASHSET_OBJ) \
-				  $(LINKEDLIST_OBJ) $(SLICE_OBJ) $(STRING_OBJ) $(SV_OBJ) \
-				  $(VEC_OBJ) $(MEMBASE_OBJ) $(MEMLIBC_OBJ) $(ARGPARSER_OBJ) \
-				  $(UTF_OBJ)
+                  $(LINKEDLIST_OBJ) $(STRING_OBJ) $(SV_OBJ) $(VEC_OBJ) \
+                  $(MEMBASE_OBJ) $(MEMLIBC_OBJ) $(ARGPARSER_OBJ) $(UTF_OBJ)
 
 ### RULES ######################################################################
 

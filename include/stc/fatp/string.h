@@ -3,30 +3,27 @@
 
 #include <stdarg.h>
 
-#include "slice.h"
-#include "vec.h"
+#include <stc/fatp/slice.h>
+#include <stc/fatp/vec.h>
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_STRING_ENABLE_SHORT_NAMES)
 typedef StcString String;
 
 #    define STRING_DEFAULT_CAP STC_STRING_DEFAULT_CAP
-#    define string_header      stc_string_header
 
 #    define string_new     stc_string_new
 #    define string_default stc_string_default
 #    define string_clone   stc_string_clone
 #    define string_free    stc_string_free
 
-#    define string_len        stc_string_len
-#    define string_cap        stc_string_cap
-#    define string_len_unsafe stc_string_len_unsafe
-#    define string_cap_unsafe stc_string_cap_unsafe
-#    define string_is_empty   stc_string_is_empty
-#    define string_clear      stc_string_clear
+#    define string_is_empty stc_string_is_empty
+#    define string_clear    stc_string_clear
 
 #    define string_push_back  stc_string_push_back
 #    define string_push_front stc_string_push_front
-#    define string_pop        stc_string_pop
+#    define string_pop_back   stc_string_pop_back
+#    define string_pop_front  stc_string_pop_front
+#    define string_at         stc_string_at
 #    define string_first      stc_string_first
 #    define string_last       stc_string_last
 
@@ -59,23 +56,20 @@ typedef StcString String;
 typedef StcVec(char) StcString;
 
 #define STC_STRING_DEFAULT_CAP 32
-#define stc_string_header      stc_vec_header
 
-#define stc_string_new(cap)  stc_vec_new(sizeof(char), (cap))
+#define stc_string_new(cap)  stc_vec_new(char, cap)
 #define stc_string_default() stc_string_new(STC_STRING_DEFAULT_CAP)
 #define stc_string_clone     stc_vec_clone
 #define stc_string_free      stc_vec_free
 
-#define stc_string_len        stc_vec_len
-#define stc_string_cap        stc_vec_cap
-#define stc_string_len_unsafe stc_vec_len_unsafe
-#define stc_string_cap_unsafe stc_vec_cap_unsafe
-#define stc_string_is_empty   stc_vec_is_empty
-#define stc_string_clear      stc_vec_clear
+#define stc_string_is_empty stc_vec_is_empty
+#define stc_string_clear    stc_vec_clear
 
 #define stc_string_push_back  stc_vec_push_back
 #define stc_string_push_front stc_vec_push_front
-#define stc_string_pop        stc_vec_pop
+#define stc_string_pop_back   stc_vec_pop_back
+#define stc_string_pop_front  stc_vec_pop_front
+#define stc_string_at         stc_vec_at
 #define stc_string_first      stc_vec_first
 #define stc_string_last       stc_vec_last
 
@@ -98,10 +92,6 @@ typedef StcVec(char) StcString;
 #define stc_string_to_str stc_vec_to_slice
 
 #define stc_string_push_cstr(s, cstr) stc_string_push_fmt(s, cstr)
-#define stc_string_push_vfmt(s, fmt, ap) \
-    _stc_string_push_vfmt(&(s), (fmt), (ap))
-#define stc_string_push_fmt(s, fmt, ...) \
-    _stc_string_push_fmt(&(s), (fmt), __VA_ARGS__)
 
 /* --- Resizable string functions ------------------------------------------- */
 
@@ -113,7 +103,7 @@ typedef StcVec(char) StcString;
  * @param[in] fmt  the format specifier
  * @param[in] ap   the variable argument list to parse with the format specifier
  */
-void _stc_string_push_vfmt(StcString *self, const char *fmt, va_list ap);
+void stc_string_push_vfmt(StcString *self, const char *fmt, va_list ap);
 
 /**
  * Push a string onto the resizable string created from the format specifier and
@@ -123,25 +113,23 @@ void _stc_string_push_vfmt(StcString *self, const char *fmt, va_list ap);
  * @param[in] fmt  the format specifier
  * @param[in] ...  the variable arguments to parse with the format specifier
  */
-void _stc_string_push_fmt(StcString *self, const char *fmt, ...);
+void stc_string_push_fmt(StcString *self, const char *fmt, ...);
 
 /* --- String slice definitions (aliases to slice) -------------------------- */
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_STR_ENABLE_SHORT_NAMES)
 typedef StcStr Str;
 
-#    define str_header     stc_str_header
 #    define str_new        stc_str_new
 #    define str_from_parts stc_str_from_parts
 #    define str_from_cstr  stc_str_from_cstr
-#    define str_from_lit   stc_str_from_lit
+#    define str            stc_str
 #    define str_clone      stc_str_clone
 #    define str_free       stc_str_free
 
-#    define str_len        stc_str_len
-#    define str_len_unsafe stc_str_len_unsafe
-#    define str_first      stc_str_first
-#    define str_last       stc_str_last
+#    define str_at    stc_str_at
+#    define str_first stc_str_first
+#    define str_last  stc_str_last
 
 #    define str_from_vfmt stc_str_from_vfmt
 #    define str_from_fmt  stc_str_from_fmt
@@ -150,18 +138,17 @@ typedef StcStr Str;
 /** Simple type definition to show intention of using string slice type. */
 typedef StcSlice(char) StcStr;
 
-#define stc_str_header          stc_slice_header
-#define stc_str_new(len)        stc_slice_new(sizeof(char), (len))
-#define stc_str_from_parts      stc_slice_from_parts
-#define stc_str_from_cstr(cstr) stc_str_from_parts(cstr, strlen((cstr)))
-#define stc_str_from_lit(s)     stc_str_from_parts(s, sizeof(s) - 1)
-#define stc_str_clone           stc_slice_clone
-#define stc_str_free            stc_slice_free
+#define stc_str_new(len)           stc_slice_new(char, len)
+#define stc_str_from_parts(s, len) stc_slice_from_parts(char, s, len)
+#define stc_str_from_range(s, end) stc_str_from_parts(s, (end) - (s))
+#define stc_str_from_cstr(cstr)    stc_str_from_parts(cstr, strlen((cstr)))
+#define stc_str(s)                 stc_str_from_parts(s, sizeof(s) - 1)
+#define stc_str_clone              stc_slice_clone
+#define stc_str_free               stc_slice_free
 
-#define stc_str_len        stc_slice_len
-#define stc_str_len_unsafe stc_slice_len_unsafe
-#define stc_str_first      stc_slice_first
-#define stc_str_last       stc_slice_last
+#define stc_str_at    stc_slice_at
+#define stc_str_first stc_slice_first
+#define stc_str_last  stc_slice_last
 
 /* --- String slice functions ----------------------------------------------- */
 
