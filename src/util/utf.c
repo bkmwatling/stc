@@ -254,6 +254,38 @@ int stc_utf8_try_cmp_sv(StcStrView a, StcStrView b, int *cmp)
     return result;
 }
 
+size_t stc_utf8_to_codepoint_sv(StcStrView sv)
+{
+    size_t       codepoint;
+    unsigned int nbytes = stc_utf8_nbytes_sv(sv);
+
+    switch (nbytes) {
+        case 1: codepoint = stc_sv_at(sv, 0); break;
+
+        case 2:
+            codepoint  = (stc_sv_at(sv, 0) & 0x1f) << 6;
+            codepoint |= (stc_sv_at(sv, 1) & 0x3f);
+            break;
+
+        case 3:
+            codepoint  = (stc_sv_at(sv, 0) & 0x0f) << 12;
+            codepoint |= (stc_sv_at(sv, 1) & 0x3f) << 6;
+            codepoint |= (stc_sv_at(sv, 2) & 0x3f);
+            break;
+
+        case 4:
+            codepoint  = (stc_sv_at(sv, 0) & 0x08) << 18;
+            codepoint |= (stc_sv_at(sv, 1) & 0x3f) << 12;
+            codepoint |= (stc_sv_at(sv, 2) & 0x3f) << 6;
+            codepoint |= (stc_sv_at(sv, 3) & 0x3f);
+            break;
+
+        default: codepoint = SIZE_MAX; break;
+    }
+
+    return codepoint;
+}
+
 /* --- UTF-8 encoded strings functions for string views --------------------- */
 
 size_t stc_utf8_sv_ncodepoints(StcStrView sv)
