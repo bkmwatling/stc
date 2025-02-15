@@ -6,6 +6,7 @@
 
 #include <stc/fatp/slice.h>
 
+/** Simple type definition to show intention of using string view type. */
 typedef StcSlice(const char) StcStrView;
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_SV_ENABLE_SHORT_NAMES)
@@ -18,6 +19,15 @@ typedef StcStrView StrView;
 #    define sv_from_range stc_sv_from_range
 #    define sv_from_cstr  stc_sv_from_cstr
 #    define sv            stc_sv
+#    define sv_from_str   stc_sv_from_str
+
+#    define sv_at    stc_sv_at
+#    define sv_first stc_sv_first
+#    define sv_last  stc_sv_last
+
+#    define sv_subview       stc_sv_subview
+#    define sv_subview_from  stc_sv_subview_from
+#    define sv_subview_until stc_sv_subview_until
 
 #    define sv_trim              stc_sv_trim
 #    define sv_trim_left         stc_sv_trim_left
@@ -39,6 +49,14 @@ typedef StcStrView StrView;
 #    define sv_chop_int          stc_sv_chop_int
 #endif /* STC_SV_ENABLE_SHORT_NAMES */
 
+#if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_STR_ENABLE_SHORT_NAMES)
+#    define str_view stc_str_view
+
+#    define str_subview       stc_str_subview
+#    define str_subview_from  stc_str_subview_from
+#    define str_subview_until stc_str_subview_until
+#endif /* STC_STR_ENABLE_SHORT_NAMES */
+
 /**
  * printf macros for StcStrView
  * USAGE:
@@ -56,15 +74,183 @@ typedef StcStrView StrView;
  *
  * @return a string view of the given string over length of len
  */
-#define stc_sv_from_parts(s, len)     ((StcStrView) { (s), (len) })
+#define stc_sv_from_parts(s, len) ((StcStrView) { (s), (len) })
+
+/**
+ * Create a string view of the range between two strings (character pointers).
+ *
+ * NOTE: The created string view is non-inclusive of the end of the range.
+ *
+ * @param[in] start the start (pointer) of the string range
+ * @param[in] end   the end (pointer) of the string range
+ *
+ * @return a string view of the string defined by the range
+ */
 #define stc_sv_from_range(start, end) stc_sv_from_parts(start, (end) - (start))
-#define stc_sv_from_cstr(cstr)        stc_sv_from_parts(cstr, strlen((cstr)))
-#define stc_sv(s)                     stc_sv_from_parts(s, sizeof(s) - 1)
+
+/**
+ * Create a string view from a C (null terminated) string by calling strlen for
+ * automatically.
+ *
+ * @param[in] cstr the C string to view
+ *
+ * @return a string view of the C string
+ */
+#define stc_sv_from_cstr(cstr) stc_sv_from_parts(cstr, strlen((cstr)))
+
+/**
+ * Create a string view from a string literal (similar to C++ sv keyword for
+ * literals).
+ *
+ * @param[in] lit the string literal to view
+ *
+ * @return a string view of the string literal
+ */
+#define stc_sv(lit) stc_sv_from_parts(lit, sizeof(lit) - 1)
+
+/**
+ * Create a string view from a string slice.
+ *
+ * @param[in] str the string slice to view
+ *
+ * @return a string view of the string slice
+ */
 #define stc_sv_from_str(str) \
     stc_sv_from_parts((str).__stc_slice_data, (str).len)
 
+/**
+ * Create a string view from a string slice.
+ *
+ * @param[in] str the string slice to view
+ *
+ * @return a string view of the string slice
+ */
+#define stc_str_view stc_sv_from_str
+
+/**
+ * Get the character at the specified index of a string view.
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ *
+ * @param[in] sv the string view to get the indexed character from
+ * @param[in] i  the index of the character to retrieve
+ *
+ * @return the indexed character from the string view
+ */
 #define stc_sv_at stc_slice_at
 
+/**
+ * Get the first element from a string view.
+ *
+ * @param[in] str the string view to retrieve the first element of
+ *
+ * @return the first element of the string view
+ */
+#define stc_sv_first stc_slice_first
+
+/**
+ * Get the last element from a string view.
+ *
+ * @param[in] str the string view to retrieve the last element of
+ *
+ * @return the last element of the string view
+ */
+#define stc_sv_last stc_slice_last
+
+/**
+ * Create a substring view from a string view from the starting index until the
+ * ending index (non-inclusive).
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ *
+ * @param[in] sv    the string view to create the substring view from
+ * @param[in] start the start index of the substring view
+ * @param[in] end   the end index of the substring view
+ *
+ * @return a substring view over the defined range
+ */
+#define stc_sv_subview(sv, start, end) \
+    stc_sv_from_range(&stc_sv_at(start), &stc_sv_at(end))
+
+/**
+ * Create a substring view from a string view from the starting index until the
+ * end of the string view.
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ *
+ * @param[in] sv    the string view to create the substring view from
+ * @param[in] start the start index of the substring view
+ *
+ * @return a substring view from the starting index until the end of the string
+ *         view
+ */
+#define stc_sv_subview_from(sv, start) stc_sv_subview(sv, start, (sv).len)
+
+/**
+ * Create a substring view from a string view from the start of the string view
+ * until the ending index (non-inclusive).
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ *
+ * @param[in] sv  the string view to create the substring view from
+ * @param[in] end the end index of the substring view
+ *
+ * @return a substring view from the start of the string view until the ending
+ *         index (non-inclusive)
+ */
+#define stc_sv_subview_until(sv, end) stc_sv_subview(sv, 0, end)
+
+/**
+ * Create a substring view from a string slice from the starting index until the
+ * ending index (non-inclusive).
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ *
+ * @param[in] str   the string slice to create the substring view from
+ * @param[in] start the start index of the substring view
+ * @param[in] end   the end index of the substring view
+ *
+ * @return a substring view over the defined range
+ */
+#define stc_str_subview(sv, start, end) \
+    stc_sv_from_range(&stc_str_at(start), &stc_str_at(end))
+
+/**
+ * Create a substring view from a string slice from the starting index until the
+ * end of the string slice.
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ *
+ * @param[in] str   the string slice to create the substring view from
+ * @param[in] start the start index of the substring view
+ *
+ * @return a substring view from the starting index until the end of the string
+ *         slice
+ */
+#define stc_str_subview_from(str, start) stc_str_subview(str, start, (str).len)
+
+/**
+ * Create a substring view from a string slice from the start of the string
+ * slice until the ending index (non-inclusive).
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ *
+ * @param[in] str the string slice to create the substring view from
+ * @param[in] end the end index of the substring view
+ *
+ * @return a substring view from the start of the string slice until the ending
+ *         index (non-inclusive)
+ */
+#define stc_str_subview_until(str, end) stc_str_subview(str, 0, end)
+
+/**
+ * Trim the string view from both sides (skipping over spaces), and return the
+ * trimmed string view.
+ *
+ * @param[in] sv the string view to trim
+ *
+ * @return the trimmed string view
+ */
 #define stc_sv_trim(sv) stc_sv_trim_left(stc_sv_trim_right((sv)))
 
 /**

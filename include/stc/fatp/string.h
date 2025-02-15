@@ -2,9 +2,13 @@
 #define STC_STRING_H
 
 #include <stdarg.h>
+#include <string.h>
 
 #include <stc/fatp/slice.h>
 #include <stc/fatp/vec.h>
+
+/** Simple type definition to show intention of using resizable string type. */
+typedef StcVec(char) StcString;
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_STRING_ENABLE_SHORT_NAMES)
 typedef StcString String;
@@ -51,9 +55,6 @@ typedef StcString String;
 #endif /* STC_STRING_ENABLE_SHORT_NAMES */
 
 /* --- Resizable string definitions (aliases to vec) ------------------------ */
-
-/** Simple type definition to show intention of using resizable string type. */
-typedef StcVec(char) StcString;
 
 #define STC_STRING_DEFAULT_CAP 32
 
@@ -117,8 +118,14 @@ void stc_string_push_fmt(StcString *self, const char *fmt, ...);
 
 /* --- String slice definitions (aliases to slice) -------------------------- */
 
+/** Simple type definition to show intention of using string slice type. */
+typedef StcSlice(char) StcStr;
+
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_STR_ENABLE_SHORT_NAMES)
 typedef StcStr Str;
+
+#    define STR_FMT STC_STR_FMT
+#    define STR_ARG STC_STR_ARG
 
 #    define str_new        stc_str_new
 #    define str_from_parts stc_str_from_parts
@@ -131,24 +138,168 @@ typedef StcStr Str;
 #    define str_first stc_str_first
 #    define str_last  stc_str_last
 
+#    define str_substr       stc_str_substr
+#    define str_substr_from  stc_str_substr_from
+#    define str_substr_until stc_str_substr_until
+
 #    define str_from_vfmt stc_str_from_vfmt
 #    define str_from_fmt  stc_str_from_fmt
 #endif /* STC_STR_ENABLE_SHORT_NAMES */
 
-/** Simple type definition to show intention of using string slice type. */
-typedef StcSlice(char) StcStr;
+/**
+ * printf macros for StcStr
+ * USAGE:
+ *   StcStr name = ...;
+ *   printf("Name: " STC_STR_FMT "\n", STC_STR_ARG(name));
+ */
+#define STC_STR_FMT      "%.*s"
+#define STC_STR_ARG(str) (int) (str).len, (str).__stc_slice_data
 
-#define stc_str_new(len)           stc_slice_new(char, len)
+/**
+ * Create a new string slice with given length, allocating the necessary
+ * underlying memory.
+ *
+ * @param[in] len the length of the string slice to create
+ *
+ * @return the created string slice
+ */
+#define stc_str_new(len) stc_slice_new(char, len)
+
+/**
+ * Create a string slice from a character pointer and length by copying the
+ * string pointed to by the pointer.
+ *
+ * @param[in] s   the string address to copy from
+ * @param[in] len the length of the string slice
+ *
+ * @return a string slice of the given string over length of len
+ */
 #define stc_str_from_parts(s, len) stc_slice_from_parts(char, s, len)
-#define stc_str_from_range(s, end) stc_str_from_parts(s, (end) - (s))
-#define stc_str_from_cstr(cstr)    stc_str_from_parts(cstr, strlen((cstr)))
-#define stc_str(s)                 stc_str_from_parts(s, sizeof(s) - 1)
-#define stc_str_clone              stc_slice_clone
-#define stc_str_free               stc_slice_free
 
-#define stc_str_at    stc_slice_at
+/**
+ * Create a string slice of the range between two strings (character pointers)
+ * by copying that range of characters.
+ *
+ * @param[in] start the start (pointer) of the string range
+ * @param[in] end   the end (pointer) of the string range
+ *
+ * @return a string slice of the copied string defined by the range
+ */
+#define stc_str_from_range(start, end) \
+    stc_str_from_parts(start, (end) - (start))
+
+/**
+ * Create a string slice from a C (null terminated) string by calling strlen for
+ * automatically by copying the C string.
+ *
+ * @param[in] cstr the C string to copy
+ *
+ * @return a string slice of the copied C string
+ */
+#define stc_str_from_cstr(cstr) stc_str_from_parts(cstr, strlen((cstr)))
+
+/**
+ * Create a string slice from a string literal by copying the literal.
+ *
+ * @param[in] lit the string literal to copy
+ *
+ * @return a string slice of the copied string literal
+ */
+#define stc_str(lit) stc_str_from_parts(lit, sizeof(lit) - 1)
+
+/**
+ * Create a clone of a string slice by copying the underlying character array.
+ *
+ * @param[in] str the string slice to clone
+ *
+ * @return the clone of the string slice
+ */
+#define stc_str_clone stc_slice_clone
+
+/**
+ * Free the underlying memory of a string slice.
+ *
+ * @param[in] str the string slice to free the underlying memory of
+ */
+#define stc_str_free stc_slice_free
+
+/**
+ * Get the character at the specified index of a string slice.
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ *
+ * @param[in] str the string slice to get the indexed character from
+ * @param[in] i   the index of the character to retrieve
+ *
+ * @return the indexed character from the string slice
+ */
+#define stc_str_at stc_slice_at
+
+/**
+ * Get the first element from a string slice.
+ *
+ * @param[in] str the string slice to retrieve the first element of
+ *
+ * @return the first element of the string slice
+ */
 #define stc_str_first stc_slice_first
-#define stc_str_last  stc_slice_last
+
+/**
+ * Get the last element from a string slice.
+ *
+ * @param[in] str the string slice to retrieve the last element of
+ *
+ * @return the last element of the string slice
+ */
+#define stc_str_last stc_slice_last
+
+/**
+ * Create a substring slice from a string slice from the starting index until
+ * the ending index (non-inclusive).
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ * NOTE: The substring slice is a copy of the string slice over the defined
+ *       range, and thus needs to be freed.
+ *
+ * @param[in] str   the string slice to create the substring slice from
+ * @param[in] start the start index of the substring slice
+ * @param[in] end   the end index of the substring slice
+ *
+ * @return a substring slice over the defined range
+ */
+#define stc_str_substr stc_slice_subslice
+
+/**
+ * Create a substring slice from a string slice from the starting index until
+ * the end of the string slice.
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ * NOTE: The substring slice is a copy of the string slice over the defined
+ *       range, and thus needs to be freed.
+ *
+ * @param[in] str   the string slice to create the substring slice from
+ * @param[in] start the start index of the substring slice
+ *
+ * @return a substring slice from the starting index until the end of the string
+ *         slice
+ */
+#define stc_str_substr_from(str, start) stc_str_substr(str, start, (str).len)
+
+/**
+ * Create a substring slice from a string slice from the start of the string
+ * slice until the ending index (non-inclusive).
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ * NOTE: The substring slice is a copy of the string slice over the defined
+ *       range, and thus needs to be freed.
+ *
+ * @param[in] str the string slice to create the substring slice from
+ * @param[in] end the end index of the substring slice
+ *
+ * @return a substring slice from the start of the string slice until the ending
+ *         index (non-inclusive)
+ */
+#define stc_str_substr_until(str, end) stc_str_substr(str, 0, end)
 
 /* --- String slice functions ----------------------------------------------- */
 

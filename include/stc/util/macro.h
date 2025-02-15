@@ -86,7 +86,7 @@
  * STC_HAS_COMMA output 0 */
 #define __STC_EMPTY_CASE_0001 ,
 
-// apply function f for each argument recursively with tail
+/* apply function f for each argument recursively with tail */
 #define __STC_FOREACH_1(f, a)       f(a, )
 #define __STC_FOREACH_2(f, a, ...)  f(a, __STC_FOREACH_1(f, __VA_ARGS__))
 #define __STC_FOREACH_3(f, a, ...)  f(a, __STC_FOREACH_2(f, __VA_ARGS__))

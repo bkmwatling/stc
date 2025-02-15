@@ -5,7 +5,7 @@
 
 /* --- Magic macros to handle multi-word types ------------------------------ */
 
-// our dictionary
+/* --- Dictionary for helper macros --- */
 #define _STC_FATP_WORD_ptr      ptr,
 #define _STC_FATP_WORD_void     void,
 #define _STC_FATP_WORD_unsigned unsigned,
@@ -62,7 +62,7 @@
 #    define _STC_FATP_TYPE_uintmax_t uintmax_t,
 #endif /* defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L */
 
-// Join arguments with `_`.
+/* Join arguments with `_`. */
 #define __STC_FATP_JOIN_U(a, b) a##_##b
 #define _STC_FATP_JOIN_U(a, b)  __STC_FATP_JOIN_U(a, b)
 #define __STC_FATP_JOIN_TWO(a, b) \
@@ -70,7 +70,7 @@
 #define _STC_FATP_JOIN_TWO(a, b) __STC_FATP_JOIN_TWO(a, b)
 #define _STC_FATP_JOIN(...)      _STC_FOREACH(_STC_FATP_JOIN_TWO, __VA_ARGS__)
 
-// Join arguments with ` `.
+/* Join arguments with ` `. */
 #define __STC_FATP_JOIN_SPACE_U(a, b) a b
 #define _STC_FATP_JOIN_SPACE_U(a, b)  __STC_FATP_JOIN_SPACE_U(a, b)
 #define __STC_FATP_JOIN_SPACE_TWO(a, b) \
@@ -79,12 +79,12 @@
 #define _STC_FATP_JOIN_SPACE(...) \
     _STC_FOREACH(_STC_FATP_JOIN_SPACE_TWO, __VA_ARGS__)
 
-// Append _STC_FATP_WORD_ to each argument and join arguments with spaces.
+/* Append _STC_FATP_WORD_ to each argument and join arguments with spaces. */
 #define _STC_FATP_WORD_           /* the last one expands to empty */
 #define _STC_FATP_WORDS_TWO(a, b) _STC_FATP_WORD_##a b
 #define _STC_FATP_WORDS(...)      _STC_FOREACH(_STC_FATP_WORDS_TWO, __VA_ARGS__)
 
-// Append _STC_FATP_TYPE_ to each argument and join arguments with spaces.
+/* Append _STC_FATP_TYPE_ to each argument and join arguments with spaces. */
 #define _STC_FATP_TYPE_           /* the last one expands to empty */
 #define _STC_FATP_TYPES_TWO(a, b) _STC_FATP_TYPE_##a b
 #define _STC_FATP_TYPES(...)      _STC_FOREACH(_STC_FATP_TYPES_TWO, __VA_ARGS__)
@@ -993,8 +993,7 @@
 #    define __STC_FATP_AUTO_CAST_STDC99(...)
 #endif /* defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L */
 
-/* --- Macros to define fat-pointers for builtin types
- * ---------------------- */
+/* --- Macros to define fat-pointers for builtin types ---------------------- */
 
 #define _STC_FATP_DEFINE_FOR_BUILTIN_TYPES(StcFatp, stc_fatp_define_for)       \
     stc_fatp_define_for(void ptr);                                             \

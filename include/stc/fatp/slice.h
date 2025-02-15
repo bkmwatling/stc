@@ -20,16 +20,36 @@
 #    define slice_at    stc_slice_at
 #    define slice_first stc_slice_first
 #    define slice_last  stc_slice_last
+
+#    define slice_subslice       stc_slice_subslice
+#    define slice_subslice_from  stc_slice_subslice_from
+#    define slice_subslice_until stc_slice_subslice_until
 #endif /* STC_SLICE_ENABLE_SHORT_NAMES */
 
 /**
- * Simple macro to show intention of using slice type.
+ * Macro to use a slice with specified element type.
  *
  * NOTE: StcSlice(void) can be used to indicate a slice of unknown/any type.
+ * NOTE: Due to C's limited macro system, pointers are specified with the word
+ *       `ptr` instead of the * symbol.
+ *
+ * @param[in] T the type of the slice elements
+ *
+ * @return the slice type specifier for the element type
  */
 #define StcSlice(T) STC_CONCAT(__stc_slice_, _STC_FATP_MAGIC_WORD_MACRO(T))
 
 // TODO: add allocator field once allocator type is defined
+/**
+ * Macro to define a slice with underlying element type.
+ *
+ * NOTE: Slices have been defined for all primitive types (including C99
+ *       stdint.h), but must be defined for any other types you wish to use.
+ * NOTE: Due to C's limited macro system, pointers are specified with the word
+ *       `ptr` instead of the * symbol.
+ *
+ * @param[in] T the type of the slice elements
+ */
 #define stc_slice_define_for(T)                           \
     typedef struct {                                      \
         _STC_FATP_MAGIC_TYPE_MACRO(T) * __stc_slice_data; \
@@ -48,18 +68,34 @@ stc_slice_define_for(void);
 #define _STC_SLICE_PTR_ANY(s) ((StcSlice(void) *) (s))
 
 // TODO: use allocator instead of malloc and free
+/**
+ * Create a new slice with given type and length, allocating the necessary
+ * underlying memory.
+ *
+ * @param[in] T   the type of the slice
+ * @param[in] len the length of the slice to create
+ *
+ * @return the created slice
+ */
 #define stc_slice_new(T, len)                                        \
     (StcSlice(T))                                                    \
     {                                                                \
         malloc(sizeof(_STC_FATP_MAGIC_TYPE_MACRO(T)) * (len)), (len) \
     }
+
+/**
+ * Initialise a given slice's memory to a given length.
+ *
+ * @param[in,out] s   the slice to initialise
+ * @param[in]     len the length of the slice to initialise
+ */
 #define stc_slice_init(s, len)                                               \
     ((s)->__stc_slice_data = malloc(sizeof(*(s)->__stc_slice_data) * (len)), \
      (s)->len              = (len))
 
 /**
- * Create a new slice by copying the data that pointer p points to with type T
- * and length of len.
+ * Create a new slice by copying the data from a pointer with specified type
+ * and length.
  *
  * NOTE: p is expected to be not be NULL, and the type T must match the type of
  * the data pointed to by p.
@@ -77,6 +113,14 @@ stc_slice_define_for(void);
         memcpy(_STC_MACRO_VAR(_s_).__stc_slice_data, (p), sizeof(T) * (len)); \
         _STC_MACRO_VAR(_s_);                                                  \
     })
+
+/**
+ * Create a (shallow) clone of a slice by copying the underlying data.
+ *
+ * @param[in] s the slice to clone
+ *
+ * @return the clone of the slice
+ */
 #define stc_slice_clone(s)                                                     \
     ({                                                                         \
         __typeof__(s) _STC_MACRO_VAR(_s_) = {                                  \
@@ -87,11 +131,99 @@ stc_slice_define_for(void);
                    sizeof(*(s).__stc_slice_data) * (s).len);                   \
         _STC_MACRO_VAR(_s_);                                                   \
     })
+
+/**
+ * Free the underlying memory of a slice.
+ *
+ * @param[in] s the slice to free the underlying memory of
+ */
 #define stc_slice_free(s) free((s).__stc_slice_data)
 
+/**
+ * Get the element of a slice at a specified index.
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ *
+ * @param[in] s the slice to get the indexed element from
+ * @param[in] i the index of the element to retrieve
+ *
+ * @return the indexed element from the slice
+ */
 #define stc_slice_at(s, i) ((s).__stc_slice_data[i])
+
+/**
+ * Get the first element from a slice.
+ *
+ * @param[in] s the slice to retrieve the first element of
+ *
+ * @return the first element of the slice
+ */
 #define stc_slice_first(s) stc_slice_at(s, 0)
-#define stc_slice_last(s)  stc_slice_at(s, (s).len - 1)
+
+/**
+ * Get the last element from a slice.
+ *
+ * @param[in] s the slice to retrieve the last element of
+ *
+ * @return the last element of the slice
+ */
+#define stc_slice_last(s) stc_slice_at(s, (s).len - 1)
+
+/**
+ * Create a subslice from a slice from the starting index until the ending index
+ * (non-inclusive).
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ * NOTE: The subslice is a copy of the slice over the defined range, and thus
+ *       needs to be freed.
+ *
+ * @param[in] s     the slice to create the subslice from
+ * @param[in] start the start index of the subslice
+ * @param[in] end   the end index of the subslice
+ *
+ * @return a subslice over the defined range
+ */
+#define stc_slice_subslice(s, start, end)                                    \
+    ({                                                                       \
+        __typeof__(s) _STC_MACRO_VAR(_s_);                                   \
+        stc_slice_init(_STC_MACRO_VAR(_s_), (end) - (start));                \
+        if (_STC_MACRO_VAR(_s_).len)                                         \
+            memcpy(_STC_MACRO_VAR(_s_).__stc_slice_data,                     \
+                   &stc_slice_at(s, start),                                  \
+                   sizeof(*(s).__stc_slice_data) * _STC_MACRO_VAR(_s_).len); \
+        _STC_MACRO_VAR(_s_);                                                 \
+    })
+
+/**
+ * Create a subslice from a slice from the starting index until the end of the
+ * slice.
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ * NOTE: The subslice is a copy of the slice over the defined range, and thus
+ *       needs to be freed.
+ *
+ * @param[in] s     the slice to create the subslice from
+ * @param[in] start the start index of the subslice
+ *
+ * @return a subslice from the starting index until the end of the slice
+ */
+#define stc_slice_subslice_from(s, start) stc_slice_subslice(s, start, (s).len)
+
+/**
+ * Create a subslice from a slice from the start of the slice until the ending
+ * index (non-inclusive).
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ * NOTE: The subslice is a copy of the slice over the defined range, and thus
+ *       needs to be freed.
+ *
+ * @param[in] s   the slice to create the subslice from
+ * @param[in] end the end index of the subslice
+ *
+ * @return a subslice from the start of the slice until the ending index
+ *         (non-inclusive)
+ */
+#define stc_slice_subslice_until(s, end) stc_slice_subslice(s, 0, end)
 
 /* --- Define StcSlice for builtin types ------------------------------------ */
 
