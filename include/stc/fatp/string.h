@@ -36,9 +36,10 @@ typedef StcString String;
 #    define string_drain    stc_string_drain
 #    define string_truncate stc_string_truncate
 
-#    define string_append          stc_string_append
-#    define string_extend          stc_string_extend
-#    define string_extend_from_str stc_string_extend_from_str
+#    define string_append           stc_string_append
+#    define string_extend           stc_string_extend
+#    define string_extend_from_cstr stc_string_extend_from_cstr
+#    define string_extend_from_str  stc_string_extend_from_str
 
 #    define string_reserve       stc_string_reserve
 #    define string_reserve_exact stc_string_reserve_exact
@@ -58,59 +59,309 @@ typedef StcString String;
 
 #define STC_STRING_DEFAULT_CAP 32
 
-#define stc_string_new(cap)  stc_vec_new(char, cap)
+/**
+ * Create a new resizable string with given capacity, allocating the necessary
+ * underlying memory and setting the length to 0.
+ *
+ * @param[in] cap the capacity of the string to create
+ *
+ * @return the created string
+ */
+#define stc_string_new(cap) stc_vec_new(char, cap)
+
+/**
+ * Create a new resizable string with default capacity, allocating the necessary
+ * underlying memory and setting the length to 0.
+ *
+ * @return the created string with default capacity
+ */
 #define stc_string_default() stc_string_new(STC_STRING_DEFAULT_CAP)
-#define stc_string_clone     stc_vec_clone
-#define stc_string_free      stc_vec_free
 
+/**
+ * Create a clone of a resizable string by copying the underlying characters.
+ *
+ * @param[in] s the string to clone
+ *
+ * @return the clone of the string
+ */
+#define stc_string_clone stc_vec_clone
+
+/**
+ * Free the underlying memory of a resizable string.
+ *
+ * @param[in] s the string to free the underlying memory of
+ */
+#define stc_string_free stc_vec_free
+
+/**
+ * Check whether a resizable string is empty (has a length of 0).
+ *
+ * @param[in] s the string to check if empty
+ *
+ * @return a truthy value if the string is empty; else 0
+ */
 #define stc_string_is_empty stc_vec_is_empty
-#define stc_string_clear    stc_vec_clear
 
-#define stc_string_push_back  stc_vec_push_back
+/**
+ * Clear a resizable string to have a length of 0.
+ *
+ * @param[in,out] s the string to clear
+ */
+#define stc_string_clear stc_vec_clear
+
+/**
+ * Add a character to the tail of a resizable string.
+ *
+ * @param[in,out] s  the string to add the character to
+ * @param[in]     ch the character to add to the string
+ */
+#define stc_string_push_back stc_vec_push_back
+
+/**
+ * Add a character to the head of a resizable string.
+ *
+ * @param[in,out] s  the string to add the character to
+ * @param[in]     ch the character to add to the string
+ */
 #define stc_string_push_front stc_vec_push_front
-#define stc_string_pop_back   stc_vec_pop_back
-#define stc_string_pop_front  stc_vec_pop_front
-#define stc_string_at         stc_vec_at
-#define stc_string_first      stc_vec_first
-#define stc_string_last       stc_vec_last
 
-#define stc_string_insert   stc_vec_insert
-#define stc_string_remove   stc_vec_remove
-#define stc_string_drain    stc_vec_drain
+/**
+ * Remove and return the character at the tail of a resizable string.
+ *
+ * @param[in,out] s the string to pop the tail character from
+ *
+ * @return the tail character of the string
+ */
+#define stc_string_pop_back stc_vec_pop_back
+
+/**
+ * Remove and return the character at the head of a resizable string.
+ *
+ * @param[in,out] s the string to pop the head character from
+ *
+ * @return the head character of the string
+ */
+#define stc_string_pop_front stc_vec_pop_front
+
+/**
+ * Get the character of a resizable string at a specified index.
+ *
+ * NOTE: No index bounds checks are performed for efficiency.
+ *
+ * @param[in] s the string to get the indexed character from
+ * @param[in] i the index of the character to retrieve
+ *
+ * @return the indexed character from the string
+ */
+#define stc_string_at stc_vec_at
+
+/**
+ * Get the first character from a resizable string.
+ *
+ * @param[in] s the string to retrieve the first character of
+ *
+ * @return the first character of the string
+ */
+#define stc_string_first stc_vec_first
+
+/**
+ * Get the last character from a resizable string.
+ *
+ * @param[in] s the string to retrieve the last character of
+ *
+ * @return the last character of the string
+ */
+#define stc_string_last stc_vec_last
+
+/**
+ * Insert a character into a resizable string at the specified index.
+ *
+ * @param[in,out] s  the string to insert the character into
+ * @param[in]     i  the index where to insert the character
+ * @param[in]     ch the character to insert into the string
+ */
+#define stc_string_insert stc_vec_insert
+
+/**
+ * Remove and return the character at the specified index from a resizable
+ * string.
+ *
+ * @param[in,out] s the string to remove the character from
+ * @param[in]     i the index of the character to remove
+ *
+ * @return the character removed from the string
+ */
+#define stc_string_remove stc_vec_remove
+
+/**
+ * Drain (remove) the specified number of characters starting from a specified
+ * index from a resizable string.
+ *
+ * @param[in,out] s the string to drain the characters from
+ * @param[in]     i the index to drain the characters from
+ * @param[in]     n the number of characters to drain
+ */
+#define stc_string_drain stc_vec_drain
+
+/**
+ * Truncate the resizable string to the specified length, removing the
+ * characters between the specified length and the length of the string.
+ *
+ * NOTE: The string is only truncated if the specified length is between 0 and
+ *       the length of the string. The only case where 0 is returned by this
+ *       macro is when this condition is not met.
+ *
+ * @param[in,out] s   the string to truncate
+ * @param[in]     len the length to truncate the string to
+ *
+ * @return a truthy value if the string was truncated; else 0
+ */
 #define stc_string_truncate stc_vec_truncate
 
-#define stc_string_append          stc_vec_append
-#define stc_string_extend          stc_vec_extend
+/**
+ * Move all the characters from a resizable string to the end of another
+ * resizable string.
+ *
+ * NOTE: After the append, the second string will be empty.
+ *
+ * @param[in,out] s the string to move characters to the end of
+ * @param[in,out] t the string to move the characters from
+ */
+#define stc_string_append stc_vec_append
+
+/**
+ * Extend a resizable string (append to its tail) with the characters from an
+ * array of characters with specified length.
+ *
+ * @param[in,out] s    the string to extend
+ * @param[in]     cstr the array of characters to add to the string
+ * @param[in]     len  the length of the array of characters being extended from
+ */
+#define stc_string_extend stc_vec_extend
+
+/**
+ * Extend a resizable string (append to its tail) with the characters from a C
+ * string (null-terminated array of characters).
+ *
+ * @param[in,out] s    the string to extend
+ * @param[in]     cstr the C string to add to the string
+ */
+#define stc_string_extend_from_cstr(s, cstr) \
+    stc_string_extend(s, cstr, strlen((cstr)))
+
+/**
+ * Extend a resizable string (append to its tail) with the characters from a
+ * string slice.
+ *
+ * @param[in,out] s   the string to extend
+ * @param[in]     str the string slice to add to the string
+ */
 #define stc_string_extend_from_str stc_vec_extend_from_slice
 
-#define stc_string_reserve       stc_vec_reserve
+/**
+ * Reserve enough space in a resizable string for the specified number of
+ * characters.
+ *
+ * NOTE: More space than may be allocated than may be necessary.
+ *
+ * @param[in,out] s the string to reserve space for
+ * @param[in]     n the number of characters to reserve space for in the string
+ */
+#define stc_string_reserve stc_vec_reserve
+
+/**
+ * Reserve exactly enough space in a resizable string for the specified number
+ * of characters.
+ *
+ * NOTE: The exact amount of space necessary is allocated.
+ *
+ * @param[in,out] s the string to reserve exact space for
+ * @param[in]     n the number of characters to reserve exact space for in the
+ *                  string
+ */
 #define stc_string_reserve_exact stc_vec_reserve_exact
+
+/**
+ * Reserve enough space in a resizable string for the specified number of
+ * characters at the specified index.
+ *
+ * The space is allocated at the specified index, essentially leaving a gap in
+ * the string at that index.
+ * NOTE: More space than may be allocated than may be necessary.
+ *
+ * @param[in,out] s the string to reserve space for
+ * @param[in]     i the index to reserve space at
+ * @param[in]     n the number of characters to reserve space for in the string
+ */
 #define stc_string_reserve_index stc_vec_reserve_index
-#define stc_string_shrink        stc_vec_shrink
+
+/**
+ * Shrink a resizable string to the specified capacity.
+ *
+ * NOTE: The string will only shrink to its length at minimum, and will only
+ *       shrink if the specified capacity is less than the string's capacity.
+ *
+ * @param[in,out] s   the string to shrink
+ * @param[in]     cap the capacity to shrink the string to
+ */
+#define stc_string_shrink stc_vec_shrink
+
+/**
+ * Shrink a resizable string so that it's capacity and length are the same.
+ *
+ * @param[in,out] v the string to shrink to its length
+ */
 #define stc_string_shrink_to_fit stc_vec_shrink_to_fit
 
+/**
+ * Create a string slice that REFERENCES the data of a resizable string.
+ *
+ * NOTE: The created string slice points to the string's underlying data, and
+ *       does NOT create a copy of the data, and thus must NOT be freed.
+ *
+ * @param[in] v the string to create a string slice reference of
+ *
+ * @return the string slice which references the data of the string
+ */
 #define stc_string_as_str stc_vec_as_slice
+
+/**
+ * Create a string slice that has a copy of the data of a resizable string.
+ *
+ * NOTE: The created string slice points to a copy of the string's underlying
+ *       data, and thus MUST be freed.
+ *
+ * @param[in] v the string to create a string slice copy of
+ *
+ * @return the string slice which has a copy of the data of the string
+ */
 #define stc_string_to_str stc_vec_to_slice
 
+/**
+ * Push a C string (null-terminated character array) onto the resizable string.
+ *
+ * @param[in] s    the string to push the C string onto
+ * @param[in] cstr the C string to push onto the string
+ */
 #define stc_string_push_cstr(s, cstr) stc_string_push_fmt(s, cstr)
 
 /* --- Resizable string functions ------------------------------------------- */
 
 /**
- * Push a string onto the resizable string created from the format specifier and
- * variable argument list.
+ * Push a formatted string onto the resizable string created from the format
+ * specifier and variable argument list.
  *
- * @param[in] self the pointer to the resizable string
+ * @param[in] self the pointer to the string
  * @param[in] fmt  the format specifier
  * @param[in] ap   the variable argument list to parse with the format specifier
  */
 void stc_string_push_vfmt(StcString *self, const char *fmt, va_list ap);
 
 /**
- * Push a string onto the resizable string created from the format specifier and
- * variable arguments.
+ * Push a formatted string onto the resizable string created from the format
+ * specifier and variable arguments.
  *
- * @param[in] self the pointer to the resizable string
+ * @param[in] self the pointer to the string
  * @param[in] fmt  the format specifier
  * @param[in] ...  the variable arguments to parse with the format specifier
  */

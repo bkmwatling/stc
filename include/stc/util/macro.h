@@ -26,11 +26,12 @@
     for (int _STC_MACRO_VAR(_i_) = 0; !_STC_MACRO_VAR(_i_); \
          _STC_MACRO_VAR(_i_)++, end)
 
-#define STC_TYPECHECK(T, x)                                    \
-    ({                                                         \
-        T             _STC_MACRO_VAR(_x_);                     \
-        __typeof__(x) _STC_MACRO_VAR(_y_);                     \
-        (void) (&_STC_MACRO_VAR(_x_) == &_STC_MACRO_VAR(_y_)); \
+#define STC_TYPECHECK(T, x)                                     \
+    ({                                                          \
+        T             _STC_MACRO_VAR(_x_);                      \
+        __typeof__(x) _STC_MACRO_VAR(_y_);                      \
+        (void) (&_STC_MACRO_VAR(_x_) == &_STC_MACRO_VAR(_y_) && \
+                "ERROR: type mismatch");                        \
     })
 
 /* --- Common macros for doing funky macro magic ---------------------------- */
