@@ -86,7 +86,12 @@ typedef StcStrView StrView;
  *
  * @return a string view of the string defined by the range
  */
-#define stc_sv_from_range(start, end) stc_sv_from_parts(start, (end) - (start))
+#define stc_sv_from_range(start, end)                           \
+    ({                                                          \
+        __auto_type _STC_MACRO_VAR(_stc_start_) = (start);      \
+        stc_sv_from_parts(_STC_MACRO_VAR(_stc_start_),          \
+                          (end) - _STC_MACRO_VAR(_stc_start_)); \
+    })
 
 /**
  * Create a string view from a C (null terminated) string by calling strlen for
@@ -96,7 +101,12 @@ typedef StcStrView StrView;
  *
  * @return a string view of the C string
  */
-#define stc_sv_from_cstr(cstr) stc_sv_from_parts(cstr, strlen((cstr)))
+#define stc_sv_from_cstr(cstr)                                 \
+    ({                                                         \
+        __auto_type = _STC_MACRO_VAR(_stc_cstr_) = (cstr);     \
+        stc_sv_from_parts(_STC_MACRO_VAR(_stc_cstr_),          \
+                          strlen(_STC_MACRO_VAR(_stc_cstr_))); \
+    })
 
 /**
  * Create a string view from a string literal (similar to C++ sv keyword for
@@ -115,8 +125,12 @@ typedef StcStrView StrView;
  *
  * @return a string view of the string slice
  */
-#define stc_sv_from_str(str) \
-    stc_sv_from_parts((str).__stc_slice_data, (str).len)
+#define stc_sv_from_str(str)                                          \
+    ({                                                                \
+        __auto_type _STC_MACRO_VAR(_stc_str_) = (str);                \
+        stc_sv_from_parts(_STC_MACRO_VAR(_stc_str_).__stc_slice_data, \
+                          _STC_MACRO_VAR(_stc_str_).len);             \
+    })
 
 /**
  * Create a string view from a string slice.
@@ -169,8 +183,12 @@ typedef StcStrView StrView;
  *
  * @return a substring view over the defined range
  */
-#define stc_sv_subview(sv, start, end) \
-    stc_sv_from_range(&stc_sv_at(start), &stc_sv_at(end))
+#define stc_sv_subview(sv, start, end)                                 \
+    ({                                                                 \
+        __auto_type _STC_MACRO_VAR(_stc_sv_) = (sv);                   \
+        stc_sv_from_range(&stc_sv_at(_STC_MACRO_VAR(_stc_sv_), start), \
+                          &stc_sv_at(_STC_MACRO_VAR(_stc_sv_), end));  \
+    })
 
 /**
  * Create a substring view from a string view from the starting index until the
@@ -184,7 +202,13 @@ typedef StcStrView StrView;
  * @return a substring view from the starting index until the end of the string
  *         view
  */
-#define stc_sv_subview_from(sv, start) stc_sv_subview(sv, start, (sv).len)
+#define stc_sv_subview_from(sv, start)                                 \
+    ({                                                                 \
+        __auto_type _STC_MACRO_VAR(_stc_sv_) = (sv);                   \
+        stc_sv_from_range(&stc_sv_at(_STC_MACRO_VAR(_stc_sv_), start), \
+                          &stc_sv_at(_STC_MACRO_VAR(_stc_sv_),         \
+                                     _STC_MACRO_VAR(_stc_sv_).len));   \
+    })
 
 /**
  * Create a substring view from a string view from the start of the string view
@@ -212,8 +236,12 @@ typedef StcStrView StrView;
  *
  * @return a substring view over the defined range
  */
-#define stc_str_subview(sv, start, end) \
-    stc_sv_from_range(&stc_str_at(start), &stc_str_at(end))
+#define stc_str_subview(str, start, end)                                 \
+    ({                                                                   \
+        __auto_type _STC_MACRO_VAR(_stc_str_) = (str);                   \
+        stc_sv_from_range(&stc_str_at(_STC_MACRO_VAR(_stc_str_), start), \
+                          &stc_str_at(_STC_MACRO_VAR(_stc_str_), end));  \
+    })
 
 /**
  * Create a substring view from a string slice from the starting index until the
@@ -227,7 +255,13 @@ typedef StcStrView StrView;
  * @return a substring view from the starting index until the end of the string
  *         slice
  */
-#define stc_str_subview_from(str, start) stc_str_subview(str, start, (str).len)
+#define stc_str_subview_from(str, start)                                 \
+    ({                                                                   \
+        __auto_type _STC_MACRO_VAR(_stc_str_) = (str);                   \
+        stc_sv_from_range(&stc_str_at(_STC_MACRO_VAR(_stc_str_), start), \
+                          &stc_str_at(_STC_MACRO_VAR(_stc_str_),         \
+                                      _STC_MACRO_VAR(_stc_str_).len));   \
+    })
 
 /**
  * Create a substring view from a string slice from the start of the string

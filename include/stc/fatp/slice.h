@@ -14,6 +14,7 @@
 #    define slice_new        stc_slice_new
 #    define slice_init       stc_slice_init
 #    define slice_from_parts stc_slice_from_parts
+#    define slice_from_range stc_slice_from_range
 #    define slice_clone      stc_slice_clone
 #    define slice_free       stc_slice_free
 
@@ -77,11 +78,13 @@ stc_slice_define_for(void);
  *
  * @return the created slice
  */
-#define stc_slice_new(T, len)                                        \
-    (StcSlice(T))                                                    \
-    {                                                                \
-        malloc(sizeof(_STC_FATP_MAGIC_TYPE_MACRO(T)) * (len)), (len) \
-    }
+#define stc_slice_new(T, len)                                         \
+    ({                                                                \
+        __auto_type _STC_MACRO_VAR(_stc_len_) = (len);                \
+        (StcSlice(T)){ malloc(sizeof(_STC_FATP_MAGIC_TYPE_MACRO(T)) * \
+                              _STC_MACRO_VAR(_stc_len_)),             \
+                       _STC_MACRO_VAR(_stc_len_) };                   \
+    })
 
 /**
  * Initialise a given slice's memory to a given length.
@@ -89,16 +92,22 @@ stc_slice_define_for(void);
  * @param[in,out] s   the slice to initialise
  * @param[in]     len the length of the slice to initialise
  */
-#define stc_slice_init(s, len)                                               \
-    ((s)->__stc_slice_data = malloc(sizeof(*(s)->__stc_slice_data) * (len)), \
-     (s)->len              = (len))
+#define stc_slice_init(s, len)                                          \
+    ({                                                                  \
+        __auto_type _STC_MACRO_VAR(_stc_s_)   = (s);                    \
+        __auto_type _STC_MACRO_VAR(_stc_len_) = (len);                  \
+        _STC_MACRO_VAR(_stc_s_)->__stc_slice_data =                     \
+            malloc(sizeof(*_STC_MACRO_VAR(_stc_s_)->__stc_slice_data) * \
+                   _STC_MACRO_VAR(_stc_len_));                          \
+        _STC_MACRO_VAR(_stc_s_)->len = _STC_MACRO_VAR(_stc_len_);       \
+    })
 
 /**
  * Create a new slice by copying the data from a pointer with specified type
  * and length.
  *
  * NOTE: p is expected to be not be NULL, and the type T must match the type of
- * the data pointed to by p.
+ *       the data pointed to by p.
  *
  * @param[in] T   the type of the slice to construct
  * @param[in] p   the pointer to the data to copy
@@ -106,12 +115,42 @@ stc_slice_define_for(void);
  *
  * @return a slice initialised with a copy of the data pointed to by p
  */
-#define stc_slice_from_parts(T, p, len)                                       \
-    ({                                                                        \
-        STC_TYPECHECK(T, *(p));                                               \
-        StcSlice(T) _STC_MACRO_VAR(_s_) = stc_slice_new(T, len);              \
-        memcpy(_STC_MACRO_VAR(_s_).__stc_slice_data, (p), sizeof(T) * (len)); \
-        _STC_MACRO_VAR(_s_);                                                  \
+#define stc_slice_from_parts(T, p, len)                                \
+    ({                                                                 \
+        __auto_type _STC_MACRO_VAR(_stc_p_)   = (p);                   \
+        __auto_type _STC_MACRO_VAR(_stc_len_) = (len);                 \
+        STC_TYPECHECK(_STC_FATP_MAGIC_TYPE_MACRO(T),                   \
+                      *_STC_MACRO_VAR(_stc_p_));                       \
+        StcSlice(T) _STC_MACRO_VAR(_stc_s_) = {                        \
+            malloc(sizeof(*_STC_MACRO_VAR(_stc_s_).__stc_slice_data) * \
+                   _STC_MACRO_VAR(_stc_len_)),                         \
+            _STC_MACRO_VAR(_stc_len_)                                  \
+        };                                                             \
+        memcpy(_STC_MACRO_VAR(_stc_s_).__stc_slice_data,               \
+               _STC_MACRO_VAR(_stc_p_),                                \
+               sizeof(*_STC_MACRO_VAR(_stc_s_).__stc_slice_data) *     \
+                   _STC_MACRO_VAR(_stc_len_));                         \
+        _STC_MACRO_VAR(_stc_s_);                                       \
+    })
+
+/**
+ * Create a slice of the range between two pointers by copying that range of
+ * memory.
+ *
+ * NOTE: start is expected to be not be NULL, and the type T must match the type
+ *       of the data pointed to by start.
+ *
+ * @param[in] T   the type of the slice to construct
+ * @param[in] start the start (pointer) of the range
+ * @param[in] end   the end (pointer) of the range
+ *
+ * @return a slice of the copied array defined by the range
+ */
+#define stc_slice_from_range(T, start, end)                        \
+    ({                                                             \
+        __auto_type _STC_MACRO_VAR(_stc_start_) = (start);         \
+        stc_slice_from_parts(T, _STC_MACRO_VAR(_stc_start_),       \
+                             (end) - _STC_MACRO_VAR(_stc_start_)); \
     })
 
 /**
@@ -121,15 +160,20 @@ stc_slice_define_for(void);
  *
  * @return the clone of the slice
  */
-#define stc_slice_clone(s)                                                     \
-    ({                                                                         \
-        __typeof__(s) _STC_MACRO_VAR(_s_) = {                                  \
-            malloc(sizeof(*(s).__stc_slice_data) * (s).len), (s).len           \
-        };                                                                     \
-        if ((s).len)                                                           \
-            memcpy(_STC_MACRO_VAR(_s_).__stc_slice_data, (s).__stc_slice_data, \
-                   sizeof(*(s).__stc_slice_data) * (s).len);                   \
-        _STC_MACRO_VAR(_s_);                                                   \
+#define stc_slice_clone(s)                                   \
+    ({                                                       \
+        __auto_type _STC_MACRO_VAR(_stc_s_) = (s);           \
+        __auto_type _STC_MACRO_VAR(_stc_data_) =             \
+            _STC_MACRO_VAR(_stc_s_).__stc_slice_data;        \
+        _STC_MACRO_VAR(_stc_s_).__stc_slice_data =           \
+            malloc(sizeof(*_STC_MACRO_VAR(_stc_data_)) *     \
+                   _STC_MACRO_VAR(_stc_s_).len);             \
+        if (_STC_MACRO_VAR(_stc_s_).len)                     \
+            memcpy(_STC_MACRO_VAR(_stc_s_).__stc_slice_data, \
+                   _STC_MACRO_VAR(_stc_data_),               \
+                   sizeof(*_STC_MACRO_VAR(_stc_data_)) *     \
+                       _STC_MACRO_VAR(_stc_s_).len);         \
+        _STC_MACRO_VAR(_stc_s_);                             \
     })
 
 /**
@@ -167,7 +211,12 @@ stc_slice_define_for(void);
  *
  * @return the last element of the slice
  */
-#define stc_slice_last(s) stc_slice_at(s, (s).len - 1)
+#define stc_slice_last(s)                              \
+    ({                                                 \
+        __auto_type _STC_MACRO_VAR(_stc_s_) = (s);     \
+        stc_slice_at(_STC_MACRO_VAR(_stc_s_),          \
+                     _STC_MACRO_VAR(_stc_s_).len - 1); \
+    })
 
 /**
  * Create a subslice from a slice from the starting index until the ending index
@@ -185,13 +234,18 @@ stc_slice_define_for(void);
  */
 #define stc_slice_subslice(s, start, end)                                    \
     ({                                                                       \
-        __typeof__(s) _STC_MACRO_VAR(_s_);                                   \
-        stc_slice_init(_STC_MACRO_VAR(_s_), (end) - (start));                \
-        if (_STC_MACRO_VAR(_s_).len)                                         \
-            memcpy(_STC_MACRO_VAR(_s_).__stc_slice_data,                     \
-                   &stc_slice_at(s, start),                                  \
-                   sizeof(*(s).__stc_slice_data) * _STC_MACRO_VAR(_s_).len); \
-        _STC_MACRO_VAR(_s_);                                                 \
+        __auto_type _STC_MACRO_VAR(_stc_s_) = (s);                           \
+        __auto_type _STC_MACRO_VAR(_stc_data_) =                             \
+            _STC_MACRO_VAR(_stc_s_).__stc_slice_data;                        \
+        __auto_type _STC_MACRO_VAR(_stc_start_) = (start);                   \
+        stc_slice_init(&_STC_MACRO_VAR(_stc_s_),                             \
+                       (end) - _STC_MACRO_VAR(_stc_start_));                 \
+        if (_STC_MACRO_VAR(_stc_s_).len)                                     \
+            memcpy(_STC_MACRO_VAR(_stc_s_).__stc_slice_data,                 \
+                   &_STC_MACRO_VAR(_stc_data_)[_STC_MACRO_VAR(_stc_start_)], \
+                   sizeof(*_STC_MACRO_VAR(_stc_data_)) *                     \
+                       _STC_MACRO_VAR(_stc_s_).len);                         \
+        _STC_MACRO_VAR(_stc_s_);                                             \
     })
 
 /**
@@ -207,7 +261,22 @@ stc_slice_define_for(void);
  *
  * @return a subslice from the starting index until the end of the slice
  */
-#define stc_slice_subslice_from(s, start) stc_slice_subslice(s, start, (s).len)
+#define stc_slice_subslice_from(s, start)                                    \
+    ({                                                                       \
+        __auto_type _STC_MACRO_VAR(_stc_s_) = (s);                           \
+        __auto_type _STC_MACRO_VAR(_stc_data_) =                             \
+            _STC_MACRO_VAR(_stc_s_).__stc_slice_data;                        \
+        __auto_type _STC_MACRO_VAR(_stc_start_) = (start);                   \
+        stc_slice_init(&_STC_MACRO_VAR(_stc_s_),                             \
+                       _STC_MACRO_VAR(_stc_s_).len -                         \
+                           _STC_MACRO_VAR(_stc_start_));                     \
+        if (_STC_MACRO_VAR(_stc_s_).len)                                     \
+            memcpy(_STC_MACRO_VAR(_stc_s_).__stc_slice_data,                 \
+                   &_STC_MACRO_VAR(_stc_data_)[_STC_MACRO_VAR(_stc_start_)], \
+                   sizeof(*_STC_MACRO_VAR(_stc_data_)) *                     \
+                       _STC_MACRO_VAR(_stc_s_).len);                         \
+        _STC_MACRO_VAR(_stc_s_);                                             \
+    })
 
 /**
  * Create a subslice from a slice from the start of the slice until the ending

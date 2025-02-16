@@ -380,6 +380,7 @@ typedef StcStr Str;
 
 #    define str_new        stc_str_new
 #    define str_from_parts stc_str_from_parts
+#    define str_from_range stc_str_from_range
 #    define str_from_cstr  stc_str_from_cstr
 #    define str            stc_str
 #    define str_clone      stc_str_clone
@@ -436,8 +437,7 @@ typedef StcStr Str;
  *
  * @return a string slice of the copied string defined by the range
  */
-#define stc_str_from_range(start, end) \
-    stc_str_from_parts(start, (end) - (start))
+#define stc_str_from_range(start, end) stc_slice_from_range(char, start, end)
 
 /**
  * Create a string slice from a C (null terminated) string by calling strlen for
@@ -447,7 +447,12 @@ typedef StcStr Str;
  *
  * @return a string slice of the copied C string
  */
-#define stc_str_from_cstr(cstr) stc_str_from_parts(cstr, strlen((cstr)))
+#define stc_str_from_cstr(cstr)                                 \
+    ({                                                          \
+        __auto_type = _STC_MACRO_VAR(_stc_cstr_) = (cstr);      \
+        stc_str_from_parts(_STC_MACRO_VAR(_stc_cstr_),          \
+                           strlen(_STC_MACRO_VAR(_stc_cstr_))); \
+    })
 
 /**
  * Create a string slice from a string literal by copying the literal.
@@ -534,7 +539,7 @@ typedef StcStr Str;
  * @return a substring slice from the starting index until the end of the string
  *         slice
  */
-#define stc_str_substr_from(str, start) stc_str_substr(str, start, (str).len)
+#define stc_str_substr_from stc_slice_substr_from
 
 /**
  * Create a substring slice from a string slice from the start of the string
@@ -550,7 +555,7 @@ typedef StcStr Str;
  * @return a substring slice from the start of the string slice until the ending
  *         index (non-inclusive)
  */
-#define stc_str_substr_until(str, end) stc_str_substr(str, 0, end)
+#define stc_str_substr_until stc_slice_substr_until
 
 /* --- String slice functions ----------------------------------------------- */
 
