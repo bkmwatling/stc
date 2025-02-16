@@ -3,17 +3,10 @@
 
 #include <stc/fatp/vec.h>
 
+// TODO: use allocator instead of malloc
 static void _stc_vec_resize(StcVec(void) *vec, size_t size, size_t cap)
 {
     vec->__stc_vec_data = realloc(vec->__stc_vec_data, size * cap);
-    vec->cap            = cap;
-}
-
-// TODO: use allocator instead of malloc
-void _stc_vec_init(StcVec(void) *vec, size_t size, size_t cap)
-{
-    vec->__stc_vec_data = malloc(size * cap);
-    vec->len            = 0;
     vec->cap            = cap;
 }
 

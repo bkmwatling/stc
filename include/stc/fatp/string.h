@@ -246,8 +246,12 @@ typedef StcString String;
  * @param[in,out] s    the string to extend
  * @param[in]     cstr the C string to add to the string
  */
-#define stc_string_extend_from_cstr(s, cstr) \
-    stc_string_extend(s, cstr, strlen((cstr)))
+#define stc_string_extend_from_cstr(s, cstr)                   \
+    ({                                                         \
+        __auto_type _STC_MACRO_VAR(_stc_cstr_) = (cstr);       \
+        stc_string_extend(s, _STC_MACRO_VAR(_stc_cstr_),       \
+                          strlen(_STC_MACRO_VAR(_stc_cstr_))); \
+    })
 
 /**
  * Extend a resizable string (append to its tail) with the characters from a
