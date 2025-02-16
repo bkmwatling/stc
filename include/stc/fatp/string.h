@@ -98,7 +98,7 @@ typedef StcString String;
  *
  * @param[in] s the string to check if empty
  *
- * @return a truthy value if the string is empty; else 0
+ * @return a non-zero value if the string is empty; else 0
  */
 #define stc_string_is_empty stc_vec_is_empty
 
@@ -112,7 +112,7 @@ typedef StcString String;
 /**
  * Add a character to the tail of a resizable string.
  *
- * @param[in,out] s  the string to add the character to
+ * @param[in,out] s  a pointer to the string to add the character to
  * @param[in]     ch the character to add to the string
  */
 #define stc_string_push_back stc_vec_push_back
@@ -120,7 +120,7 @@ typedef StcString String;
 /**
  * Add a character to the head of a resizable string.
  *
- * @param[in,out] s  the string to add the character to
+ * @param[in,out] s  a pointer to the string to add the character to
  * @param[in]     ch the character to add to the string
  */
 #define stc_string_push_front stc_vec_push_front
@@ -128,7 +128,7 @@ typedef StcString String;
 /**
  * Remove and return the character at the tail of a resizable string.
  *
- * @param[in,out] s the string to pop the tail character from
+ * @param[in,out] s a pointer to the string to pop the tail character from
  *
  * @return the tail character of the string
  */
@@ -137,7 +137,7 @@ typedef StcString String;
 /**
  * Remove and return the character at the head of a resizable string.
  *
- * @param[in,out] s the string to pop the head character from
+ * @param[in,out] s a pointer to the string to pop the head character from
  *
  * @return the head character of the string
  */
@@ -176,7 +176,7 @@ typedef StcString String;
 /**
  * Insert a character into a resizable string at the specified index.
  *
- * @param[in,out] s  the string to insert the character into
+ * @param[in,out] s  a pointer to the string to insert the character into
  * @param[in]     i  the index where to insert the character
  * @param[in]     ch the character to insert into the string
  */
@@ -186,7 +186,7 @@ typedef StcString String;
  * Remove and return the character at the specified index from a resizable
  * string.
  *
- * @param[in,out] s the string to remove the character from
+ * @param[in,out] s a pointer to the string to remove the character from
  * @param[in]     i the index of the character to remove
  *
  * @return the character removed from the string
@@ -197,7 +197,7 @@ typedef StcString String;
  * Drain (remove) the specified number of characters starting from a specified
  * index from a resizable string.
  *
- * @param[in,out] s the string to drain the characters from
+ * @param[in,out] s a pointer to the string to drain the characters from
  * @param[in]     i the index to drain the characters from
  * @param[in]     n the number of characters to drain
  */
@@ -211,10 +211,10 @@ typedef StcString String;
  *       the length of the string. The only case where 0 is returned by this
  *       macro is when this condition is not met.
  *
- * @param[in,out] s   the string to truncate
+ * @param[in,out] s   a pointer to the string to truncate
  * @param[in]     len the length to truncate the string to
  *
- * @return a truthy value if the string was truncated; else 0
+ * @return a non-zero value if the string was truncated; else 0
  */
 #define stc_string_truncate stc_vec_truncate
 
@@ -224,7 +224,7 @@ typedef StcString String;
  *
  * NOTE: After the append, the second string will be empty.
  *
- * @param[in,out] s the string to move characters to the end of
+ * @param[in,out] s a pointer to the string to move characters to the end of
  * @param[in,out] t the string to move the characters from
  */
 #define stc_string_append stc_vec_append
@@ -233,9 +233,9 @@ typedef StcString String;
  * Extend a resizable string (append to its tail) with the characters from an
  * array of characters with specified length.
  *
- * @param[in,out] s    the string to extend
- * @param[in]     cstr the array of characters to add to the string
- * @param[in]     len  the length of the array of characters being extended from
+ * @param[in,out] s   a pointer to the string to extend
+ * @param[in]     p   the array of characters to add to the string
+ * @param[in]     len the length of the array of characters being extended from
  */
 #define stc_string_extend stc_vec_extend
 
@@ -243,21 +243,23 @@ typedef StcString String;
  * Extend a resizable string (append to its tail) with the characters from a C
  * string (null-terminated array of characters).
  *
- * @param[in,out] s    the string to extend
+ * @param[in,out] s    a pointer to the string to extend
  * @param[in]     cstr the C string to add to the string
  */
-#define stc_string_extend_from_cstr(s, cstr)                   \
-    ({                                                         \
-        __auto_type _STC_MACRO_VAR(_stc_cstr_) = (cstr);       \
-        stc_string_extend(s, _STC_MACRO_VAR(_stc_cstr_),       \
-                          strlen(_STC_MACRO_VAR(_stc_cstr_))); \
+#define stc_string_extend_from_cstr(s, cstr)                             \
+    __extension__({                                                      \
+        __auto_type _STC_MACRO_VAR(_stc_string_extend_from_cstr_cstr_) = \
+            (cstr);                                                      \
+        stc_string_extend(                                               \
+            s, _STC_MACRO_VAR(_stc_string_extend_from_cstr_cstr_),       \
+            strlen(_STC_MACRO_VAR(_stc_string_extend_from_cstr_cstr_))); \
     })
 
 /**
  * Extend a resizable string (append to its tail) with the characters from a
  * string slice.
  *
- * @param[in,out] s   the string to extend
+ * @param[in,out] s   a pointer to the string to extend
  * @param[in]     str the string slice to add to the string
  */
 #define stc_string_extend_from_str stc_vec_extend_from_slice
@@ -268,7 +270,7 @@ typedef StcString String;
  *
  * NOTE: More space than may be allocated than may be necessary.
  *
- * @param[in,out] s the string to reserve space for
+ * @param[in,out] s a pointer to the string to reserve space for
  * @param[in]     n the number of characters to reserve space for in the string
  */
 #define stc_string_reserve stc_vec_reserve
@@ -279,7 +281,7 @@ typedef StcString String;
  *
  * NOTE: The exact amount of space necessary is allocated.
  *
- * @param[in,out] s the string to reserve exact space for
+ * @param[in,out] s a pointer to the string to reserve exact space for
  * @param[in]     n the number of characters to reserve exact space for in the
  *                  string
  */
@@ -293,7 +295,7 @@ typedef StcString String;
  * the string at that index.
  * NOTE: More space than may be allocated than may be necessary.
  *
- * @param[in,out] s the string to reserve space for
+ * @param[in,out] s a pointer to the string to reserve space for
  * @param[in]     i the index to reserve space at
  * @param[in]     n the number of characters to reserve space for in the string
  */
@@ -305,7 +307,7 @@ typedef StcString String;
  * NOTE: The string will only shrink to its length at minimum, and will only
  *       shrink if the specified capacity is less than the string's capacity.
  *
- * @param[in,out] s   the string to shrink
+ * @param[in,out] s   a pointer to the string to shrink
  * @param[in]     cap the capacity to shrink the string to
  */
 #define stc_string_shrink stc_vec_shrink
@@ -313,7 +315,7 @@ typedef StcString String;
 /**
  * Shrink a resizable string so that it's capacity and length are the same.
  *
- * @param[in,out] v the string to shrink to its length
+ * @param[in,out] s a pointer to the string to shrink to its length
  */
 #define stc_string_shrink_to_fit stc_vec_shrink_to_fit
 
@@ -323,7 +325,7 @@ typedef StcString String;
  * NOTE: The created string slice points to the string's underlying data, and
  *       does NOT create a copy of the data, and thus must NOT be freed.
  *
- * @param[in] v the string to create a string slice reference of
+ * @param[in] s the string to create a string slice reference of
  *
  * @return the string slice which references the data of the string
  */
@@ -335,7 +337,7 @@ typedef StcString String;
  * NOTE: The created string slice points to a copy of the string's underlying
  *       data, and thus MUST be freed.
  *
- * @param[in] v the string to create a string slice copy of
+ * @param[in] s the string to create a string slice copy of
  *
  * @return the string slice which has a copy of the data of the string
  */
@@ -344,7 +346,7 @@ typedef StcString String;
 /**
  * Push a C string (null-terminated character array) onto the resizable string.
  *
- * @param[in] s    the string to push the C string onto
+ * @param[in] s    a pointer to the string to push the C string onto
  * @param[in] cstr the C string to push onto the string
  */
 #define stc_string_push_cstr(s, cstr) stc_string_push_fmt(s, cstr)
@@ -452,7 +454,7 @@ typedef StcStr Str;
  * @return a string slice of the copied C string
  */
 #define stc_str_from_cstr(cstr)                                 \
-    ({                                                          \
+    __extension__({                                             \
         __auto_type = _STC_MACRO_VAR(_stc_cstr_) = (cstr);      \
         stc_str_from_parts(_STC_MACRO_VAR(_stc_cstr_),          \
                            strlen(_STC_MACRO_VAR(_stc_cstr_))); \

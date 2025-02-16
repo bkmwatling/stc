@@ -18,20 +18,21 @@
 
 #define _STC_MACRO_VAR(x) STC_CONCAT(x, __LINE__)
 
-#define STC_WITH(begin, end)                                         \
-    for (int _STC_MACRO_VAR(_i_) = (begin, 0); !_STC_MACRO_VAR(_i_); \
-         _STC_MACRO_VAR(_i_)++, end)
+#define STC_WITH(begin, end)                         \
+    for (int _STC_MACRO_VAR(_stc_with_i_) = (begin); \
+         _STC_MACRO_VAR(_stc_with_i_);               \
+         _STC_MACRO_VAR(_stc_with_i_) = 0, (end))
 
-#define STC_DEFER(end)                                      \
-    for (int _STC_MACRO_VAR(_i_) = 0; !_STC_MACRO_VAR(_i_); \
-         _STC_MACRO_VAR(_i_)++, end)
+#define STC_DEFER(end)                                                         \
+    for (int _STC_MACRO_VAR(_stc_defer_i_) = 1; _STC_MACRO_VAR(_stc_defer_i_); \
+         _STC_MACRO_VAR(_stc_defer_i_)     = 0, (end))
 
-#define STC_TYPECHECK(T, x)                                     \
-    ({                                                          \
-        T             _STC_MACRO_VAR(_x_);                      \
-        __typeof__(x) _STC_MACRO_VAR(_y_);                      \
-        (void) (&_STC_MACRO_VAR(_x_) == &_STC_MACRO_VAR(_y_) && \
-                "ERROR: type mismatch");                        \
+#define STC_TYPECHECK(T, x)                              \
+    __extension__({                                      \
+        T             _STC_MACRO_VAR(_stc_typecheck_x_); \
+        __typeof__(x) _STC_MACRO_VAR(_stc_typecheck_y_); \
+        (void) (&_STC_MACRO_VAR(_stc_typecheck_x_) ==    \
+                &_STC_MACRO_VAR(_stc_typecheck_y_));     \
     })
 
 /* --- Common macros for doing funky macro magic ---------------------------- */

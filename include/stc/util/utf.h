@@ -72,7 +72,7 @@ size_t stc_unicode_from_escape_seq(const char *esc_seq);
  *
  * @param[in] codepoint the Unicode codepoint to check
  *
- * @return truthy value if the Unicode codepoint is printable; else 0
+ * @return non-zero value if the Unicode codepoint is printable; else 0
  */
 int stc_unicode_isprint(size_t codepoint);
 

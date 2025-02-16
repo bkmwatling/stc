@@ -69,7 +69,7 @@ typedef StcStrView StrView;
 /**
  * Create a string view from a character pointer and length.
  *
- * @param[in] s   the string address to view
+ * @param[in] s   the string (character pointer) to view
  * @param[in] len the length of the string view
  *
  * @return a string view of the given string over length of len
@@ -86,11 +86,11 @@ typedef StcStrView StrView;
  *
  * @return a string view of the string defined by the range
  */
-#define stc_sv_from_range(start, end)                           \
-    ({                                                          \
-        __auto_type _STC_MACRO_VAR(_stc_start_) = (start);      \
-        stc_sv_from_parts(_STC_MACRO_VAR(_stc_start_),          \
-                          (end) - _STC_MACRO_VAR(_stc_start_)); \
+#define stc_sv_from_range(start, end)                                         \
+    __extension__({                                                           \
+        __auto_type _STC_MACRO_VAR(_stc_sv_from_range_start_) = (start);      \
+        stc_sv_from_parts(_STC_MACRO_VAR(_stc_sv_from_range_start_),          \
+                          (end) - _STC_MACRO_VAR(_stc_sv_from_range_start_)); \
     })
 
 /**
@@ -101,11 +101,11 @@ typedef StcStrView StrView;
  *
  * @return a string view of the C string
  */
-#define stc_sv_from_cstr(cstr)                                 \
-    ({                                                         \
-        __auto_type = _STC_MACRO_VAR(_stc_cstr_) = (cstr);     \
-        stc_sv_from_parts(_STC_MACRO_VAR(_stc_cstr_),          \
-                          strlen(_STC_MACRO_VAR(_stc_cstr_))); \
+#define stc_sv_from_cstr(cstr)                                              \
+    __extension__({                                                         \
+        __auto_type = _STC_MACRO_VAR(_stc_sv_from_cstr_cstr_) = (cstr);     \
+        stc_sv_from_parts(_STC_MACRO_VAR(_stc_sv_from_cstr_cstr_),          \
+                          strlen(_STC_MACRO_VAR(_stc_sv_from_cstr_cstr_))); \
     })
 
 /**
@@ -125,11 +125,12 @@ typedef StcStrView StrView;
  *
  * @return a string view of the string slice
  */
-#define stc_sv_from_str(str)                                          \
-    ({                                                                \
-        __auto_type _STC_MACRO_VAR(_stc_str_) = (str);                \
-        stc_sv_from_parts(_STC_MACRO_VAR(_stc_str_).__stc_slice_data, \
-                          _STC_MACRO_VAR(_stc_str_).len);             \
+#define stc_sv_from_str(str)                                        \
+    __extension__({                                                 \
+        __auto_type _STC_MACRO_VAR(_stc_sv_from_str_str_) = (str);  \
+        stc_sv_from_parts(                                          \
+            _STC_MACRO_VAR(_stc_sv_from_str_str_).__stc_slice_data, \
+            _STC_MACRO_VAR(_stc_sv_from_str_str_).len);             \
     })
 
 /**
@@ -183,11 +184,12 @@ typedef StcStrView StrView;
  *
  * @return a substring view over the defined range
  */
-#define stc_sv_subview(sv, start, end)                                 \
-    ({                                                                 \
-        __auto_type _STC_MACRO_VAR(_stc_sv_) = (sv);                   \
-        stc_sv_from_range(&stc_sv_at(_STC_MACRO_VAR(_stc_sv_), start), \
-                          &stc_sv_at(_STC_MACRO_VAR(_stc_sv_), end));  \
+#define stc_sv_subview(sv, start, end)                              \
+    __extension__({                                                 \
+        __auto_type _STC_MACRO_VAR(_stc_sv_subview_sv_) = (sv);     \
+        stc_sv_from_range(                                          \
+            &stc_sv_at(_STC_MACRO_VAR(_stc_sv_subview_sv_), start), \
+            &stc_sv_at(_STC_MACRO_VAR(_stc_sv_subview_sv_), end));  \
     })
 
 /**
@@ -202,12 +204,11 @@ typedef StcStrView StrView;
  * @return a substring view from the starting index until the end of the string
  *         view
  */
-#define stc_sv_subview_from(sv, start)                                 \
-    ({                                                                 \
-        __auto_type _STC_MACRO_VAR(_stc_sv_) = (sv);                   \
-        stc_sv_from_range(&stc_sv_at(_STC_MACRO_VAR(_stc_sv_), start), \
-                          &stc_sv_at(_STC_MACRO_VAR(_stc_sv_),         \
-                                     _STC_MACRO_VAR(_stc_sv_).len));   \
+#define stc_sv_subview_from(sv, start)                                  \
+    __extension__({                                                     \
+        __auto_type _STC_MACRO_VAR(_stc_sv_subview_from_sv_) = (sv);    \
+        stc_sv_subview(_STC_MACRO_VAR(_stc_sv_subview_from_sv_), start, \
+                       _STC_MACRO_VAR(_stc_sv_subview_from_sv_).len);   \
     })
 
 /**
@@ -236,11 +237,12 @@ typedef StcStrView StrView;
  *
  * @return a substring view over the defined range
  */
-#define stc_str_subview(str, start, end)                                 \
-    ({                                                                   \
-        __auto_type _STC_MACRO_VAR(_stc_str_) = (str);                   \
-        stc_sv_from_range(&stc_str_at(_STC_MACRO_VAR(_stc_str_), start), \
-                          &stc_str_at(_STC_MACRO_VAR(_stc_str_), end));  \
+#define stc_str_subview(str, start, end)                               \
+    __extension__({                                                    \
+        __auto_type _STC_MACRO_VAR(_stc_str_subview_str_) = (str);     \
+        stc_sv_from_range(                                             \
+            &stc_str_at(_STC_MACRO_VAR(_stc_str_subview_str_), start), \
+            &stc_str_at(_STC_MACRO_VAR(_stc_str_subview_str_), end));  \
     })
 
 /**
@@ -255,12 +257,11 @@ typedef StcStrView StrView;
  * @return a substring view from the starting index until the end of the string
  *         slice
  */
-#define stc_str_subview_from(str, start)                                 \
-    ({                                                                   \
-        __auto_type _STC_MACRO_VAR(_stc_str_) = (str);                   \
-        stc_sv_from_range(&stc_str_at(_STC_MACRO_VAR(_stc_str_), start), \
-                          &stc_str_at(_STC_MACRO_VAR(_stc_str_),         \
-                                      _STC_MACRO_VAR(_stc_str_).len));   \
+#define stc_str_subview_from(str, start)                                   \
+    __extension__({                                                        \
+        __auto_type _STC_MACRO_VAR(_stc_str_subview_from_str_) = (str);    \
+        stc_str_subview(_STC_MACRO_VAR(_stc_str_subview_from_str_), start, \
+                        _STC_MACRO_VAR(_stc_str_subview_from_str_).len);   \
     })
 
 /**
