@@ -1,8 +1,10 @@
 #ifndef STC_MATH_H
 #define STC_MATH_H
 
+#if !defined(STC_COMMON_H) || defined(STC_DISABLE_BASIC_TYPES)
 typedef float  f32;
 typedef double f64;
+#endif /* defined(STC_COMMON_H) && !defined(STC_DISABLE_BASIC_TYPES) */
 
 #define F32_PI                 3.14159265359f
 #define F32_TAU                6.28318530718f

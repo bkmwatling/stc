@@ -11,17 +11,19 @@ void _stc_string_push_vfmt(StcString *self, const char *fmt, va_list ap)
     va_list aq;
 
     va_copy(aq, ap); /* need to make copy of ap in case retry is needed */
-    cap = stc_string_cap_unsafe(*self);
-    len = stc_string_len_unsafe(*self);
-    n   = vsnprintf(*self + len, cap - len, fmt, ap);
+    len = self->len;
+    cap = self->cap;
+    n   = vsnprintf(&stc_string_at(*self, len), cap - len, fmt, ap);
 
     /* check if buffer was too small and retry with new size if so */
     if (n > cap - len) {
-        stc_string_reserve(*self, n);
-        n = vsnprintf(*self + len, stc_string_cap_unsafe(self) - len, fmt, aq);
+        stc_string_reserve(self, n);
+        if (self->cap - len < n)
+            n = self->cap - len; /* cap size incase not enough space */
+        vsnprintf(&stc_string_at(*self, len), n, fmt, aq);
     }
     va_end(aq);
-    stc_string_len_unsafe(self) += n;
+    self->len += n;
 }
 
 void _stc_string_push_fmt(StcString *self, const char *fmt, ...)
@@ -37,25 +39,24 @@ void _stc_string_push_fmt(StcString *self, const char *fmt, ...)
 
 StcStr stc_str_from_vfmt(const char *fmt, va_list ap)
 {
-    StcSliceHeader *slice;
-    size_t          len;
-    va_list         aq;
+    char   *s;
+    size_t  len;
+    va_list aq;
 
     va_copy(aq, ap); /* need to make copy of ap in case retry is needed */
     /* to comply with all C standards (SUSv2 specifically) we can't give a size
      * of 0 to vsnprintf and as such we must allocate string of length 1 */
-    slice = malloc(sizeof(*slice) + sizeof(char));
-    len   = vsnprintf((char *) (slice + 1), 1, fmt, ap);
+    s   = malloc(sizeof(char));
+    len = vsnprintf(s, 1, fmt, ap);
 
     /* check if buffer was too small (should be) and retry with new len if so */
     if (len > 1) {
-        slice = realloc(slice, sizeof(*slice) + len * sizeof(char));
-        len   = vsnprintf((char *) (slice + 1), len, fmt, aq);
+        s   = realloc(s, sizeof(char) * len);
+        len = vsnprintf(s, len, fmt, aq);
     }
     va_end(aq);
-    slice->len = len;
 
-    return (char *) (slice + 1);
+    return stc_str_from_parts(s, len);
 }
 
 StcStr stc_str_from_fmt(const char *fmt, ...)

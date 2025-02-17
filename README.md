@@ -43,7 +43,7 @@ the root of your project with the include compile flag as follows:
 ```
 CompileFlags:
   Add:
-    - -I/path/to/stc/include/directory
+    - -I/absolute/path/to/stc/include/directory
 ```
 
 ### Single header file: `api.h`

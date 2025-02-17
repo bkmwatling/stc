@@ -1,7 +1,7 @@
 #ifndef STC_MEM_LIBC_H
 #define STC_MEM_LIBC_H
 
-#include "base.h"
+#include <stc/memory/base.h>
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_MEM_ENABLE_SHORT_NAMES)
 #    define mem_libc_alloc       stc_mem_libc_alloc

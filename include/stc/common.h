@@ -6,9 +6,6 @@
 /* --- Enable short names for macros and functions -------------------------- */
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_COMMON_ENABLE_SHORT_NAMES)
-#    define PREPEND_COMMA STC_PREPEND_COMMA
-#    define APPEND_COMMA  STC_APPEND_COMMA
-
 #    define EPRINTF STC_EPRINTF
 #    define INFO    STC_INFO
 #    define FINFO   STC_FINFO
@@ -23,9 +20,6 @@
 
 #    define ASSERT     STC_ASSERT
 #    define ASSERT_MSG STC_ASSERT_MSG
-
-#    define STRINGIFY STC_STRINGIFY
-#    define GLUE      STC_GLUE
 
 #    define UNUSED            STC_UNUSED
 #    define UNIMPLEMENTED     STC_UNIMPLEMENTED
@@ -132,20 +126,6 @@
 
 /* --- Helper macros -------------------------------------------------------- */
 
-/**
- * Take __VA_ARGS__ and prepend a comma if it is not empty; else blank.
- * USAGE: #define PRINTF(fmt, ...) printf(fmt STC_PREPEND_COMMA(__VA_ARGS__))
- */
-#define STC_PREPEND_COMMA(...) \
-    _STC_PREPEND_COMMA_IF_NOT_EMPTY(_STC_ISEMPTY(__VA_ARGS__), __VA_ARGS__)
-
-/**
- * Take __VA_ARGS__ and append a comma if it is not empty; else blank.
- * USAGE: #define NULL_TERMINATE(...) func(STC_APPEND_COMMA(__VA_ARGS__) NULL)
- */
-#define STC_APPEND_COMMA(...) \
-    _STC_APPEND_COMMA_IF_NOT_EMPTY(_STC_ISEMPTY(__VA_ARGS__), __VA_ARGS__)
-
 #ifdef STC_FPRINTF
 #    define STC_PRINTF(/* fmt, */...) \
         STC_FPRINTF(stdout, /* fmt, */ __VA_ARGS__)
@@ -221,12 +201,6 @@
             }                           \
         } while (0)
 #endif /* STC_DISABLE_ASSERT */
-
-/* NOTE: Macro indirection recommended due to #s and a##b */
-#define __STC_STRINGIFY(s) #s
-#define STC_STRINGIFY(s)   __STC_STRINGIFY(s)
-#define __STC_GLUE(a, b)   a##b
-#define STC_GLUE(a, b)     __STC_GLUE(a, b)
 
 #define STC_UNUSED(x)              ((void) &(x))
 #define STC_UNIMPLEMENTED          STC_ASSERT_MSG(0, "Unimplemented")
@@ -345,77 +319,5 @@ f64 f64_neg_inf(void);
 #    endif /* STC_DISABLE_FUNCTIONS */
 
 #endif /* STC_DISABLE_BASIC_TYPES */
-
-/* --- Macro magic for dealing with __VA_ARGS__ potentially being empty ----- */
-
-/* taken from
- * t6847kimo.github.io/blog/2019/02/04/Remove-comma-in-variadic-macro.html
- */
-
-/**
- * Used to detect comma by relying on shifted argmuents if there is one (see
- * HAS_COMMA macro), but must invoked in only one specific way (again see
- * HAS_COMMA macro) where you have STC_ARGn(_0, _1, _2, up to _n, ...) _n where
- * n is the maximum number of variadic arguments to support. The invokation is
- * then STC_ARGn(__VA_ARGS__, 1, 1, 1, repeated (n - 1) times total, 0).
- */
-#define _STC_ARG50(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, \
-                   _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, \
-                   _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, \
-                   _38, _39, _40, _41, _42, _43, _44, _45, _46, _47, _48, _49, \
-                   _50, ...)                                                   \
-    _50
-
-/* detects if the arguments contains a comma (not nested in parentheses) by
- * replacing with either 0 (no comma) or 1 (has comma) */
-#define _STC_HAS_COMMA(...)                                                    \
-    _STC_ARG50(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, \
-               1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  \
-               1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
-
-/* used to "turn" empty __VA_ARGS__ into a comma for use with _STC_HAS_COMMA */
-#define _STC_TRIGGER_PARENTHESIS_(...) ,
-
-/* check if variadic arguments is empty by checking main case (last one) and
- * three other corner cases */
-#define _STC_ISEMPTY(...)                                      \
-    __STC_ISEMPTY(                                             \
-        _STC_HAS_COMMA(__VA_ARGS__),                           \
-        _STC_HAS_COMMA(_STC_TRIGGER_PARENTHESIS_ __VA_ARGS__), \
-        _STC_HAS_COMMA(__VA_ARGS__(/* empty */)),              \
-        _STC_HAS_COMMA(_STC_TRIGGER_PARENTHESIS_ __VA_ARGS__(/* empty */)))
-/* simple macro to concatenate arguments */
-#define _STC_PASTES(_0, _1, _2, _3, _4) _0##_1##_2##_3##_4
-/* use above macro to convert four cases into output for HAS_COMMA */
-#define __STC_ISEMPTY(_0, _1, _2, _3) \
-    _STC_HAS_COMMA(_STC_PASTES(_STC_IS_EMPTY_CASE_, _0, _1, _2, _3))
-/* place comma in correct case from above to trigger HAS_COMMA to output 1, and
- * with other cases not defined they will be replaced with nothing making
- * HAS_COMMA output 0 */
-#define _STC_IS_EMPTY_CASE_0001 ,
-
-/* use a layer of macro indirection to ensure _STC_ISEMPTY is evaluated */
-#define _STC_PREPEND_COMMA_IF_NOT_EMPTY(is_empty, ...) \
-    _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, __VA_ARGS__)
-
-/* append result of _STC_ISEMPTY check to choose correct macro depending on
- * whether __VA_ARGS__ is empty or not */
-#define _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, ...) \
-    _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_##is_empty(__VA_ARGS__)
-#define _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_0(...) , __VA_ARGS__
-#define _STC_PREPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_1(...)
-
-/* use a layer of macro indirection to ensure _STC_ISEMPTY is evaluated */
-#define _STC_APPEND_COMMA_IF_NOT_EMPTY(is_empty, ...) \
-    _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, __VA_ARGS__)
-
-/* append result of _STC_ISEMPTY check to choose correct macro depending on
- * whether __VA_ARGS__ is empty or not */
-#define _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_CHECK_EMPTY(is_empty, ...) \
-    _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_##is_empty(__VA_ARGS__)
-#define _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_0(...) __VA_ARGS__,
-#define _STC_APPEND_COMMA_IF_NOT_EMPTY_EXPAND_IS_EMPTY_1(...)
-
-/* --- End of __VA_ARGS__ macro magic --------------------------------------- */
 
 #endif /* STC_COMMON_H */
