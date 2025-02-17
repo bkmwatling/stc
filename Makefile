@@ -64,7 +64,7 @@ UTIL_OBJ       := $(ARGPARSER_OBJ) $(UTF_OBJ)
 
 EXE            := $(MATH_EXE) $(VEC_EXE) $(ARGPARSER_EXE)
 OBJ            := $(COMMON_OBJ) $(MATH_OBJ) $(COLLECTION_OBJ) $(FATP_OBJ) \
-                  $(FATP_OBJ) $(MEMORY_OBJ) $(UTIL_OBJ)
+                  $(MEMORY_OBJ) $(UTIL_OBJ)
 
 ### RULES ######################################################################
 
