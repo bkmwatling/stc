@@ -27,16 +27,16 @@ StcStrView stc_sv_take_left_while(StcStrView self, int (*predicate)(char))
     return stc_sv_from_parts(self.__stc_slice_data, i);
 }
 
-StcStrView stc_sv_chop_left_while(StcStrView *self, int (*predicate)(char))
+StcStrView stc_sv_split_left_while(StcStrView *self, int (*predicate)(char))
 {
     size_t i;
 
     for (i = 0; i < self->len && predicate(stc_sv_at(*self, i)); i++);
 
-    return stc_sv_chop_left(self, i);
+    return stc_sv_split_left(self, i);
 }
 
-StcStrView stc_sv_chop_by_delim(StcStrView *self, char delim)
+StcStrView stc_sv_split_by_delim(StcStrView *self, char delim)
 {
     size_t     i;
     StcStrView left;
@@ -50,7 +50,7 @@ StcStrView stc_sv_chop_by_delim(StcStrView *self, char delim)
     return left;
 }
 
-StcStrView stc_sv_chop_by_sv(StcStrView *self, StcStrView delim)
+StcStrView stc_sv_split_by_sv(StcStrView *self, StcStrView delim)
 {
     size_t     i;
     StcStrView left,
@@ -60,18 +60,18 @@ StcStrView stc_sv_chop_by_sv(StcStrView *self, StcStrView delim)
 
     left = stc_sv_from_parts(self->__stc_slice_data, i - delim.len);
     if (i > self->len)
-        /* set left.len to self->len and update i to be self->len for chopping
+        /* set left.len to self->len and update i to be self->len for split
          * since we never matched delim */
         i = left.len = self->len;
 
-    /* perform chop */
+    /* perform split */
     self->__stc_slice_data += i;
     self->len              -= i;
 
     return left;
 }
 
-int stc_sv_try_chop_by_delim(StcStrView *self, char delim, StcStrView *left)
+int stc_sv_try_split_by_delim(StcStrView *self, char delim, StcStrView *left)
 {
     size_t i;
     for (i = 0; i < self->len && stc_sv_at(*self, i) != delim; i++);
@@ -86,7 +86,7 @@ int stc_sv_try_chop_by_delim(StcStrView *self, char delim, StcStrView *left)
     return 0;
 }
 
-StcStrView stc_sv_chop_left(StcStrView *self, size_t n)
+StcStrView stc_sv_split_left(StcStrView *self, size_t n)
 {
     StcStrView left;
 
@@ -99,7 +99,7 @@ StcStrView stc_sv_chop_left(StcStrView *self, size_t n)
     return left;
 }
 
-StcStrView stc_sv_chop_right(StcStrView *self, size_t n)
+StcStrView stc_sv_split_right(StcStrView *self, size_t n)
 {
     StcStrView right;
 
@@ -190,7 +190,7 @@ size_t stc_sv_to_int(StcStrView self)
     return num;
 }
 
-size_t stc_sv_chop_int(StcStrView *self)
+size_t stc_sv_split_int(StcStrView *self)
 {
     size_t num;
 
