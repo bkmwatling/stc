@@ -23,16 +23,15 @@ else ifeq ($(BUILD_TYPE), Release)
 endif
 
 WARN           := -Wall -Wextra -Werror -Wpedantic
-ifeq ($(CC), gcc)
-    FATP_WARN  += -Wno-strict-aliasing
-else ifeq ($(CC), clang)
-    WARN       += -Wno-gnu-statement-expression -Wno-gnu-auto-type
-endif
 EXTRA          += -std=c11
 INCLUDE         = $(addprefix -I, $(INCLUDEDIR))
 STCOPT         := -DSTC_DISABLE_STD_MATH_H #-DSTC_ENABLE_DEBUG
 CFLAGS          = $(DEBUG) $(OPTIMISE) $(WARN) $(EXTRA) $(INCLUDE) $(STCOPT)
 DFLAGS         := #-DDEBUG
+
+ifeq ($(CC), gcc)
+    FATP_WARN  += -Wno-strict-aliasing
+endif
 
 # directories
 SRCDIR         := src
