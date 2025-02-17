@@ -7,7 +7,7 @@
 typedef struct stc_linkedlist_node StcLinkedListNode;
 
 struct stc_linkedlist_node {
-    void              *item;
+    void              *elem;
     StcLinkedListNode *prev;
     StcLinkedListNode *next;
 };
@@ -25,7 +25,7 @@ static StcLinkedListNode *stc_linkedlist_find(StcLinkedList *self,
 static StcLinkedListNode *stc_linkedlist_find_at(StcLinkedList *self,
                                                  size_t         idx);
 static int                stc_linkedlist_add_after(StcLinkedList     *self,
-                                                   void              *item,
+                                                   void              *elem,
                                                    StcLinkedListNode *target);
 static void              *stc_linkedlist_remove_node(StcLinkedList     *self,
                                                      StcLinkedListNode *target);
@@ -38,7 +38,7 @@ StcLinkedList *stc_linkedlist_new_with_cmp(stc_linkedlist_cmp_func *cmp)
 
     linkedlist->len            = 0;
     linkedlist->sentinel       = malloc(sizeof(*linkedlist->sentinel));
-    linkedlist->sentinel->item = NULL;
+    linkedlist->sentinel->elem = NULL;
     linkedlist->sentinel->prev = linkedlist->sentinel->next =
         linkedlist->sentinel;
     linkedlist->cmp = cmp;
@@ -47,15 +47,15 @@ StcLinkedList *stc_linkedlist_new_with_cmp(stc_linkedlist_cmp_func *cmp)
 }
 
 void stc_linkedlist_free(StcLinkedList            *self,
-                         stc_linkedlist_free_func *itemfree)
+                         stc_linkedlist_free_func *elemfree)
 {
     StcLinkedListNode *p, *q;
 
-    if (!(self && itemfree)) return;
+    if (!(self && elemfree)) return;
 
     for (p = self->sentinel->next; p != self->sentinel; p = q) {
         q = p->next;
-        itemfree(p->item);
+        elemfree(p->elem);
         free(p);
     }
     free(self->sentinel);
@@ -69,9 +69,9 @@ int stc_linkedlist_is_empty(StcLinkedList *self)
     return self->sentinel->next == self->sentinel;
 }
 
-int stc_linkedlist_push(StcLinkedList *self, void *item)
+int stc_linkedlist_push(StcLinkedList *self, void *elem)
 {
-    return stc_linkedlist_add_after(self, item, self->sentinel);
+    return stc_linkedlist_add_after(self, elem, self->sentinel);
 }
 
 void *stc_linkedlist_pop(StcLinkedList *self)
@@ -80,9 +80,9 @@ void *stc_linkedlist_pop(StcLinkedList *self)
     return stc_linkedlist_remove_node(self, self->sentinel->next);
 }
 
-int stc_linkedlist_enqueue(StcLinkedList *self, void *item)
+int stc_linkedlist_enqueue(StcLinkedList *self, void *elem)
 {
-    return stc_linkedlist_add_after(self, item, self->sentinel->prev);
+    return stc_linkedlist_add_after(self, elem, self->sentinel->prev);
 }
 
 void *stc_linkedlist_dequeue(StcLinkedList *self)
@@ -93,51 +93,51 @@ void *stc_linkedlist_dequeue(StcLinkedList *self)
 
 void *stc_linkedlist_first(StcLinkedList *self)
 {
-    return self->sentinel->next->item;
+    return self->sentinel->next->elem;
 }
 
 void *stc_linkedlist_last(StcLinkedList *self)
 {
-    return self->sentinel->prev->item;
+    return self->sentinel->prev->elem;
 }
 
-int stc_linkedlist_insert_after(StcLinkedList *self, void *item, void *target)
+int stc_linkedlist_insert_after(StcLinkedList *self, void *elem, void *target)
 {
     StcLinkedListNode *node = stc_linkedlist_find(self, target);
-    return node ? stc_linkedlist_add_after(self, item, node)
+    return node ? stc_linkedlist_add_after(self, elem, node)
                 : STC_LINKEDLIST_INSERT_TARGET_NOT_FOUND;
 }
 
-int stc_linkedlist_insert_before(StcLinkedList *self, void *item, void *target)
+int stc_linkedlist_insert_before(StcLinkedList *self, void *elem, void *target)
 {
     StcLinkedListNode *node = stc_linkedlist_find(self, target);
-    return node ? stc_linkedlist_add_after(self, item, node->prev)
+    return node ? stc_linkedlist_add_after(self, elem, node->prev)
                 : STC_LINKEDLIST_INSERT_TARGET_NOT_FOUND;
 }
 
-void stc_linkedlist_remove_item(StcLinkedList            *self,
-                                void                     *item,
-                                stc_linkedlist_free_func *itemfree)
+void stc_linkedlist_remove_elem(StcLinkedList            *self,
+                                void                     *elem,
+                                stc_linkedlist_free_func *elemfree)
 {
     StcLinkedListNode *node;
 
-    if (itemfree == NULL) return;
+    if (elemfree == NULL) return;
 
-    node = stc_linkedlist_find(self, item);
-    if (node) itemfree(stc_linkedlist_remove_node(self, node));
+    node = stc_linkedlist_find(self, elem);
+    if (node) elemfree(stc_linkedlist_remove_node(self, node));
 }
 
-int stc_linkedlist_insert(StcLinkedList *self, size_t idx, void *item)
+int stc_linkedlist_insert(StcLinkedList *self, size_t idx, void *elem)
 {
     StcLinkedListNode *node = stc_linkedlist_find_at(self, idx);
-    return node ? stc_linkedlist_add_after(self, item, node->prev)
+    return node ? stc_linkedlist_add_after(self, elem, node->prev)
                 : STC_LINKEDLIST_INSERT_INDEX_OUT_OF_BOUNDS;
 }
 
 void *stc_linkedlist_get(StcLinkedList *self, size_t idx)
 {
     StcLinkedListNode *node = stc_linkedlist_find_at(self, idx);
-    return node ? node->item : NULL;
+    return node ? node->elem : NULL;
 }
 
 void *stc_linkedlist_remove(StcLinkedList *self, size_t idx)
@@ -146,9 +146,9 @@ void *stc_linkedlist_remove(StcLinkedList *self, size_t idx)
     return node ? stc_linkedlist_remove_node(self, node) : NULL;
 }
 
-int stc_linkedlist_contains(StcLinkedList *self, void *item)
+int stc_linkedlist_contains(StcLinkedList *self, void *elem)
 {
-    return stc_linkedlist_find(self, item) != NULL;
+    return stc_linkedlist_find(self, elem) != NULL;
 }
 
 /* --- Helper function definitions ------------------------------------------ */
@@ -160,7 +160,7 @@ static StcLinkedListNode *stc_linkedlist_find(StcLinkedList *self, void *target)
     if (!(self && self->cmp && target)) return NULL;
 
     for (node = self->sentinel->next; node != self->sentinel; node = node->next)
-        if (self->cmp(target, node->item) == 0) return node;
+        if (self->cmp(target, node->elem) == 0) return node;
 
     return NULL;
 }
@@ -184,7 +184,7 @@ static StcLinkedListNode *stc_linkedlist_find_at(StcLinkedList *self,
 }
 
 static int stc_linkedlist_add_after(StcLinkedList     *self,
-                                    void              *item,
+                                    void              *elem,
                                     StcLinkedListNode *target)
 {
     StcLinkedListNode *node;
@@ -192,7 +192,7 @@ static int stc_linkedlist_add_after(StcLinkedList     *self,
     if (target == NULL) return STC_LINKEDLIST_INSERT_TARGET_NOT_FOUND;
 
     node             = malloc(sizeof(*node));
-    node->item       = item;
+    node->elem       = elem;
     node->prev       = target;
     node->next       = target->next;
     target->next     = node;
@@ -205,12 +205,12 @@ static int stc_linkedlist_add_after(StcLinkedList     *self,
 static void *stc_linkedlist_remove_node(StcLinkedList     *self,
                                         StcLinkedListNode *target)
 {
-    void *item = target->item;
+    void *elem = target->elem;
 
     target->prev->next = target->next;
     target->next->prev = target->prev;
     self->len--;
     free(target);
 
-    return item;
+    return elem;
 }

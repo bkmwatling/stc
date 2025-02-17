@@ -208,32 +208,32 @@ const char *stc_utf8_str_advance(const char **s)
 
 /* --- Single UTF-8 "character" functions for string views ------------------ */
 
-unsigned int stc_utf8_nbytes_sv(StcStringView sv)
+unsigned int stc_utf8_nbytes_sv(StcStrView sv)
 {
     unsigned int nbytes = 0;
 
-    if (sv.len >= 1 && STC_UTF8_IS_SINGLE(sv.str))
+    if (sv.len >= 1 && STC_UTF8_IS_SINGLE(&stc_sv_at(sv, 0)))
         /* is valid single byte (i.e. 0xxx xxxx) */
         nbytes = 1;
-    else if (sv.len >= 2 && STC_UTF8_IS_DOUBLE(sv.str))
+    else if (sv.len >= 2 && STC_UTF8_IS_DOUBLE(&stc_sv_at(sv, 0)))
         /* is valid double byte (i.e. 110x xxxx and 1 continuation byte) */
         nbytes = 2;
-    else if (sv.len >= 3 && STC_UTF8_IS_TRIPLE(sv.str))
+    else if (sv.len >= 3 && STC_UTF8_IS_TRIPLE(&stc_sv_at(sv, 0)))
         /* is valid triple byte (i.e. 1110 xxxx and 2 continuation bytes) */
         nbytes = 3;
-    else if (sv.len >= 4 && STC_UTF8_IS_QUADRUPLE(sv.str))
+    else if (sv.len >= 4 && STC_UTF8_IS_QUADRUPLE(&stc_sv_at(sv, 0)))
         /* is valid quadruple byte (i.e. 1111 0xxx and 3 continuation bytes) */
         nbytes = 4;
 
     return nbytes;
 }
 
-StcStringView stc_utf8_to_sv(const char *ch)
+StcStrView stc_utf8_to_sv(const char *ch)
 {
     return stc_sv_from_parts(ch, stc_utf8_nbytes(ch));
 }
 
-int stc_utf8_cmp_sv(StcStringView a, StcStringView b)
+int stc_utf8_cmp_sv(StcStrView a, StcStrView b)
 {
     a.len = stc_utf8_nbytes_sv(a);
     b.len = stc_utf8_nbytes_sv(b);
@@ -241,7 +241,7 @@ int stc_utf8_cmp_sv(StcStringView a, StcStringView b)
     return stc_sv_cmp(a, b);
 }
 
-int stc_utf8_try_cmp_sv(StcStringView a, StcStringView b, int *cmp)
+int stc_utf8_try_cmp_sv(StcStrView a, StcStrView b, int *cmp)
 {
     int result = 0;
 
@@ -254,17 +254,49 @@ int stc_utf8_try_cmp_sv(StcStringView a, StcStringView b, int *cmp)
     return result;
 }
 
+size_t stc_utf8_to_codepoint_sv(StcStrView sv)
+{
+    size_t       codepoint;
+    unsigned int nbytes = stc_utf8_nbytes_sv(sv);
+
+    switch (nbytes) {
+        case 1: codepoint = stc_sv_at(sv, 0); break;
+
+        case 2:
+            codepoint  = (stc_sv_at(sv, 0) & 0x1f) << 6;
+            codepoint |= (stc_sv_at(sv, 1) & 0x3f);
+            break;
+
+        case 3:
+            codepoint  = (stc_sv_at(sv, 0) & 0x0f) << 12;
+            codepoint |= (stc_sv_at(sv, 1) & 0x3f) << 6;
+            codepoint |= (stc_sv_at(sv, 2) & 0x3f);
+            break;
+
+        case 4:
+            codepoint  = (stc_sv_at(sv, 0) & 0x08) << 18;
+            codepoint |= (stc_sv_at(sv, 1) & 0x3f) << 12;
+            codepoint |= (stc_sv_at(sv, 2) & 0x3f) << 6;
+            codepoint |= (stc_sv_at(sv, 3) & 0x3f);
+            break;
+
+        default: codepoint = SIZE_MAX; break;
+    }
+
+    return codepoint;
+}
+
 /* --- UTF-8 encoded strings functions for string views --------------------- */
 
-size_t stc_utf8_sv_ncodepoints(StcStringView sv)
+size_t stc_utf8_sv_ncodepoints(StcStrView sv)
 {
     unsigned int nbytes;
     size_t       ncodepoints = 0;
 
     while (sv.len > 0) {
         if ((nbytes = stc_utf8_nbytes_sv(sv))) {
-            sv.str += nbytes;
-            sv.len -= nbytes;
+            sv.__stc_slice_data += nbytes;
+            sv.len              -= nbytes;
             ncodepoints++;
         } else {
             return 0;
@@ -274,13 +306,13 @@ size_t stc_utf8_sv_ncodepoints(StcStringView sv)
     return ncodepoints;
 }
 
-StcStringView stc_utf8_sv_next(StcStringView sv)
+StcStrView stc_utf8_sv_next(StcStrView sv)
 {
     unsigned int nbytes = stc_utf8_nbytes_sv(sv);
 
     if (nbytes > 0) {
-        sv.str += nbytes;
-        sv.len -= nbytes;
+        sv.__stc_slice_data += nbytes;
+        sv.len              -= nbytes;
     } else {
         sv.len = 0;
     }
@@ -288,15 +320,15 @@ StcStringView stc_utf8_sv_next(StcStringView sv)
     return sv;
 }
 
-StcStringView stc_utf8_sv_advance(StcStringView *sv)
+StcStrView stc_utf8_sv_advance(StcStrView *sv)
 {
-    unsigned int  nbytes       = sv ? stc_utf8_nbytes_sv(*sv) : 0;
-    StcStringView codepoint_sv = { nbytes, NULL };
+    unsigned int nbytes       = sv ? stc_utf8_nbytes_sv(*sv) : 0;
+    StcStrView   codepoint_sv = stc_sv_from_parts(NULL, nbytes);
 
     if (nbytes > 0) {
-        codepoint_sv.str  = sv->str;
-        sv->len          -= nbytes;
-        sv->str          += nbytes;
+        codepoint_sv.__stc_slice_data  = sv->__stc_slice_data;
+        sv->len                       -= nbytes;
+        sv->__stc_slice_data          += nbytes;
     }
 
     return codepoint_sv;

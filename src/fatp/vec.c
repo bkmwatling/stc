@@ -3,82 +3,55 @@
 
 #include <stc/fatp/vec.h>
 
-void stc_vec_free(void *vec)
+// TODO: use allocator instead of malloc
+static void _stc_vec_resize(StcVec(void) *vec, size_t size, size_t cap)
 {
-    if (vec) free(stc_vec_header(vec));
+    vec->__stc_vec_data = realloc(vec->__stc_vec_data, size * cap);
+    vec->cap            = cap;
 }
 
-static void *_stc_vec_resize(void *vec, size_t size, size_t cap)
+void _stc_vec_shift(StcVec(void) *vec,
+                    size_t        idx_from,
+                    size_t        idx_to,
+                    size_t        size)
 {
-    void *w;
-
-    w = realloc(vec ? stc_vec_header(vec) : NULL,
-                size * cap + sizeof(StcVecHeader));
-    w = (StcVecHeader *) w + 1;
-    if (vec == NULL) stc_vec_len_unsafe(w) = 0;
-    stc_vec_cap_unsafe(w) = cap;
-
-    return w;
+    memmove((char *) vec->__stc_vec_data + idx_to * size,
+            (char *) vec->__stc_vec_data + idx_from * size,
+            size * (vec->len - idx_from));
 }
 
-void *_stc_vec_clone(const void *vec, size_t size)
+void _stc_vec_extend(StcVec(void) *vec, const void *p, size_t size, size_t len)
 {
-    void *clone;
+    if (len == 0) return;
 
-    if (stc_vec_len(vec) == 0) return NULL;
-
-    clone = stc_vec_new(size, stc_vec_len_unsafe(vec));
-    memcpy(clone, vec, size * stc_vec_len_unsafe(vec));
-    stc_vec_len_unsafe(clone) = stc_vec_len_unsafe(vec);
-
-    return clone;
+    _stc_vec_reserve(vec, size, len);
+    memcpy((char *) vec->__stc_vec_data + size * vec->len, p, size * len);
+    vec->len += len;
 }
 
-void _stc_vec_shift(void *vec, size_t idx_from, size_t idx_to, size_t size)
+void _stc_vec_reserve_exact(StcVec(void) *vec, size_t size, size_t n)
 {
-    memmove((char *) vec + idx_to * size, (char *) vec + idx_from * size,
-            size * (stc_vec_len_unsafe(vec) - idx_from));
+    size_t len = vec->len + n, cap = vec->cap;
+
+    if (len > cap) _stc_vec_resize(vec, size, len);
 }
 
-void *_stc_vec_extend(void *vec, const void *p, size_t size, size_t len)
+void _stc_vec_reserve(StcVec(void) *vec, size_t size, size_t n)
 {
-    if (len == 0) return vec;
-    vec = _stc_vec_reserve(vec, size, len);
-
-    if (vec == NULL) return NULL;
-
-    memcpy((char *) vec + size * stc_vec_len_unsafe(vec), p, size * len);
-    stc_vec_len_unsafe(vec) += len;
-
-    return vec;
-}
-
-void *_stc_vec_reserve_exact(void *vec, size_t size, size_t n)
-{
-    size_t len = stc_vec_len(vec) + n, cap = stc_vec_cap(vec);
-
-    return len > cap ? _stc_vec_resize(vec, size, len) : vec;
-}
-
-void *_stc_vec_reserve(void *vec, size_t size, size_t n)
-{
-    size_t len = stc_vec_len(vec) + n;
-    size_t cap = vec ? stc_vec_cap_unsafe(vec) : STC_VEC_DEFAULT_CAP;
+    size_t len = vec->len + n;
+    size_t cap = vec->cap ? vec->cap : STC_VEC_DEFAULT_CAP;
 
     /* determine new cap by doubling it until enough space is reserved */
     while (len > cap) cap <<= 1;
 
     /* resize such that vec->cap becomes cap */
-    return cap > stc_vec_cap(vec) ? _stc_vec_resize(vec, size, cap) : vec;
+    if (cap > vec->cap) _stc_vec_resize(vec, size, cap);
 }
 
-void *_stc_vec_shrink(void *vec, size_t size, size_t cap)
+void _stc_vec_shrink(StcVec(void) *vec, size_t size, size_t cap)
 {
-    if (vec == NULL || (cap < stc_vec_cap_unsafe(vec) &&
-                        stc_vec_len_unsafe(vec) < stc_vec_cap_unsafe(vec))) {
-        if (cap < stc_vec_len(vec)) cap = stc_vec_len_unsafe(vec);
-        vec = _stc_vec_resize(vec, size, cap);
+    if (cap < vec->cap) {
+        if (cap < vec->len) cap = vec->len;
+        _stc_vec_resize(vec, size, cap);
     }
-
-    return vec;
 }

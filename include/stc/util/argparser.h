@@ -18,10 +18,11 @@ typedef enum {
 } StcArgConvertResult;
 
 /**
- * Prototype for conversion function of an argument to a custom type. Note that
- * the string argument will never be NULL and thus does not have to be handled
- * since NULL default value means no default. The output pointer will never be
- * NULL and thus does not have to be checked.
+ * Prototype for conversion function of an argument to a custom type.
+ *
+ * NOTE: the string argument will never be NULL and thus does not have to be
+ * handled since NULL default value means no default. The output pointer will
+ * never be NULL and thus does not have to be checked.
  *
  * @param[in]  arg the string argument
  * @param[out] out the memory address where to store the custom converted value
@@ -113,8 +114,8 @@ void stc_argparser_add_str_option(StcArgParser *self,
  * @param[in] out         optional string pointer to store argument value
  * @param[in] negate      whether to negate (invert) parsed argument
  *                        (i.e. if Boolean flag is found, set out to 0 instead
- *                        of truthy value, and if the flag is not found, set out
- *                        to truthy value instead of 0)
+ *                        of non-zero value, and if the flag is not found, set
+ *                        out to non-zero value instead of 0)
  */
 void stc_argparser_add_bool_option(StcArgParser *self,
                                    const char   *shortopt,

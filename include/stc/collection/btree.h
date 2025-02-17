@@ -8,7 +8,7 @@
 #endif
 
 #ifndef STC_BTREE_DISABLE_MAP
-#    include "map.h"
+#    include <stc/collection/map.h>
 #endif
 
 typedef struct stc_btree StcBTree;
@@ -51,99 +51,99 @@ typedef stc_btree_keyval_free_func stc_btree_keyval_free_func;
 #define stc_btree_is_empty(btree) (stc_btree_len(btree) == 0)
 
 /**
- * Creates a btree with key comparison function keycmp.
+ * Create a BTree with key comparison function keycmp.
  *
  * @param[in] keycmp the key comparison function to use
  *
- * @return a pointer to the created btree if keycmp is not NULL; else NULL
+ * @return a pointer to the created BTree if keycmp is not NULL; else NULL
  */
 StcBTree *stc_btree_new(stc_btree_keycmp_func *keycmp);
 
 /**
- * Gets the length of (number of entries in) the btree.
+ * Get the length of (number of entries in) the BTree.
  *
- * @param[in] self the pointer to the btree
+ * @param[in] self the pointer to the BTree
  *
- * @return the length of the btree if it is not NULL; else 0
+ * @return the length of the BTree if it is not NULL; else 0
  */
 size_t stc_btree_len(StcBTree *self);
 
 /**
- * Inserts the key and value into the btree only if the key is not already in
- * the btree.
+ * Insert the key and value into the BTree only if the key is not already in the
+ * BTree.
  *
- * @param[in] self the pointer to the btree
- * @param[in] key  the key to insert into the btree
- * @param[in] val  the value to insert into the btree
+ * @param[in] self the pointer to the BTree
+ * @param[in] key  the key to insert into the BTree
+ * @param[in] val  the value to insert into the BTree
  *
  * @return 0 if the insert was successful; else non-zero value
  */
 int stc_btree_insert(StcBTree *self, void *key, void *val);
 
 /**
- * Gets the value corresponding to the key from the btree if the key is
- * contained in the btree.
+ * Get the value corresponding to the key from the BTree if the key is contained
+ * in the BTree.
  *
- * @param[in] self the pointer to the btree
- * @param[in] key  the key to get the corresponding value of from the btree
+ * @param[in] self the pointer to the BTree
+ * @param[in] key  the key to get the corresponding value of from the BTree
  *
  * @return the value corresponding to the key if found; else NULL
  */
 void *stc_btree_get(StcBTree *self, void *key);
 
 /**
- * Checks whether the key is contained in the btree.
+ * Check whether the key is contained in the BTree.
  *
- * @param[in] self the pointer to the btree
- * @param[in] key  the key to check for in the btree
+ * @param[in] self the pointer to the BTree
+ * @param[in] key  the key to check for in the BTree
  *
  * @return non-zero value if the key was found; else 0 if it was not found
  */
 int stc_btree_contains_key(StcBTree *self, void *key);
 
 /**
- * Removes the key-value pair from the btree if the key is contained in the
- * btree and returns the value corresponding to the key.
+ * Remove the key-value pair from the BTree if the key is contained in the BTree
+ * and returns the value corresponding to the key.
  *
- * @param[in] self    the pointer to the btree
- * @param[in] key     the key of the key-value pair to remove from the btree
- * @param[in] keyfree the function used to free the key in the btree if found
+ * @param[in] self    the pointer to the BTree
+ * @param[in] key     the key of the key-value pair to remove from the BTree
+ * @param[in] keyfree the function used to free the key in the BTree if found
  *
  * @return the value corresponding to the key if the key is contained in the
- *         btree; else NULL if it is not
+ *         BTree; else NULL if it is not
  */
 void *stc_btree_remove(StcBTree                   *self,
                        void                       *key,
                        stc_btree_keyval_free_func *keyfree);
 
 /**
- * Creates an ordered array of the keys contained in the btree.
+ * Create an ordered array of the keys contained in the BTree.
  *
- * @param[in] self the pointer to the btree
+ * @param[in] self the pointer to the BTree
  *
- * @return an ordered array of the keys contained in the btree with the same
- *         length as the btree
+ * @return an ordered array of the keys contained in the BTree with the same
+ *         length as the BTree
  */
 void **stc_btree_keys(StcBTree *self);
 
 /**
- * Creates an array of the values contained in the btree ordered by their
- * corresponding keys in the btree.
+ * Create an array of the values contained in the BTree ordered by their
+ * corresponding keys in the BTree.
  *
- * @param[in] self the pointer to the btree
+ * @param[in] self the pointer to the BTree
  *
- * @return an array of the values contained in the btree ordered by their
- *         corresponding keys in the btree with the same length as the btree
+ * @return an array of the values contained in the BTree ordered by their
+ *         corresponding keys in the BTree with the same length as the BTree
  */
 void **stc_btree_values(StcBTree *self);
 
 /**
- * Frees the memory occupied by the btree, freeing the memory of each key and
- * value in the btree.
+ * Free the memory occupied by the BTree, freeing the memory of each key and
+ * value in the BTree.
  *
- * @param[in] self    the pointer to the btree
- * @param[in] keyfree the function used to free each key in the btree
- * @param[in] valfree the function used to free each value in the btree
+ * @param[in] self    the pointer to the BTree
+ * @param[in] keyfree the function used to free each key in the BTree
+ * @param[in] valfree the function used to free each value in the BTree
  */
 void stc_btree_free(StcBTree                   *self,
                     stc_btree_keyval_free_func *keyfree,
@@ -151,22 +151,22 @@ void stc_btree_free(StcBTree                   *self,
 
 #ifndef STC_BTREE_DISABLE_MAP
 /**
- * Wraps the btree inside a map "interface" but as a borrowed reference,
+ * Wrap the BTree inside a map "interface" but as a borrowed reference,
  * i.e., it cannot be freed from the map wrapper.
  *
- * @param[in] self the pointer to the btree
+ * @param[in] self the pointer to the BTree
  *
- * @return a pointer to the map "interface" that wraps around the btree
+ * @return a pointer to the map "interface" that wraps around the BTree
  */
 StcMap *stc_btree_as_map(StcBTree *self);
 
 /**
- * Wraps the btree inside a map "interface" giving full ownership to the map,
+ * Wrap the BTree inside a map "interface" giving full ownership to the map,
  * i.e., it can and must be freed from the map wrapper.
  *
- * @param[in] self the pointer to the btree
+ * @param[in] self the pointer to the BTree
  *
- * @return a pointer to the map "interface" that wraps around the btree
+ * @return a pointer to the map "interface" that wraps around the BTree
  */
 StcMap *stc_btree_to_map(StcBTree *self);
 #endif /* STC_BTREE_DISABLE_MAP */

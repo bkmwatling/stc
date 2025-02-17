@@ -5,7 +5,7 @@
 
 #if !defined(STC_DISABLE_FATP) && !defined(STC_DISABLE_SV) && \
     !defined(STC_UTF_DISABLE_SV)
-#    include "../fatp/string_view.h"
+#    include <stc/fatp/str_view.h>
 #endif
 
 #if defined(STC_ENABLE_SHORT_NAMES) || defined(STC_UTF_ENABLE_SHORT_NAMES)
@@ -72,7 +72,7 @@ size_t stc_unicode_from_escape_seq(const char *esc_seq);
  *
  * @param[in] codepoint the Unicode codepoint to check
  *
- * @return truthy value if the Unicode codepoint is printable; else 0
+ * @return non-zero value if the Unicode codepoint is printable; else 0
  */
 int stc_unicode_isprint(size_t codepoint);
 
@@ -94,8 +94,8 @@ int stc_unicode_isprint(size_t codepoint);
 #define stc_utf8_isprint(ch) stc_unicode_isprint(stc_utf8_to_codepoint(ch))
 
 /**
- * Determines the number of bytes the UTF-8 "character" starting at the
- * character pointer (string) takes up.
+ * Determine the number of bytes the UTF-8 "character" starting at the character
+ * pointer (string) takes up.
  *
  * @param[in] ch the pointer to the first character in the UTF-8 "character"
  *
@@ -105,7 +105,8 @@ int stc_unicode_isprint(size_t codepoint);
 unsigned int stc_utf8_nbytes(const char *ch);
 
 /**
- * Creates a clone of the UTF-8 "character" into its own null-terminated string.
+ * Create a clone of the UTF-8 "character" into its own null-terminated string.
+ *
  * If the UTF-8 "character" is invalid, this function returns NULL.
  *
  * @param[in] ch the pointer to the first character in the UTF-8 "character"
@@ -116,7 +117,9 @@ unsigned int stc_utf8_nbytes(const char *ch);
 char *stc_utf8_clone(const char *ch);
 
 /**
- * Compares two UTF-8 "characters". Assumes both UTF-8 "characters" are valid.
+ * Compare two UTF-8 "characters".
+ *
+ * NOTE: assumes both UTF-8 "characters" are valid.
  *
  * @param[in] a the left side UTF-8 "character" in comparison
  * @param[in] b the right side UTF-8 "character" in comparison
@@ -127,11 +130,12 @@ char *stc_utf8_clone(const char *ch);
 int stc_utf8_cmp(const char *a, const char *b);
 
 /**
- * Tries to compare two UTF-8 "characters". If the two UTF-8 "characters" are
- * valid then this function stores the same result as calling stc_utf8_cmp in
- * the out parameter.
+ * Try to compare two UTF-8 "characters".
  *
- * Note: if cmp is NULL, it is ignored, i.e. if cmp NULL then this function is a
+ * If the two UTF-8 "characters" are valid then this function stores the same
+ * result as calling stc_utf8_cmp in the out parameter.
+ *
+ * NOTE: if cmp is NULL, it is ignored, i.e. if cmp NULL then this function is a
  * convenient way to check if two UTF-8 "characters" are valid at once.
  *
  * @param[in]  a   the left side UTF-8 "character" in comparison
@@ -160,7 +164,7 @@ size_t stc_utf8_to_codepoint(const char *ch);
  * Convert the Unicode codepoint to the equivalent UTF-8 "character".
  *
  * NOTE: the returned UTF-8 "character" is allocated with malloc (if not NULL)
- *       and thus needs to be freed once done with.
+ * and thus needs to be freed once done with.
  *
  * @param[in] codepoint the Unicode codepoint to convert
  *
@@ -174,9 +178,11 @@ char *stc_utf8_from_codepoint(size_t codepoint);
 #define stc_utf8_str_is_valid(s) (stc_utf8_str_ncodepoints(s) > 0)
 
 /**
- * Counts the number of Unicode codepoints in the string if it is a valid UTF-8
- * encoded string. If the string is not a valid UTF-8 encoded string, then this
- * function returns 0.
+ * Count the number of Unicode codepoints in the string if it is a valid UTF-8
+ * encoded string.
+ *
+ * If the string is not a valid UTF-8 encoded string, then this function returns
+ * 0.
  *
  * @param[in] s the string to count the number of Unicode codepoints
  *
@@ -186,9 +192,11 @@ char *stc_utf8_from_codepoint(size_t codepoint);
 size_t stc_utf8_str_ncodepoints(const char *s);
 
 /**
- * Retrieves the next UTF-8 "character" in the string if the current character
- * of the string is the start of a valid UTF-8 "character". If the character is
- * not the start of a valid UTF-8 "character" then NULL is returned.
+ * Retrieve the next UTF-8 "character" in the string if the current character
+ * of the string is the start of a valid UTF-8 "character".
+ *
+ * If the character is not the start of a valid UTF-8 "character" then NULL is
+ * returned.
  *
  * @param[in] s the string to advance to the next UTF-8 "character" from
  *
@@ -199,11 +207,12 @@ size_t stc_utf8_str_ncodepoints(const char *s);
 const char *stc_utf8_str_next(const char *s);
 
 /**
- * Advances the UTF-8 string pointed to by s to the next UTF-8 "character" and
+ * Advance the UTF-8 string pointed to by s to the next UTF-8 "character" and
  * returns the current UTF-8 "character" of the string if the current character
- * of the string is the start of a valid UTF-8 "character". If the character is
- * not the start of a valid UTF-8 codepoint then NULL is returned and the string
- * is left unchanged.
+ * of the string is the start of a valid UTF-8 "character".
+ *
+ * If the character is not the start of a valid UTF-8 codepoint then NULL is
+ * returned and the string is left unchanged.
  *
  * @param[in] s the string to advance to the next UTF-8 "character"
  *
@@ -223,11 +232,12 @@ const char *stc_utf8_str_advance(const char **s);
 #    define stc_utf8_is_valid_sv(sv) (stc_utf8_nbytes((sv)) > 0)
 
 /**
- * Determines the number of bytes the UTF-8 "character" starting at the
- * string view with certain length. If the UTF-8 "character" is invalid, this
- * function returns NULL. The length of the string view is checked and so if the
- * underlying bytes indicate the UTF-8 "character" exceeds the string view
- * length, it is deemed invalid.
+ * Determine the number of bytes the UTF-8 "character" starting at the string
+ * view with certain length.
+ *
+ * If the UTF-8 "character" is invalid, this function returns NULL. The length
+ * of the string view is checked and so if the underlying bytes indicate the
+ * UTF-8 "character" exceeds the string view length, it is deemed invalid.
  *
  * @param[in] sv the string view starting at the first character in the UTF-8
  *               "character"
@@ -236,10 +246,11 @@ const char *stc_utf8_str_advance(const char **s);
  *         encoded UTF-8 "character" in the context of a string view (codepoint
  *         does not go past string view bounds); else zero
  */
-unsigned int stc_utf8_nbytes_sv(StcStringView sv);
+unsigned int stc_utf8_nbytes_sv(StcStrView sv);
 
 /**
- * Creates a string view of the UTF-8 "character" with the correct length.
+ * Create a string view of the UTF-8 "character" with the correct length.
+ *
  * An advantage of using this function over stc_utf8_clone is that is does not
  * need to perform memory allocation.
  *
@@ -247,11 +258,12 @@ unsigned int stc_utf8_nbytes_sv(StcStringView sv);
  *
  * @return a string view of the UTF-8 "character"
  */
-StcStringView stc_utf8_to_sv(const char *ch);
+StcStrView stc_utf8_to_sv(const char *ch);
 
 /**
- * Compares two UTF-8 "characters" in the context of string views. Assumes both
- * UTF-8 codepoints are valid.
+ * Compare two UTF-8 "characters" in the context of string views.
+ *
+ * NOTE: assumes both UTF-8 codepoints are valid.
  *
  * @param[in] a the left side UTF-8 "character" string view in comparison
  * @param[in] b the right side UTF-8 "character" string view in comparison
@@ -259,14 +271,15 @@ StcStringView stc_utf8_to_sv(const char *ch);
  * @return a value less than 0 if a < b, else a value greater than 0 if a > b,
  *         otherwise 0 meaning a == b
  */
-int stc_utf8_cmp_sv(StcStringView a, StcStringView b);
+int stc_utf8_cmp_sv(StcStrView a, StcStrView b);
 
 /**
- * Tries to compare two UTF-8 "characters" in the context of string views. If
- * the two UTF-8 "characters" are valid then this function stores the same
+ * Try to compare two UTF-8 "characters" in the context of string views.
+ *
+ * If the two UTF-8 "characters" are valid then this function stores the same
  * result as calling stc_utf8_cmp_sv in the out parameter.
  *
- * Note: if cmp is NULL, it is ignored, i.e. if cmp NULL then this function is a
+ * NOTE: if cmp is NULL, it is ignored, i.e. if cmp NULL then this function is a
  * convenient way to check if two UTF-8 "character" string views are valid at
  * once.
  *
@@ -280,7 +293,7 @@ int stc_utf8_cmp_sv(StcStringView a, StcStringView b);
  *         valid UTF-8 "character" string view, otherwise 3 if both a and b are
  *         not valid UTF-8 "character" string views
  */
-int stc_utf8_try_cmp_sv(StcStringView a, StcStringView b, int *cmp);
+int stc_utf8_try_cmp_sv(StcStrView a, StcStrView b, int *cmp);
 
 /**
  * Convert the UTF-8 "character" string view to the equivalent Unicode
@@ -291,28 +304,31 @@ int stc_utf8_try_cmp_sv(StcStringView a, StcStringView b, int *cmp);
  * @return the equivalent Unicode codepoint if the UTF-8 "character" string view
  *         is valid; else SIZE_MAX
  */
-size_t stc_utf8_to_codepoint_sv(StcStringView sv);
+size_t stc_utf8_to_codepoint_sv(StcStrView sv);
 
 /* --- UTF-8 encoded strings macros and functions for string views ---------- */
 
 #    define stc_utf8_sv_is_valid(s) (stc_utf8_sv_ncodepoints(s) > 0)
 
 /**
- * Counts the number of Unicode codepoints in the string view if it is a valid
- * UTF-8 encoded string view. If the string view is not of a valid UTF-8 encoded
- * string, then this function returns 0.
+ * Count the number of Unicode codepoints in the string view if it is a valid
+ * UTF-8 encoded string view.
+ *
+ * If the string view is not of a valid UTF-8 encoded string, then this function
+ * returns 0.
  *
  * @param[in] sv the string view to count the number of Unicode codepoints
  *
  * @return the number of Unicode codepoints in the string view if it is of a
  *         valid UTF-8 encoded string; else 0 if it is invalid
  */
-size_t stc_utf8_sv_ncodepoints(StcStringView sv);
+size_t stc_utf8_sv_ncodepoints(StcStrView sv);
 
 /**
- * Retrieves the next UTF-8 "character" in the string view if the starting
- * character of the string view is the start of a valid UTF-8 "character". If
- * the character is not the start of a valid UTF-8 "character" then a string
+ * Retrieve the next UTF-8 "character" in the string view if the starting
+ * character of the string view is the start of a valid UTF-8 "character".
+ *
+ * If the character is not the start of a valid UTF-8 "character" then a string
  * view of length 0 is returned.
  *
  * @param[in] sv the string view to advance to the next UTF-8 "character" from
@@ -321,15 +337,16 @@ size_t stc_utf8_sv_ncodepoints(StcStringView sv);
  *         string view if the current character of the string view is the start
  *         of a valid UTF-8 "character"; else a string view of length 0
  */
-StcStringView stc_utf8_sv_next(StcStringView sv);
+StcStrView stc_utf8_sv_next(StcStrView sv);
 
 /**
- * Advances the UTF-8 string view pointed to by sv to the next UTF-8 "character"
+ * Advance the UTF-8 string view pointed to by sv to the next UTF-8 "character"
  * and returns the current UTF-8 "character" of the string view as a string view
  * if the current character of the string view is the start of a valid UTF-8
- * "character". If the character is not the start of a valid UTF-8 "character"
- * then a string view of length 0 is returned and the given string view is
- * left unchanged.
+ * "character".
+ *
+ * If the character is not the start of a valid UTF-8 "character" then a string
+ * view of length 0 is returned and the given string view is left unchanged.
  *
  * @param[in] sv the string view pointer to advance to next UTF-8 "character"
  *
@@ -337,7 +354,7 @@ StcStringView stc_utf8_sv_next(StcStringView sv);
  *         string view if the current character of the string view is the start
  *         of a valid UTF-8 "character"; else a string view of length 0
  */
-StcStringView stc_utf8_sv_advance(StcStringView *sv);
+StcStrView stc_utf8_sv_advance(StcStrView *sv);
 
 #endif /* STC_UTF_DISABLE_SV */
 

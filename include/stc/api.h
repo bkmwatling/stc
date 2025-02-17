@@ -2,56 +2,56 @@
 #define STC_API_H
 
 #ifndef STC_DISABLE_COMMON
-#    include "common.h"
+#    include <stc/common.h>
 #endif
 
 #ifndef STC_DISABLE_MATH
-#    include "math.h"
+#    include <stc/math.h>
 #endif
 
 #ifndef STC_DISABLE_COLLECTION
 #    ifndef STC_DISABLE_BTREE
-#        include "collection/btree.h"
+#        include <stc/collection/btree.h>
 #    endif
 #    ifndef STC_DISABLE_LINKEDLIST
-#        include "collection/linkedlist.h"
+#        include <stc/collection/linkedlist.h>
 #    endif
 #    ifndef STC_DISABLE_MAP
-#        include "collection/map.h"
+#        include <stc/collection/map.h>
 #    endif
 #    ifndef STC_DISABLE_SET
-#        include "collection/set.h"
+#        include <stc/collection/set.h>
 #    endif
 #endif /* STC_DISABLE_COLLECTION */
 
 #ifndef STC_DISABLE_FATP
 #    ifndef STC_DISABLE_SLICE
-#        include "fatp/slice.h"
+#        include <stc/fatp/slice.h>
 #    endif
 #    ifndef STC_DISABLE_STRING
-#        include "fatp/string.h"
+#        include <stc/fatp/string.h>
 #    endif
 #    ifndef STC_DISABLE_SV
-#        include "fatp/string_view.h"
+#        include <stc/fatp/str_view.h>
 #    endif
 #    ifndef STC_DISABLE_VEC
-#        include "fatp/vec.h"
+#        include <stc/fatp/vec.h>
 #    endif
 #endif /* STC_DISABLE_FATP */
 
 #ifndef STC_DISABLE_MEM
-#    include "memory/base.h"
+#    include <stc/memory/base.h>
 #    ifndef STC_DISABLE_MEM_LIBC
-#        include "memory/libc.h"
+#        include <stc/memory/libc.h>
 #    endif
 #endif /* STC_DISABLE_MEM */
 
 #ifndef STC_DISABLE_UTIL
 #    ifndef STC_DISABLE_ARGPARSER
-#        include "util/argparser.h"
+#        include <stc/util/argparser.h>
 #    endif
 #    ifndef STC_DISABLE_UTF
-#        include "util/utf.h"
+#        include <stc/util/utf.h>
 #    endif
 #endif /* STC_DISABLE_UTIL */
 

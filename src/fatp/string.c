@@ -5,26 +5,28 @@
 
 /* --- Resizable string functions ------------------------------------------- */
 
-void _stc_string_push_vfmt(char **self, const char *fmt, va_list ap)
+void _stc_string_push_vfmt(StcString *self, const char *fmt, va_list ap)
 {
     size_t  cap, len, n;
     va_list aq;
 
     va_copy(aq, ap); /* need to make copy of ap in case retry is needed */
-    cap = stc_string_cap_unsafe(*self);
-    len = stc_string_len_unsafe(*self);
-    n   = vsnprintf(*self + len, cap - len, fmt, ap);
+    len = self->len;
+    cap = self->cap;
+    n   = vsnprintf(&stc_string_at(*self, len), cap - len, fmt, ap);
 
     /* check if buffer was too small and retry with new size if so */
     if (n > cap - len) {
-        stc_string_reserve(*self, n);
-        stc_string_len_unsafe(*self) +=
-            vsnprintf(*self + len, stc_string_cap_unsafe(*self) - len, fmt, aq);
+        stc_string_reserve(self, n);
+        if (self->cap - len < n)
+            n = self->cap - len; /* cap size incase not enough space */
+        vsnprintf(&stc_string_at(*self, len), n, fmt, aq);
     }
     va_end(aq);
+    self->len += n;
 }
 
-void _stc_string_push_fmt(char **self, const char *fmt, ...)
+void _stc_string_push_fmt(StcString *self, const char *fmt, ...)
 {
     va_list ap;
 
@@ -35,32 +37,31 @@ void _stc_string_push_fmt(char **self, const char *fmt, ...)
 
 /* --- String slice functions ----------------------------------------------- */
 
-char *stc_str_from_vfmt(const char *fmt, va_list ap)
+StcStr stc_str_from_vfmt(const char *fmt, va_list ap)
 {
-#define STC_STR_INIT_BUFSIZE 256
-    StcSliceHeader *slice;
-    va_list         aq;
+    char   *s;
+    size_t  len;
+    va_list aq;
 
     va_copy(aq, ap); /* need to make copy of ap in case retry is needed */
-    slice =
-        malloc(STC_STR_INIT_BUFSIZE * sizeof(char) + sizeof(StcSliceHeader));
-    slice->len = vsnprintf((char *) (slice + 1), STC_STR_INIT_BUFSIZE, fmt, ap);
+    /* to comply with all C standards (SUSv2 specifically) we can't give a size
+     * of 0 to vsnprintf and as such we must allocate string of length 1 */
+    s   = malloc(sizeof(char));
+    len = vsnprintf(s, 1, fmt, ap);
 
-    /* check if buffer was too small and retry with new size if so */
-    if (slice->len > STC_STR_INIT_BUFSIZE) {
-        free(slice);
-        slice      = malloc(slice->len * sizeof(char) + sizeof(StcSliceHeader));
-        slice->len = vsnprintf((char *) (slice + 1), slice->len, fmt, aq);
+    /* check if buffer was too small (should be) and retry with new len if so */
+    if (len > 1) {
+        s   = realloc(s, sizeof(char) * len);
+        len = vsnprintf(s, len, fmt, aq);
     }
     va_end(aq);
 
-    return (char *) (slice + 1);
-#undef STC_STR_INIT_BUFSIZE
+    return stc_str_from_parts(s, len);
 }
 
-char *stc_str_from_fmt(const char *fmt, ...)
+StcStr stc_str_from_fmt(const char *fmt, ...)
 {
-    char   *str;
+    StcStr  str;
     va_list ap;
 
     va_start(ap, fmt);
