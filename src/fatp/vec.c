@@ -7,7 +7,8 @@
 static void _stc_vec_resize(StcVec(void) *vec, size_t size, size_t cap)
 {
     *vec              = (StcVec(void)) ((struct stc_vec_header *) realloc(
-                               _stc_vec_header(*vec), size * cap) +
+                               _stc_vec_header(*vec),
+                               sizeof(struct stc_vec_header) + size * cap) +
                            1);
     stc_vec_cap(*vec) = cap;
 }
