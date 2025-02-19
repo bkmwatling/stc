@@ -295,8 +295,8 @@ size_t stc_utf8_sv_ncodepoints(StcStrView sv)
 
     while (sv.len > 0) {
         if ((nbytes = stc_utf8_nbytes_sv(sv))) {
-            sv.__stc_slice_data += nbytes;
-            sv.len              -= nbytes;
+            sv.str += nbytes;
+            sv.len -= nbytes;
             ncodepoints++;
         } else {
             return 0;
@@ -311,8 +311,8 @@ StcStrView stc_utf8_sv_next(StcStrView sv)
     unsigned int nbytes = stc_utf8_nbytes_sv(sv);
 
     if (nbytes > 0) {
-        sv.__stc_slice_data += nbytes;
-        sv.len              -= nbytes;
+        sv.str += nbytes;
+        sv.len -= nbytes;
     } else {
         sv.len = 0;
     }
@@ -326,9 +326,9 @@ StcStrView stc_utf8_sv_advance(StcStrView *sv)
     StcStrView   codepoint_sv = stc_sv_from_parts(NULL, nbytes);
 
     if (nbytes > 0) {
-        codepoint_sv.__stc_slice_data  = sv->__stc_slice_data;
-        sv->len                       -= nbytes;
-        sv->__stc_slice_data          += nbytes;
+        codepoint_sv.str  = sv->str;
+        sv->len          -= nbytes;
+        sv->str          += nbytes;
     }
 
     return codepoint_sv;

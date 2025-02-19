@@ -12,13 +12,13 @@ COMPILE         = $(CC) $(CFLAGS) $(DFLAGS)
 # compiler flags
 BUILD_TYPE     ?= Debug
 ifeq ($(BUILD_TYPE), Debug)
-    DEBUG      := -ggdb -gdwarf-4
+    DEBUG      += -ggdb -gdwarf-4
     OPTIMISE   := -O0
 else ifeq ($(BUILD_TYPE), RelWithDebInfo)
-    DEBUG      := -ggdb -gdwarf-4
+    DEBUG      += -ggdb -gdwarf-4
     OPTIMISE   := -O2
 else ifeq ($(BUILD_TYPE), Release)
-    DEBUG      :=
+    DEBUG      +=
     OPTIMISE   := -O2
 endif
 
@@ -28,10 +28,6 @@ INCLUDE         = $(addprefix -I, $(INCLUDEDIR))
 STCOPT         := -DSTC_DISABLE_STD_MATH_H #-DSTC_ENABLE_DEBUG
 CFLAGS          = $(DEBUG) $(OPTIMISE) $(WARN) $(EXTRA) $(INCLUDE) $(STCOPT)
 DFLAGS         := #-DDEBUG
-
-ifeq ($(CC), gcc)
-    FATP_WARN  += -Wno-strict-aliasing
-endif
 
 # directories
 SRCDIR         := src
@@ -80,9 +76,6 @@ $(VEC_EXE): $(TESTDIR)/$(VEC_EXE).c $(VEC_OBJ) | $(BINDIR)
 	$(COMPILE) -o $(BINDIR)/$@ $^
 
 # units
-
-$(FATP_OBJ): %.o: %.c
-	$(COMPILE) $(FATP_WARN) -c -o $@ $<
 
 %.o: %.c
 	$(COMPILE) -c -o $@ $<

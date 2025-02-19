@@ -53,3 +53,7 @@ dkms.conf
 
 # Binaries
 bin/
+
+# Clangd
+compile_commands.json
+.cache/
