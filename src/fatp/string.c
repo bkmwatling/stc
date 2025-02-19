@@ -11,19 +11,19 @@ void _stc_string_push_vfmt(StcString *self, const char *fmt, va_list ap)
     va_list aq;
 
     va_copy(aq, ap); /* need to make copy of ap in case retry is needed */
-    len = self->len;
-    cap = self->cap;
-    n   = vsnprintf(&stc_string_at(*self, len), cap - len, fmt, ap);
+    len = stc_string_len(*self);
+    cap = stc_string_cap(*self);
+    n   = vsnprintf(&(*self)[len], cap - len, fmt, ap);
 
     /* check if buffer was too small and retry with new size if so */
     if (n > cap - len) {
         stc_string_reserve(self, n);
-        if (self->cap - len < n)
-            n = self->cap - len; /* cap size incase not enough space */
-        vsnprintf(&stc_string_at(*self, len), n, fmt, aq);
+        if (stc_string_cap(*self) - len < n)
+            n = stc_string_cap(*self) - len; /* cap size incase no space */
+        vsnprintf(&(*self)[len], n, fmt, aq);
     }
     va_end(aq);
-    self->len += n;
+    stc_string_len(*self) += n;
 }
 
 void _stc_string_push_fmt(StcString *self, const char *fmt, ...)

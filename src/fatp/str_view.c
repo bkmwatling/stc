@@ -5,8 +5,7 @@
 
 StcStrView stc_sv_trim_left(StcStrView self)
 {
-    for (; self.len > 0 && isspace(stc_sv_at(self, 0));
-         self.__stc_slice_data++, self.len--);
+    for (; self.len > 0 && isspace(stc_sv_at(self, 0)); self.str++, self.len--);
 
     return self;
 }
@@ -24,7 +23,7 @@ StcStrView stc_sv_take_left_while(StcStrView self, int (*predicate)(char))
 
     for (i = 0; i < self.len && predicate(stc_sv_at(self, i)); i++);
 
-    return stc_sv_from_parts(self.__stc_slice_data, i);
+    return stc_sv_from_parts(self.str, i);
 }
 
 StcStrView stc_sv_split_left_while(StcStrView *self, int (*predicate)(char))
@@ -42,10 +41,10 @@ StcStrView stc_sv_split_by_delim(StcStrView *self, char delim)
     StcStrView left;
     for (i = 0; i < self->len && stc_sv_at(*self, i) != delim; i++);
 
-    left = stc_sv_from_parts(self->__stc_slice_data, i);
+    left = stc_sv_from_parts(self->str, i);
     if (i < self->len) i++;
-    self->len              -= i;
-    self->__stc_slice_data += i;
+    self->len -= i;
+    self->str += i;
 
     return left;
 }
@@ -53,20 +52,19 @@ StcStrView stc_sv_split_by_delim(StcStrView *self, char delim)
 StcStrView stc_sv_split_by_sv(StcStrView *self, StcStrView delim)
 {
     size_t     i;
-    StcStrView left,
-        window = stc_sv_from_parts(self->__stc_slice_data, delim.len);
+    StcStrView left, window = stc_sv_from_parts(self->str, delim.len);
     for (i = delim.len; i <= self->len && !stc_sv_eq(window, delim);
-         i++, window.__stc_slice_data++);
+         i++, window.str++);
 
-    left = stc_sv_from_parts(self->__stc_slice_data, i - delim.len);
+    left = stc_sv_from_parts(self->str, i - delim.len);
     if (i > self->len)
         /* set left.len to self->len and update i to be self->len for split
          * since we never matched delim */
         i = left.len = self->len;
 
     /* perform split */
-    self->__stc_slice_data += i;
-    self->len              -= i;
+    self->str += i;
+    self->len -= i;
 
     return left;
 }
@@ -77,9 +75,9 @@ int stc_sv_try_split_by_delim(StcStrView *self, char delim, StcStrView *left)
     for (i = 0; i < self->len && stc_sv_at(*self, i) != delim; i++);
 
     if (i < self->len) {
-        if (left) *left = stc_sv_from_parts(self->__stc_slice_data, i);
-        self->len              -= i + 1;
-        self->__stc_slice_data += i + 1;
+        if (left) *left = stc_sv_from_parts(self->str, i);
+        self->len -= i + 1;
+        self->str += i + 1;
         return 1;
     }
 
@@ -92,9 +90,9 @@ StcStrView stc_sv_split_left(StcStrView *self, size_t n)
 
     if (n > self->len) n = self->len;
 
-    left                    = stc_sv_from_parts(self->__stc_slice_data, n);
-    self->__stc_slice_data += n;
-    self->len              -= n;
+    left       = stc_sv_from_parts(self->str, n);
+    self->str += n;
+    self->len -= n;
 
     return left;
 }
@@ -140,7 +138,7 @@ int stc_sv_eq(StcStrView a, StcStrView b)
     if (a.len != b.len)
         return 0;
     else
-        return memcmp(a.__stc_slice_data, b.__stc_slice_data, a.len) == 0;
+        return memcmp(a.str, b.str, a.len) == 0;
 }
 
 int stc_sv_eq_ignorecase(StcStrView a, StcStrView b)
@@ -162,8 +160,7 @@ int stc_sv_eq_ignorecase(StcStrView a, StcStrView b)
 int stc_sv_starts_with(StcStrView self, StcStrView prefix)
 {
     if (prefix.len <= self.len)
-        return stc_sv_eq(prefix,
-                         stc_sv_from_parts(self.__stc_slice_data, prefix.len));
+        return stc_sv_eq(prefix, stc_sv_from_parts(self.str, prefix.len));
 
     return 0;
 }
@@ -195,7 +192,7 @@ size_t stc_sv_split_int(StcStrView *self)
     size_t num;
 
     for (num = 0; self->len > 0 && isdigit(stc_sv_at(*self, 0));
-         self->len--, self->__stc_slice_data++)
+         self->len--, self->str++)
         STC_SV_PROCESS_DIGIT(num, stc_sv_at(*self, 0));
 
     return num;
