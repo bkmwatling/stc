@@ -311,7 +311,7 @@ struct stc_vec_header {
         __auto_type _STC_MACRO_VAR(_stc_vec_insert_i_)  = (i);               \
         stc_vec_reserve_index(_STC_MACRO_VAR(_stc_vec_insert_vp_),           \
                               _STC_MACRO_VAR(_stc_vec_insert_i_), 1);        \
-        stc_vec_len(_STC_MACRO_VAR(_stc_vec_insert_vp_))++;                  \
+        stc_vec_len(*_STC_MACRO_VAR(_stc_vec_insert_vp_))++;                 \
         (*_STC_MACRO_VAR(                                                    \
             _stc_vec_insert_vp_))[_STC_MACRO_VAR(_stc_vec_insert_i_)] = (x); \
     })
