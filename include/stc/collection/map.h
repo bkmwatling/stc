@@ -1,12 +1,13 @@
 #ifndef STC_MAP_H
 #define STC_MAP_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef size_t stc_map_len_func(void *map_impl);
 typedef int    stc_map_insert_func(void *map_impl, void *key, void *val);
 typedef void  *stc_map_get_func(void *map_impl, void *key);
-typedef int    stc_map_contains_key_func(void *map_impl, void *key);
+typedef bool   stc_map_contains_key_func(void *map_impl, void *key);
 typedef void   stc_map_free_func(void *);
 typedef void *
 stc_map_remove_func(void *map_impl, void *key, stc_map_free_func *keyfree);
@@ -100,7 +101,7 @@ typedef stc_map_free_map_func map_free_map_func;
         return prefix##_get((maptype *) map_impl, key);                       \
     }                                                                         \
                                                                               \
-    static int prefix##_contains_key_wrapper(void *map_impl, void *key)       \
+    static bool prefix##_contains_key_wrapper(void *map_impl, void *key)      \
     {                                                                         \
         return prefix##_contains_key((maptype *) map_impl, key);              \
     }                                                                         \

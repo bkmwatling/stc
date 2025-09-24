@@ -1,6 +1,7 @@
 #ifndef STC_LINKEDLIST_H
 #define STC_LINKEDLIST_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef struct stc_linkedlist StcLinkedList;
@@ -86,9 +87,9 @@ size_t stc_linkedlist_len(StcLinkedList *self);
  *
  * @param[in] self the pointer to the linked list
  *
- * @return non-zero value if the linked list is empty; else 0 if it is empty
+ * @return true if the linked list is empty; else false if it is not empty
  */
-int stc_linkedlist_is_empty(StcLinkedList *self);
+bool stc_linkedlist_is_empty(StcLinkedList *self);
 
 /**
  * Push the element to the front of the linked list.
@@ -96,7 +97,7 @@ int stc_linkedlist_is_empty(StcLinkedList *self);
  * @param[in] self the pointer to the linked list
  * @param[in] elem the element to push to the front of the linked list
  *
- * @return 0 if the push was successful; else non-zero value
+ * @return 0 if the push was successful; else non-zero error code
  */
 int stc_linkedlist_push(StcLinkedList *self, void *elem);
 
@@ -115,7 +116,7 @@ void *stc_linkedlist_pop(StcLinkedList *self);
  * @param[in] self the pointer to the linked list
  * @param[in] elem the element to enqueue to the end of the linked list
  *
- * @return 0 if the enqueue was successful; else non-zero value
+ * @return 0 if the enqueue was successful; else non-zero error code
  */
 int stc_linkedlist_enqueue(StcLinkedList *self, void *elem);
 
@@ -157,7 +158,7 @@ void *stc_linkedlist_last(StcLinkedList *self);
  * @param[in] target the target element to insert the element after in the
  *                   linked list
  *
- * @return 0 if the insert was successful; else non-zero value
+ * @return 0 if the insert was successful; else non-zero error code
  */
 int stc_linkedlist_insert_after(StcLinkedList *self, void *elem, void *target);
 
@@ -172,7 +173,7 @@ int stc_linkedlist_insert_after(StcLinkedList *self, void *elem, void *target);
  * @param[in] target the target element to insert the element before in the
  *                   linked list
  *
- * @return 0 if the insert was successful; else non-zero value
+ * @return 0 if the insert was successful; else non-zero error code
  */
 int stc_linkedlist_insert_before(StcLinkedList *self, void *elem, void *target);
 
@@ -199,7 +200,7 @@ void stc_linkedlist_remove_elem(StcLinkedList            *self,
  * @param[in] idx  the index to insert the element at in the linked list
  * @param[in] elem the element to insert into the linked list
  *
- * @return 0 if the insert was successful; else non-zero value
+ * @return 0 if the insert was successful; else non-zero code
  */
 int stc_linkedlist_insert(StcLinkedList *self, size_t idx, void *elem);
 
@@ -236,8 +237,8 @@ void *stc_linkedlist_remove(StcLinkedList *self, size_t idx);
  * @param[in] self the pointer to the linked list
  * @param[in] elem the element to check for in the linked list
  *
- * @return non-zero if the element was found; else 0 if it was not found
+ * @return true if the element was found; else false if it was not found
  */
-int stc_linkedlist_contains(StcLinkedList *self, void *elem);
+bool stc_linkedlist_contains(StcLinkedList *self, void *elem);
 
 #endif /* STC_LINKEDLIST_H */

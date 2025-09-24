@@ -1,11 +1,12 @@
 #ifndef STC_SET_H
 #define STC_SET_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef size_t stc_set_len_func(void *set_impl);
 typedef int    stc_set_insert_func(void *set_impl, void *elem);
-typedef int    stc_set_contains_func(void *set_impl, void *elem);
+typedef bool   stc_set_contains_func(void *set_impl, void *elem);
 typedef void   stc_set_free_func(void *);
 typedef void
 stc_set_remove_func(void *set_impl, void *elem, stc_set_free_func *elemfree);
@@ -78,7 +79,7 @@ typedef stc_set_free_set_func set_free_set_func;
         return prefix##_insert((settype *) set_impl, elem);                    \
     }                                                                          \
                                                                                \
-    static int prefix##_contains_wrapper(void *set_impl, void *elem)           \
+    static bool prefix##_contains_wrapper(void *set_impl, void *elem)          \
     {                                                                          \
         return prefix##_contains((settype *) set_impl, elem);                  \
     }                                                                          \

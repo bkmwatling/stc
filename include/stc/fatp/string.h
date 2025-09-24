@@ -118,7 +118,7 @@ typedef StcString String;
  *
  * @param[in] s the string to check if empty
  *
- * @return a non-zero value if the string is empty; else 0
+ * @return true if the string is empty; else false
  */
 #define stc_string_is_empty stc_vec_is_empty
 
@@ -234,7 +234,7 @@ typedef StcString String;
  * @param[in,out] sp  a pointer to the string to truncate
  * @param[in]     len the length to truncate the string to
  *
- * @return a non-zero value if the string was truncated; else 0
+ * @return true if the string was truncated; else false
  */
 #define stc_string_truncate stc_vec_truncate
 

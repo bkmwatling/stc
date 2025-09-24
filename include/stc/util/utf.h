@@ -1,6 +1,7 @@
 #ifndef STC_UTF_H
 #define STC_UTF_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 #if !defined(STC_DISABLE_FATP) && !defined(STC_DISABLE_SV) && \
@@ -72,9 +73,9 @@ size_t stc_unicode_from_escape_seq(const char *esc_seq);
  *
  * @param[in] codepoint the Unicode codepoint to check
  *
- * @return non-zero value if the Unicode codepoint is printable; else 0
+ * @return true if the Unicode codepoint is printable; else false
  */
-int stc_unicode_isprint(size_t codepoint);
+bool stc_unicode_isprint(size_t codepoint);
 
 /* --- Single UTF-8 "character" macros and functions ------------------------ */
 

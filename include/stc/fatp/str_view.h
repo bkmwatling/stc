@@ -1,6 +1,7 @@
 #ifndef STC_STR_VIEW_H
 #define STC_STR_VIEW_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -154,7 +155,7 @@ typedef StcStrView StrView;
  *
  * @return the indexed character from the string view
  */
-#define stc_sv_at(sv, i) (sv).str[i]
+#define stc_sv_at(sv, i) ((sv).str[i])
 
 /**
  * Get the first element from a string view.
@@ -405,7 +406,7 @@ StcStrView stc_sv_split_by_sv(StcStrView *self, StcStrView delim);
  * @return whether the delimeter was found and thus if the string views where
  *         modified
  */
-int stc_sv_try_split_by_delim(StcStrView *self, char delim, StcStrView *left);
+bool stc_sv_try_split_by_delim(StcStrView *self, char delim, StcStrView *left);
 
 /**
  * Split off the first n characters from the string view and return a string
@@ -439,10 +440,10 @@ StcStrView stc_sv_split_right(StcStrView *self, size_t n);
  * @param[in]  c    the character to find the index of
  * @param[out] idx  the pointer to save the index of c in only if found
  *
- * @return a non-zero value if the character was found in the string view;
- *         else 0 if the character was not found in the string view
+ * @return true if the character was found in the string view;
+ *         else false if the character was not found in the string view
  */
-int stc_sv_index_of(StcStrView self, char c, size_t *idx);
+bool stc_sv_index_of(StcStrView self, char c, size_t *idx);
 
 /**
  * Compare two string views.
@@ -461,9 +462,9 @@ int stc_sv_cmp(StcStrView a, StcStrView b);
  * @param[in] a the left side string view in the comparison
  * @param[in] b the right side string view in the comparison
  *
- * @return a non-zero value if a and b are equal; else 0 if they are not equal
+ * @return true if a and b are equal; else false if they are not equal
  */
-int stc_sv_eq(StcStrView a, StcStrView b);
+bool stc_sv_eq(StcStrView a, StcStrView b);
 
 /**
  * Determine if two string views are equal in a case-insesitive manner.
@@ -471,10 +472,10 @@ int stc_sv_eq(StcStrView a, StcStrView b);
  * @param[in] a the left side string view in the comparison
  * @param[in] b the right side string view in the comparison
  *
- * @return a non-zero value if a and b are equal whilst ignoring case; else 0 if
- *         they are not equal whilst ignoring case
+ * @return true if a and b are equal whilst ignoring case; else false if they
+ *         are not equal whilst ignoring case
  */
-int stc_sv_eq_ignorecase(StcStrView a, StcStrView b);
+bool stc_sv_eq_ignorecase(StcStrView a, StcStrView b);
 
 /**
  * Check if a string view is a prefix of the other string view.
@@ -482,10 +483,10 @@ int stc_sv_eq_ignorecase(StcStrView a, StcStrView b);
  * @param[in] self   the string view to check the prefix of
  * @param[in] prefix the string view to test if it is a prefix of self
  *
- * @return a non-zero value of the prefix string view is a prefix of self;
- *         else 0 if it is not
+ * @return true of the prefix string view is a prefix of self;
+ *         else false if it is not
  */
-int stc_sv_starts_with(StcStrView self, StcStrView prefix);
+bool stc_sv_starts_with(StcStrView self, StcStrView prefix);
 
 /**
  * Check if a string view is a suffix of the other string view.
@@ -493,10 +494,10 @@ int stc_sv_starts_with(StcStrView self, StcStrView prefix);
  * @param[in] self   the string view to check the suffix of
  * @param[in] suffix the string view to test if it is a suffix of self
  *
- * @return a non-zero value of the suffix string view is a suffix of self;
- *         else 0 if it is not
+ * @return true of the suffix string view is a suffix of self;
+ *         else false if it is not
  */
-int stc_sv_ends_with(StcStrView self, StcStrView suffix);
+bool stc_sv_ends_with(StcStrView self, StcStrView suffix);
 
 /**
  * Convert the string view into an unsigned integer, ignoring any junk after the

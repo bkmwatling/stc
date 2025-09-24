@@ -1,6 +1,7 @@
 #ifndef STC_ARGPARSER_H
 #define STC_ARGPARSER_H
 
+#include <stdbool.h>
 #include <stdio.h>
 
 /**
@@ -111,18 +112,18 @@ void stc_argparser_add_str_option(StcArgParser *self,
  * @param[in] shortopt    short name string (must start with '-')
  * @param[in] longopt     long name string (must start with '--')
  * @param[in] description optional description of the argument
- * @param[in] out         optional string pointer to store argument value
+ * @param[in] out         optional Boolean pointer to store argument value
  * @param[in] negate      whether to negate (invert) parsed argument
- *                        (i.e. if Boolean flag is found, set out to 0 instead
- *                        of non-zero value, and if the flag is not found, set
- *                        out to non-zero value instead of 0)
+ *                        (i.e., if Boolean flag is found, set out to false
+ *                        instead of true, and if the flag is not found, set
+ *                        out to true instead of false)
  */
 void stc_argparser_add_bool_option(StcArgParser *self,
                                    const char   *shortopt,
                                    const char   *longopt,
                                    const char   *description,
-                                   int          *out,
-                                   int           negate);
+                                   bool         *out,
+                                   bool          negate);
 
 /**
  * Add a custom type option specification for the argument parser to recognise

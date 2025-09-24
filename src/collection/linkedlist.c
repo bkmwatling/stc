@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include <stc/collection/linkedlist.h>
@@ -64,7 +65,7 @@ void stc_linkedlist_free(StcLinkedList            *self,
 
 size_t stc_linkedlist_len(StcLinkedList *self) { return self ? self->len : 0; }
 
-int stc_linkedlist_is_empty(StcLinkedList *self)
+bool stc_linkedlist_is_empty(StcLinkedList *self)
 {
     return self->sentinel->next == self->sentinel;
 }
@@ -146,7 +147,7 @@ void *stc_linkedlist_remove(StcLinkedList *self, size_t idx)
     return node ? stc_linkedlist_remove_node(self, node) : NULL;
 }
 
-int stc_linkedlist_contains(StcLinkedList *self, void *elem)
+bool stc_linkedlist_contains(StcLinkedList *self, void *elem)
 {
     return stc_linkedlist_find(self, elem) != NULL;
 }

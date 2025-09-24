@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,7 +38,7 @@ size_t stc_unicode_from_escape_seq(const char *esc_seq)
     return codepoint;
 }
 
-int stc_unicode_isprint(size_t codepoint)
+bool stc_unicode_isprint(size_t codepoint)
 {
     return codepoint > 0x7f || isprint(codepoint);
 }

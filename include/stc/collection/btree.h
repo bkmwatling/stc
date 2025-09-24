@@ -1,6 +1,7 @@
 #ifndef STC_BTREE_H
 #define STC_BTREE_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 #if defined(STC_DISABLE_MAP) && !defined(STC_BTREE_DISABLE_MAP)
@@ -76,7 +77,7 @@ size_t stc_btree_len(StcBTree *self);
  * @param[in] key  the key to insert into the BTree
  * @param[in] val  the value to insert into the BTree
  *
- * @return 0 if the insert was successful; else non-zero value
+ * @return 0 if the insert was successful; else non-zero error code
  */
 int stc_btree_insert(StcBTree *self, void *key, void *val);
 
@@ -97,9 +98,9 @@ void *stc_btree_get(StcBTree *self, void *key);
  * @param[in] self the pointer to the BTree
  * @param[in] key  the key to check for in the BTree
  *
- * @return non-zero value if the key was found; else 0 if it was not found
+ * @return true if the key was found; else false if it was not found
  */
-int stc_btree_contains_key(StcBTree *self, void *key);
+bool stc_btree_contains_key(StcBTree *self, void *key);
 
 /**
  * Remove the key-value pair from the BTree if the key is contained in the BTree

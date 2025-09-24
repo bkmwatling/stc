@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -102,8 +103,8 @@ struct stc_subargparsers {
 };
 
 struct stc_argparse_list {
-    int is_subcmd; /**< whether this argparse item is a subcommand            */
-    int idx;       /**< index into argparse list                              */
+    bool is_subcmd; /**< whether this argparse item is a subcommand           */
+    int  idx;       /**< index into argparse list                             */
 
     union {
         StcArg            arg;    /**< argument specifier (is_subcmd == 0)    */
@@ -150,7 +151,7 @@ stc_arg_print_opt_usage(FILE *stream, const StcArg *arg, int shortlen);
 static void stc_arg_print_description(FILE *stream, const char *description);
 static int
 stc_arg_process(const char *found, const StcArg *arg, const char *opt);
-static int    stc_arg_memcpy(void          *dst,
+static bool   stc_arg_memcpy(void          *dst,
                              const void    *src,
                              StcArgConvert *convert,
                              StcArgType     type);
@@ -210,14 +211,14 @@ void stc_argparser_add_bool_option(StcArgParser *self,
                                    const char   *shortopt,
                                    const char   *longopt,
                                    const char   *description,
-                                   int          *out,
-                                   int           negate)
+                                   bool         *out,
+                                   bool          negate)
 {
-    static int def_for_negate[1];
+    static bool def_for_negate;
 
     STC_ARG_CHECK_OPTS(shortopt, longopt);
     stc_argparser_add_arg(self, STC_ARG_BOOL, shortopt, longopt, NULL,
-                          description, out, negate ? def_for_negate : NULL,
+                          description, out, negate ? &def_for_negate : NULL,
                           NULL);
 }
 
@@ -261,7 +262,7 @@ StcSubArgParsers *stc_argparser_add_subparsers(StcArgParser *self,
 {
     StcArgParseList *apl = malloc(sizeof(*apl));
 
-    apl->is_subcmd              = 1;
+    apl->is_subcmd              = true;
     apl->idx                    = self->sentinel->idx++;
     apl->subcmd                 = malloc(sizeof(*apl->subcmd));
     apl->subcmd->name           = name;
@@ -306,18 +307,19 @@ void stc_argparser_print_usage(const StcArgParser *self,
                                const char         *program,
                                FILE               *stream)
 {
-    int                    len, has_arg, has_opt, shortlen = 0;
+    bool                   has_arg, has_opt;
+    int                    len, shortlen = 0;
     const char            *name;
     const StcArgParseList *apl;
 
     /* check if there are any options or arguments */
-    has_arg = has_opt = 0;
+    has_arg = has_opt = false;
     for (apl = self->sentinel->next;
          apl != self->sentinel && (!has_arg || !has_opt); apl = apl->next)
         if (apl->is_subcmd || STC_ARG_IS_POSITIONAL(apl->arg))
-            has_arg = 1;
+            has_arg = true;
         else
-            has_opt = 1;
+            has_opt = true;
 
     /* print top usage line */
     fprintf(stream, "Usage: %s%s", program, has_opt ? " [OPTIONS]" : "");
@@ -338,11 +340,11 @@ void stc_argparser_print_usage(const StcArgParser *self,
         if ((should_print))                     \
             fputc('\n', (filestream));          \
         else                                    \
-            (should_print) = 1;                 \
+            (should_print) = true;              \
     } while (0)
     /* print descriptions of arguments */
     if (has_arg) {
-        len = 0; /* use len as flag to indicate whether first argument done */
+        len = false; /* use len as flag to indicate whether first arg done */
         fputs("\nArguments:\n", stream);
         for (apl = self->sentinel->next; apl != self->sentinel;
              apl = apl->next) {
@@ -358,7 +360,7 @@ void stc_argparser_print_usage(const StcArgParser *self,
 
     /* print descriptions of options */
     if (has_opt) {
-        len = 0; /* use len as flag to indicate whether first option done */
+        len = false; /* use len as flag to indicate whether first option done */
         fputs("\nOptions:\n", stream);
         for (apl = self->sentinel->next; apl != self->sentinel; apl = apl->next)
             if (!apl->is_subcmd && !STC_ARG_IS_POSITIONAL(apl->arg)) {
@@ -416,7 +418,7 @@ static void stc_argparser_add_arg(StcArgParser  *self,
 {
     StcArgParseList *apl = malloc(sizeof(*apl));
 
-    apl->is_subcmd       = 0;
+    apl->is_subcmd       = false;
     apl->idx             = self->sentinel->idx++;
     apl->arg.type        = argtype;
     apl->arg.shortopt    = shortopt;
@@ -442,8 +444,9 @@ static int _stc_argparser_parse(const StcArgParser *self,
     int                     i, j;
     int                     arg_idx = 0, opt_idx = 0;
     int                     nargs = 0, nopts = 0;
-    int                     done_opts = 0, exit_code = 0;
-    int                    *argset;
+    int                     exit_code = 0;
+    bool                    done_opts = false;
+    bool                   *argset;
     const char             *found, *opt, *program = argv[*idx];
     const StcArgParseList **args, **opts;
     const StcArgParseList  *apl;
@@ -473,7 +476,7 @@ static int _stc_argparser_parse(const StcArgParser *self,
         if (found[0] == '-' && !done_opts) {
             /* check for '--' to indicate done with options */
             if (strcmp(found, "--") == 0) {
-                done_opts = 1;
+                done_opts = true;
                 goto unrecognised; /* not unrecognised, but to keep order */
             }
 
@@ -532,7 +535,7 @@ static int _stc_argparser_parse(const StcArgParser *self,
                 goto done;
             }
         }
-        argset[apl->idx] = 1;
+        argset[apl->idx] = true;
     }
 
     /* check if any arguments were not found/set */
@@ -667,9 +670,9 @@ static void stc_arg_print_description(FILE *stream, const char *description)
 static int
 stc_arg_process(const char *found, const StcArg *arg, const char *opt)
 {
-    int is_positional     = STC_ARG_IS_POSITIONAL(*arg);
-    int has_eq            = found && *found == '=' && !is_positional;
-    int consumed_next_arg = !is_positional && !has_eq;
+    bool is_positional     = STC_ARG_IS_POSITIONAL(*arg);
+    bool has_eq            = found && *found == '=' && !is_positional;
+    bool consumed_next_arg = !is_positional && !has_eq;
 
     if (has_eq) found++;
     if (!STC_ARG_IS_BOOL(arg->type) && (!found || (has_eq && *found == '\0'))) {
@@ -692,8 +695,8 @@ stc_arg_process(const char *found, const StcArg *arg, const char *opt)
                         opt);
                 return -1;
             }
-            consumed_next_arg = 0;
-            *(int *) arg->out = arg->def == NULL;
+            consumed_next_arg  = false;
+            *(bool *) arg->out = arg->def == NULL;
             break;
         case STC_ARG_CUSTOM:
             switch (arg->convert(found, arg->out)) {
@@ -711,21 +714,21 @@ stc_arg_process(const char *found, const StcArg *arg, const char *opt)
     return consumed_next_arg;
 }
 
-static int stc_arg_memcpy(void          *dst,
-                          const void    *src,
-                          StcArgConvert *convert,
-                          StcArgType     type)
+static bool stc_arg_memcpy(void          *dst,
+                           const void    *src,
+                           StcArgConvert *convert,
+                           StcArgType     type)
 {
     switch (type) {
         case STC_ARG_STR: *(const char **) dst = (const char *) src; break;
         case STC_ARG_BOOL: *(int *) dst = src != NULL; break;
         case STC_ARG_CUSTOM:
             if (convert((const char *) src, dst) != STC_ARG_CR_SUCCESS)
-                return 0;
+                return false;
             break;
     }
 
-    return 1;
+    return true;
 }
 
 static size_t is_prefixed(const char *str, const char *prefix)

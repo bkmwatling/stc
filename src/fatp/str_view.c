@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 #include <stc/fatp/str_view.h>
@@ -69,7 +70,7 @@ StcStrView stc_sv_split_by_sv(StcStrView *self, StcStrView delim)
     return left;
 }
 
-int stc_sv_try_split_by_delim(StcStrView *self, char delim, StcStrView *left)
+bool stc_sv_try_split_by_delim(StcStrView *self, char delim, StcStrView *left)
 {
     size_t i;
     for (i = 0; i < self->len && stc_sv_at(*self, i) != delim; i++);
@@ -78,10 +79,10 @@ int stc_sv_try_split_by_delim(StcStrView *self, char delim, StcStrView *left)
         if (left) *left = stc_sv_from_parts(self->str, i);
         self->len -= i + 1;
         self->str += i + 1;
-        return 1;
+        return true;
     }
 
-    return 0;
+    return false;
 }
 
 StcStrView stc_sv_split_left(StcStrView *self, size_t n)
@@ -109,16 +110,16 @@ StcStrView stc_sv_split_right(StcStrView *self, size_t n)
     return right;
 }
 
-int stc_sv_index_of(StcStrView self, char c, size_t *idx)
+bool stc_sv_index_of(StcStrView self, char c, size_t *idx)
 {
     size_t i;
     for (i = 0; i < self.len && stc_sv_at(self, i) != c; i++);
 
     if (i < self.len) {
         if (idx) *idx = i;
-        return 1;
+        return true;
     } else {
-        return 0;
+        return false;
     }
 }
 
@@ -133,15 +134,15 @@ int stc_sv_cmp(StcStrView a, StcStrView b)
     return a.len < b.len ? -1 : (a.len > b.len ? 1 : 0);
 }
 
-int stc_sv_eq(StcStrView a, StcStrView b)
+bool stc_sv_eq(StcStrView a, StcStrView b)
 {
     if (a.len != b.len)
-        return 0;
+        return false;
     else
         return memcmp(a.str, b.str, a.len) == 0;
 }
 
-int stc_sv_eq_ignorecase(StcStrView a, StcStrView b)
+bool stc_sv_eq_ignorecase(StcStrView a, StcStrView b)
 {
     size_t i;
 
@@ -150,29 +151,29 @@ int stc_sv_eq_ignorecase(StcStrView a, StcStrView b)
     if (a.len != b.len) return 0;
     for (i = 0; i < a.len; i++)
         if (STC_SV_LOWER(stc_sv_at(a, i)) != STC_SV_LOWER(stc_sv_at(b, i)))
-            return 0;
+            return false;
 
 #undef STC_SV_LOWER
 
-    return 1;
+    return true;
 }
 
-int stc_sv_starts_with(StcStrView self, StcStrView prefix)
+bool stc_sv_starts_with(StcStrView self, StcStrView prefix)
 {
     if (prefix.len <= self.len)
         return stc_sv_eq(prefix, stc_sv_from_parts(self.str, prefix.len));
 
-    return 0;
+    return false;
 }
 
-int stc_sv_ends_with(StcStrView self, StcStrView suffix)
+bool stc_sv_ends_with(StcStrView self, StcStrView suffix)
 {
     if (suffix.len <= self.len)
         return stc_sv_eq(
             suffix, stc_sv_from_parts(&stc_sv_at(self, self.len - suffix.len),
                                       suffix.len));
 
-    return 0;
+    return false;
 }
 
 #define STC_SV_PROCESS_DIGIT(n, c) (n) = 10 * (n) + (c) - '0'

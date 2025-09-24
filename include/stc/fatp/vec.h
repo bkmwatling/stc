@@ -2,6 +2,7 @@
 #define STC_VEC_H
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -193,7 +194,7 @@ struct stc_vec_header {
  *
  * @param[in] v the vector to check if empty
  *
- * @return a non-zero value if the vector is empty; else 0
+ * @return true if the vector is empty; else false
  */
 #define stc_vec_is_empty(v) (stc_vec_len(v) == 0)
 
@@ -399,7 +400,7 @@ struct stc_vec_header {
  * @param[in,out] vp  a pointer to the vector to truncate
  * @param[in]     len the length to truncate the vector to
  *
- * @return a non-zero value if the vector was truncated; else 0
+ * @return true if the vector was truncated; else false
  */
 #define stc_vec_truncate(vp, len)                                      \
     __extension__({                                                    \
@@ -410,8 +411,8 @@ struct stc_vec_header {
                     stc_vec_len(_STC_MACRO_VAR(_stc_vec_truncate_vp_)) \
             ? (stc_vec_len(_STC_MACRO_VAR(_stc_vec_truncate_vp_)) =    \
                    _STC_MACRO_VAR(_stc_vec_truncate_len_),             \
-               1)                                                      \
-            : 0;                                                       \
+               true)                                                   \
+            : false;                                                   \
     })
 
 /**
