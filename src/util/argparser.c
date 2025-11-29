@@ -212,14 +212,14 @@ void stc_argparser_add_bool_option(StcArgParser *self,
                                    const char   *longopt,
                                    const char   *description,
                                    bool         *out,
-                                   bool          negate)
+                                   bool          def)
 {
-    static bool def_for_negate;
+    static bool def_true  = true;
+    static bool def_false = false;
 
     STC_ARG_CHECK_OPTS(shortopt, longopt);
     stc_argparser_add_arg(self, STC_ARG_BOOL, shortopt, longopt, NULL,
-                          description, out, negate ? &def_for_negate : NULL,
-                          NULL);
+                          description, out, def ? &def_true : &def_false, NULL);
 }
 
 void stc_argparser_add_custom_option(StcArgParser  *self,
@@ -696,7 +696,7 @@ stc_arg_process(const char *found, const StcArg *arg, const char *opt)
                 return -1;
             }
             consumed_next_arg  = false;
-            *(bool *) arg->out = arg->def == NULL;
+            *(bool *) arg->out = !(*(bool *) arg->def);
             break;
         case STC_ARG_CUSTOM:
             switch (arg->convert(found, arg->out)) {
@@ -721,7 +721,7 @@ static bool stc_arg_memcpy(void          *dst,
 {
     switch (type) {
         case STC_ARG_STR: *(const char **) dst = (const char *) src; break;
-        case STC_ARG_BOOL: *(int *) dst = src != NULL; break;
+        case STC_ARG_BOOL: *(bool *) dst = *(bool *) src; break;
         case STC_ARG_CUSTOM:
             if (convert((const char *) src, dst) != STC_ARG_CR_SUCCESS)
                 return false;
