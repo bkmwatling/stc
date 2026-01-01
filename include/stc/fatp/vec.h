@@ -27,8 +27,12 @@
 
 #    define vec_push_back  stc_vec_push_back
 #    define vec_push_front stc_vec_push_front
+#    define vec_push       stc_vec_push
+#    define vec_enqueue    stc_vec_enqueue
 #    define vec_pop_back   stc_vec_pop_back
 #    define vec_pop_front  stc_vec_pop_front
+#    define vec_pop        stc_vec_pop
+#    define vec_dequeue    stc_vec_dequeue
 // #    define vec_ptr_at     stc_vec_ptr_at
 #    define vec_first      stc_vec_first
 #    define vec_last       stc_vec_last
@@ -231,6 +235,22 @@ struct stc_vec_header {
 #define stc_vec_push_front(vp, x) stc_vec_insert(vp, 0, x)
 
 /**
+ * Push an element onto the vector as if it was a FIFO stack.
+ *
+ * @param[in,out] vp a pointer to the vector to push the element to
+ * @param[in]     x  the element to push to the vector
+ */
+#define stc_vec_push stc_vec_push_back
+
+/**
+ * Enqueue an element onto the vector as if it was a LIFO queue.
+ *
+ * @param[in,out] vp a pointer to the vector to enqueue the element to
+ * @param[in]     x  the element to enqueue to the vector
+ */
+#define stc_vec_enqueue stc_vec_push_back
+
+/**
  * Remove and return the element at the tail of a vector.
  *
  * @param[in,out] vp a pointer to the vector to pop the tail element from
@@ -262,6 +282,24 @@ struct stc_vec_header {
         stc_vec_len(*_STC_MACRO_VAR(_stc_vec_pop_front_vp_))--;            \
         _STC_MACRO_VAR(_stc_vec_pop_front_x_);                             \
     })
+
+/**
+ * Pop (remove and return) the most recently pushed element of a stack vector.
+ *
+ * @param[in,out] vp a pointer to the vector to pop element from
+ *
+ * @return the most recently pushed element of the stack vector
+ */
+#define stc_vec_pop stc_vec_pop_back
+
+/**
+ * Dequeue (remove and return) the oldest enqueued element of a queue vector.
+ *
+ * @param[in,out] vp a pointer to the vector to dequeue element from
+ *
+ * @return the oldest enqueued element of the queue vector
+ */
+#define stc_vec_dequeue stc_vec_pop_front
 
 /**
  * Get the element of a vector by pointer at a specified index.
