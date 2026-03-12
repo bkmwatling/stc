@@ -64,16 +64,18 @@ struct stc_deque_header {
 /**
  * Initialise a deque's memory, setting the length to 0.
  *
- * @param[in,out] q the deque to initialise
+ * @param[in,out] qp a pointer to the deque to initialise
  */
-#define stc_deque_init(q)                                                     \
+#define stc_deque_init(qp)                                                    \
     __extension__({                                                           \
         struct stc_deque_header *_STC_MACRO_VAR(_stc_deque_init_h_) = malloc( \
-            sizeof(*_STC_MACRO_VAR(_stc_deque_init_h_)) + sizeof(**(q)));     \
+            sizeof(*_STC_MACRO_VAR(_stc_deque_init_h_)) + sizeof(**(qp)));    \
         _STC_MACRO_VAR(_stc_deque_init_h_)->len = 0;                          \
         _STC_MACRO_VAR(_stc_deque_init_h_)->sentinel.prev =                   \
             _STC_MACRO_VAR(_stc_deque_init_h_)->sentinel.next =               \
                 &_STC_MACRO_VAR(_stc_deque_init_h_)->sentinel;                \
+        *(qp) = (StcDeque(__typeof__(**(qp))))(                               \
+            _STC_MACRO_VAR(_stc_deque_init_h_) + 1);                          \
     })
 
 /**
@@ -214,21 +216,21 @@ struct stc_deque_header {
  *
  * @return the head element of the deque
  */
-#define stc_deque_pop_front(q)                                                 \
-    __extension__({                                                            \
-        __auto_type _STC_MACRO_VAR(_stc_deque_pop_front_h_) =                  \
-            _stc_deque_header(q);                                              \
-        __auto_type _STC_MACRO_VAR(_stc_deque_pop_front_n_) =                  \
-            _STC_MACRO_VAR(_stc_deque_pop_front_h_)->sentinel.next;            \
-        _STC_MACRO_VAR(_stc_deque_pop_front_n_)->next->prev =                  \
-            &_STC_MACRO_VAR(_stc_deque_pop_front_h_)->sentinel;                \
-        _STC_MACRO_VAR(_stc_deque_pop_front_h_)->sentinel.next =               \
-            _STC_MACRO_VAR(_stc_deque_pop_front_n_)->next;                     \
-        _STC_MACRO_VAR(_stc_deque_pop_front_h_)->len--;                        \
-        __auto_type _STC_MACRO_VAR(_stc_deque_pop_front_x_) =                  \
-            *(__typeof__(*(q))) (_STC_MACRO_VAR(_stc_deque_pop_front_n_) + 1); \
-        free(_STC_MACRO_VAR(_stc_deque_pop_front_n_));                         \
-        _STC_MACRO_VAR(_stc_deque_pop_front_x_);                               \
+#define stc_deque_pop_front(q)                                              \
+    __extension__({                                                         \
+        __auto_type _STC_MACRO_VAR(_stc_deque_pop_front_h_) =               \
+            _stc_deque_header(q);                                           \
+        __auto_type _STC_MACRO_VAR(_stc_deque_pop_front_n_) =               \
+            _STC_MACRO_VAR(_stc_deque_pop_front_h_)->sentinel.next;         \
+        _STC_MACRO_VAR(_stc_deque_pop_front_n_)->next->prev =               \
+            &_STC_MACRO_VAR(_stc_deque_pop_front_h_)->sentinel;             \
+        _STC_MACRO_VAR(_stc_deque_pop_front_h_)->sentinel.next =            \
+            _STC_MACRO_VAR(_stc_deque_pop_front_n_)->next;                  \
+        _STC_MACRO_VAR(_stc_deque_pop_front_h_)->len--;                     \
+        __auto_type _STC_MACRO_VAR(_stc_deque_pop_front_x_) =               \
+            *(__typeof__(q)) (_STC_MACRO_VAR(_stc_deque_pop_front_n_) + 1); \
+        free(_STC_MACRO_VAR(_stc_deque_pop_front_n_));                      \
+        _STC_MACRO_VAR(_stc_deque_pop_front_x_);                            \
     })
 
 /**
@@ -238,21 +240,21 @@ struct stc_deque_header {
  *
  * @return the tail element of the deque
  */
-#define stc_deque_pop_back(q)                                                 \
-    __extension__({                                                           \
-        __auto_type _STC_MACRO_VAR(_stc_deque_pop_back_h_) =                  \
-            _stc_deque_header(q);                                             \
-        __auto_type _STC_MACRO_VAR(_stc_deque_pop_back_n_) =                  \
-            _STC_MACRO_VAR(_stc_deque_pop_back_h_)->sentinel.prev;            \
-        _STC_MACRO_VAR(_stc_deque_pop_back_n_)->prev->next =                  \
-            &_STC_MACRO_VAR(_stc_deque_pop_back_h_)->sentinel;                \
-        _STC_MACRO_VAR(_stc_deque_pop_back_h_)->sentinel.prev =               \
-            _STC_MACRO_VAR(_stc_deque_pop_back_n_)->prev;                     \
-        _STC_MACRO_VAR(_stc_deque_pop_back_h_)->len--;                        \
-        __auto_type _STC_MACRO_VAR(_stc_deque_pop_back_x_) =                  \
-            *(__typeof__(*(q))) (_STC_MACRO_VAR(_stc_deque_pop_back_n_) + 1); \
-        free(_STC_MACRO_VAR(_stc_deque_pop_back_n_));                         \
-        _STC_MACRO_VAR(_stc_deque_pop_back_x_);                               \
+#define stc_deque_pop_back(q)                                              \
+    __extension__({                                                        \
+        __auto_type _STC_MACRO_VAR(_stc_deque_pop_back_h_) =               \
+            _stc_deque_header(q);                                          \
+        __auto_type _STC_MACRO_VAR(_stc_deque_pop_back_n_) =               \
+            _STC_MACRO_VAR(_stc_deque_pop_back_h_)->sentinel.prev;         \
+        _STC_MACRO_VAR(_stc_deque_pop_back_n_)->prev->next =               \
+            &_STC_MACRO_VAR(_stc_deque_pop_back_h_)->sentinel;             \
+        _STC_MACRO_VAR(_stc_deque_pop_back_h_)->sentinel.prev =            \
+            _STC_MACRO_VAR(_stc_deque_pop_back_n_)->prev;                  \
+        _STC_MACRO_VAR(_stc_deque_pop_back_h_)->len--;                     \
+        __auto_type _STC_MACRO_VAR(_stc_deque_pop_back_x_) =               \
+            *(__typeof__(q)) (_STC_MACRO_VAR(_stc_deque_pop_back_n_) + 1); \
+        free(_STC_MACRO_VAR(_stc_deque_pop_back_n_));                      \
+        _STC_MACRO_VAR(_stc_deque_pop_back_x_);                            \
     })
 
 /**
