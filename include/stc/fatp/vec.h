@@ -237,16 +237,16 @@ struct stc_vec_header {
 /**
  * Push an element onto the vector as if it was a FIFO stack.
  *
- * @param[in,out] vp a pointer to the vector to push the element to
- * @param[in]     x  the element to push to the vector
+ * @param[in,out] vp a pointer to the vector to push the element onto
+ * @param[in]     x  the element to push onto the vector
  */
 #define stc_vec_push stc_vec_push_back
 
 /**
  * Enqueue an element onto the vector as if it was a LIFO queue.
  *
- * @param[in,out] vp a pointer to the vector to enqueue the element to
- * @param[in]     x  the element to enqueue to the vector
+ * @param[in,out] vp a pointer to the vector to enqueue the element onto
+ * @param[in]     x  the element to enqueue onto the vector
  */
 #define stc_vec_enqueue stc_vec_push_back
 
@@ -286,7 +286,7 @@ struct stc_vec_header {
 /**
  * Pop (remove and return) the most recently pushed element of a stack vector.
  *
- * @param[in,out] vp a pointer to the vector to pop element from
+ * @param[in,out] vp a pointer to the vector to pop an element from
  *
  * @return the most recently pushed element of the stack vector
  */
@@ -295,7 +295,7 @@ struct stc_vec_header {
 /**
  * Dequeue (remove and return) the oldest enqueued element of a queue vector.
  *
- * @param[in,out] vp a pointer to the vector to dequeue element from
+ * @param[in,out] vp a pointer to the vector to dequeue an element from
  *
  * @return the oldest enqueued element of the queue vector
  */
