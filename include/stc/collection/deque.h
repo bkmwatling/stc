@@ -275,4 +275,64 @@ struct stc_deque_header {
  */
 #define stc_deque_dequeue stc_deque_pop_front
 
+/**
+ * Try to remove the element at the head of a deque into out parameter.
+ *
+ * @param[in,out] q   the deque to pop the head element from
+ * @param[out]    out a pointer to where the removed element should be popped to
+ *                    if the deque is nonempty
+ *
+ * @return true if the deque was nonempty; else false
+ */
+#define stc_deque_try_pop_front(q, out)                                \
+    __extension__({                                                    \
+        __auto_type _STC_MACRO_VAR(stc_deque_try_pop_front_q_) = (q);  \
+        stc_deque_is_empty(_STC_MACRO_VAR(stc_deque_try_pop_front_q_)) \
+            ? false                                                    \
+            : (((out) = stc_deque_pop_front(                           \
+                    _STC_MACRO_VAR(stc_deque_try_pop_front_q_))),      \
+               true);                                                  \
+    })
+
+/**
+ * Try to remove the element at the tail of a deque into out parameter.
+ *
+ * @param[in,out] q   the deque to pop the tail element from
+ * @param[out]    out a pointer to where the removed element should be popped to
+ *                    if the deque is nonempty
+ *
+ * @return true if the deque was nonempty; else false
+ */
+#define stc_deque_try_pop_back(q, out)                                \
+    __extension__({                                                   \
+        __auto_type _STC_MACRO_VAR(stc_deque_try_pop_back_q_) = (q);  \
+        stc_deque_is_empty(_STC_MACRO_VAR(stc_deque_try_pop_back_q_)) \
+            ? false                                                   \
+            : (((out) = stc_deque_pop_back(                           \
+                    _STC_MACRO_VAR(stc_deque_try_pop_back_q_))),      \
+               true);                                                 \
+    })
+
+/**
+ * Try to pop (remove & save) the most recently pushed element of a stack deque.
+ *
+ * @param[in,out] q   the deque to pop an element from
+ * @param[out]    out a pointer to where the removed element should be popped to
+ *                    if the deque is nonempty
+ *
+ * @return true if the stack deque was nonempty; else false
+ */
+#define stc_deque_try_pop stc_deque_try_pop_front
+
+/**
+ * Try to dequeue (remove & save) the oldest enqueued element of a queue deque.
+ *
+ * @param[in,out] q   the deque to dequeue an element from
+ * @param[out]    out a pointer to where the removed element should be popped to
+ *                    if the deque is nonempty
+ *
+ * @return true if the queue deque was nonempty; else false
+ */
+#define stc_deque_try_dequeue stc_deque_try_pop_front
+
 #endif /* STC_DEQUE_H */
